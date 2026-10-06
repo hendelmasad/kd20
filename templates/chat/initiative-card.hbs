@@ -1,0 +1,27 @@
+{{!--
+  KD20 per-round initiative summary. Initiative is re-rolled every round
+  (1d20 + better of dex or wis); this card replaces core's one-message-per-combatant.
+--}}
+<div class="kd20-card kd20-initiative-card">
+
+  <header class="kd20-card-header">
+    <span class="kd20-card-label">Round {{round}} Initiative</span>
+    {{#if gmOnly}}<span class="kd20-badge">hidden combatants</span>{{/if}}
+  </header>
+
+  <table class="kd20-breakdown kd20-initiative">
+    <tbody>
+      {{#each rows as |row|}}
+      <tr>
+        <th>{{row.rank}}. {{row.name}}{{#if row.missing}} <span class="kd20-card-note">(no KD20 data)</span>{{/if}}</th>
+        <td>
+          <span class="kd20-die">{{row.d20}}</span>
+          {{numberFormat row.bonus decimals=0 sign=true}}
+          = <strong>{{row.total}}</strong>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+</div>

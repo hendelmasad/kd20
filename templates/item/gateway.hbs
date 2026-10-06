@@ -1,0 +1,57 @@
+{{!-- Gateway item sheet — spec section 4a. Must render one top-level element. --}}
+<div class="kd20-sheet kd20-item-sheet">
+
+  <header class="kd20-header">
+    <img class="kd20-portrait small" src="{{document.img}}" alt="{{document.name}}"
+         data-action="editImage" data-edit="img">
+    <input class="kd20-name" type="text" name="name" value="{{document.name}}"
+           placeholder="Gateway name" {{#unless editable}}disabled{{/unless}}>
+  </header>
+
+  <section class="kd20-block">
+    <h2>Gateway</h2>
+    <div class="kd20-derived">
+      <div class="kd20-field">
+        <label for="hp-bonus">HP Bonus</label>
+        <input id="hp-bonus" type="number" step="1" name="system.hpBonus"
+               value="{{system.hpBonus}}" {{#unless editable}}disabled{{/unless}}>
+      </div>
+      <div class="kd20-field">
+        <label for="cost-xp">XP Cost</label>
+        <input id="cost-xp" type="number" step="1" name="system.costXp"
+               value="{{system.costXp}}" {{#unless editable}}disabled{{/unless}}>
+      </div>
+    </div>
+    <p class="kd20-hint">Typical HP bonuses: fragile 2, mid 4, hardy 6.</p>
+  </section>
+
+  {{!-- Core rules v0.34: the Modifier-Ladder step this gateway gives each Save. --}}
+  <section class="kd20-block">
+    <h2>Save Profile</h2>
+    <div class="kd20-derived">
+      {{#each saveProfile as |save|}}
+      <div class="kd20-field">
+        <label for="save-profile-{{save.key}}">{{save.label}} ({{save.stat}})</label>
+        <input id="save-profile-{{save.key}}" type="number" step="1" min="-3" max="5"
+               name="system.saveProfile.{{save.key}}" value="{{save.value}}"
+               {{#unless ../editable}}disabled{{/unless}}>
+      </div>
+      {{/each}}
+    </div>
+    <p class="kd20-hint">Fixed template: two +3, one +1, two 0, one &minus;3.</p>
+  </section>
+
+  <section class="kd20-block">
+    <h2>Benefit</h2>
+    <p class="kd20-hint">The always-on gateway benefit. Displayed only — not automated in v1.</p>
+    {{formInput systemFields.benefit value=system.benefit enriched=enriched.benefit
+                toggled=true compact=true disabled=disabled classes="content-sized"}}
+  </section>
+
+  <section class="kd20-block">
+    <h2>Description</h2>
+    {{formInput systemFields.description value=system.description enriched=enriched.description
+                toggled=true compact=true disabled=disabled classes="content-sized"}}
+  </section>
+
+</div>

@@ -1,0 +1,250 @@
+{{!--
+  KD20 Character sheet.
+
+  Everything inside an <input name="..."> is STORED and editable.
+  Everything shown in a <span class="computed"> is CALCULATED and updates itself.
+
+  This template must render exactly one top-level element.
+--}}
+<div class="kd20-sheet">
+
+  <header class="kd20-header">
+    <img class="kd20-portrait" src="{{document.img}}" alt="{{document.name}}"
+         data-action="editImage" data-edit="img">
+    <input class="kd20-name" type="text" name="name" value="{{document.name}}"
+           placeholder="Character name" {{#unless editable}}disabled{{/unless}}>
+  </header>
+
+  {{!-- Spec section 2: the six Statistics. Score is typed in; bonus is derived. --}}
+  <section class="kd20-block">
+    <h2>Statistics</h2>
+    <div class="kd20-stats">
+      {{#each stats as |stat|}}
+      <div class="kd20-stat">
+        <button type="button" class="kd20-stat-roll" data-action="rollStat"
+                data-stat="{{stat.key}}" title="Roll a {{stat.label}} check">
+          {{stat.label}}
+        </button>
+        <input id="stat-{{stat.key}}" type="number" step="1"
+               name="system.stats.{{stat.key}}.score" value="{{stat.score}}"
+               {{#unless ../editable}}disabled{{/unless}}>
+        <span class="computed" title="Bonus = floor((score - 10) / 2)">
+          {{numberFormat stat.bonus decimals=0 sign=true}}
+        </span>
+      </div>
+      {{/each}}
+    </div>
+  </section>
+
+  {{!-- Spec section 3: derived statistics. All three are read-only. --}}
+  <section class="kd20-block">
+    <h2>Derived</h2>
+    <div class="kd20-derived">
+
+      <div class="kd20-field">
+        <label>Armour Class</label>
+        <span class="computed big" title="10 + dex + armour + shield + misc">{{system.ac}}</span>
+      </div>
+
+      <div class="kd20-field">
+        <label>Hit Points</label>
+        <span class="kd20-pair">
+          <input type="number" step="1" name="system.hp.value" value="{{system.hp.value}}"
+                 {{#unless editable}}disabled{{/unless}}>
+          <span class="sep">/</span>
+          <span class="computed" title="10 + con + wis + Gateway bonus">{{system.hp.max}}</span>
+        </span>
+      </div>
+
+      <div class="kd20-field">
+        <label>Initiative</label>
+        <span class="computed big" title="Bonus is max(dex, wis); roll 1d20 + this each round">
+          {{numberFormat system.initiative.bonus decimals=0 sign=true}}
+        </span>
+      </div>
+    </div>
+
+    {{!-- Manual AC contributions; equipment automation is out of scope for v1. --}}
+    <div class="kd20-derived">
+      <div class="kd20-field">
+        <label for="armour">Armour</label>
+        <input id="armour" type="number" step="1" name="system.defence.armour"
+               value="{{system.defence.armour}}" {{#unless editable}}disabled{{/unless}}>
+      </div>
+      <div class="kd20-field">
+        <label for="shield">Shield</label>
+        <input id="shield" type="number" step="1" name="system.defence.shield"
+               value="{{system.defence.shield}}" {{#unless editable}}disabled{{/unless}}>
+      </div>
+      <div class="kd20-field">
+        <label for="misc">Misc</label>
+        <input id="misc" type="number" step="1" name="system.defence.misc"
+               value="{{system.defence.misc}}" {{#unless editable}}disabled{{/unless}}>
+      </div>
+    </div>
+  </section>
+
+  {{!--
+    Core rules v0.34: the six rolled Saves. Each shows its static part,
+    stat + gateway profile step; the d20 is added when rolled. AC stays static.
+  --}}
+  <section class="kd20-block">
+    <h2>Saves</h2>
+    <div class="kd20-stats">
+      {{#each saves as |save|}}
+      <div class="kd20-stat kd20-save">
+        <button type="button" class="kd20-stat-roll" data-action="rollSave"
+                data-save="{{save.key}}" title="Roll a {{save.label}} Save">
+          {{save.label}}
+        </button>
+        <span class="computed big" title="{{save.breakdown}}">
+          {{numberFormat save.total decimals=0 sign=true}}
+        </span>
+        <span class="kd20-save-stat">{{save.stat}}</span>
+      </div>
+      {{/each}}
+    </div>
+    <p class="kd20-hint">Save = 1d20 + stat + Gateway profile. Hover a total for its breakdown.</p>
+  </section>
+
+  {{!--
+    Spec section 6: the Action Dice pool. Dice are spent from the button on a
+    roll's chat card, which can be used after seeing the d20.
+  --}}
+  <section class="kd20-block">
+    <h2>Action Dice</h2>
+    <div class="kd20-derived kd20-derived-4">
+      <div class="kd20-field">
+        <label for="ad-value">Current pool</label>
+        <input id="ad-value" type="number" step="1" name="system.actionDice.value"
+               value="{{system.actionDice.value}}" {{#unless editable}}disabled{{/unless}}>
+      </div>
+      <div class="kd20-field">
+        <label for="ad-refresh">Refresh rate</label>
+        <input id="ad-refresh" type="number" step="1" name="system.actionDice.refresh"
+               value="{{system.actionDice.refresh}}" {{#unless editable}}disabled{{/unless}}>
+      </div>
+      <div class="kd20-field">
+        <label for="xp">XP</label>
+        <input id="xp" type="number" step="1" name="system.xp"
+               value="{{system.xp}}" {{#unless editable}}disabled{{/unless}}>
+      </div>
+      <div class="kd20-field">
+        <label>&nbsp;</label>
+        {{#if editable}}
+        <button type="button" data-action="refreshActionDice"
+                title="Raise the pool to its refresh rate; never lowers it">Refresh</button>
+        {{/if}}
+      </div>
+    </div>
+    <p class="kd20-hint">
+      To spend Action Dice, make a roll and press <em>Spend Action Dice</em> on its chat
+      card — you may do that after seeing the d20.
+    </p>
+  </section>
+
+  {{!-- Spec section 7: v1 keeps conditions as plain notes, not automation. --}}
+  <section class="kd20-block">
+    <h2>Conditions &amp; Notes</h2>
+    <textarea name="system.conditions" rows="3"
+              placeholder="e.g. Prone, Blind, Slow - plain notes for now"
+              {{#unless editable}}disabled{{/unless}}>{{system.conditions}}</textarea>
+  </section>
+
+  {{!--
+    Owned items. Rows are marked "draggable" so they can be dragged out to
+    other sheets or re-ordered; dropping an item onto this sheet is handled by
+    ActorSheetV2 automatically.
+  --}}
+
+  <section class="kd20-block">
+    <h2>
+      Gateway
+      {{#if editable}}
+      <button type="button" class="kd20-add" data-action="itemCreate" data-item-type="gateway"
+              title="Create a new Gateway">+</button>
+      {{/if}}
+    </h2>
+
+    {{#if multipleGateways}}
+    <p class="kd20-warning">
+      This character has more than one Gateway. Only the first contributes its HP bonus.
+    </p>
+    {{/if}}
+
+    <ul class="kd20-items">
+      {{#each gateways as |item|}}
+      <li class="kd20-item draggable" data-item-id="{{item.id}}">
+        <img class="kd20-item-img" src="{{item.img}}" alt="{{item.name}}">
+        <span class="kd20-item-name" data-action="itemEdit">{{item.name}}</span>
+        <span class="kd20-item-detail">HP +{{item.system.hpBonus}}</span>
+        {{#if ../editable}}
+        <button type="button" class="kd20-item-del" data-action="itemDelete"
+                title="Delete">&times;</button>
+        {{/if}}
+      </li>
+      {{else}}
+      <li class="kd20-empty">No Gateway. Drag one here, or press +.</li>
+      {{/each}}
+    </ul>
+  </section>
+
+  <section class="kd20-block">
+    <h2>
+      Feats
+      {{#if editable}}
+      <button type="button" class="kd20-add" data-action="itemCreate" data-item-type="feat"
+              title="Create a new Feat">+</button>
+      {{/if}}
+    </h2>
+    <ul class="kd20-items">
+      {{#each feats as |item|}}
+      <li class="kd20-item draggable" data-item-id="{{item.id}}">
+        <img class="kd20-item-img" src="{{item.img}}" alt="{{item.name}}">
+        <span class="kd20-item-name" data-action="itemEdit">{{item.name}}</span>
+        <span class="kd20-item-detail">
+          {{item.system.featType}}{{#if item.system.grantsSpecializationDie}} &middot; d6{{/if}}
+        </span>
+        {{#if ../editable}}
+        <button type="button" class="kd20-item-del" data-action="itemDelete"
+                title="Delete">&times;</button>
+        {{/if}}
+      </li>
+      {{else}}
+      <li class="kd20-empty">No Feats. Drag some here, or press +.</li>
+      {{/each}}
+    </ul>
+  </section>
+
+  <section class="kd20-block">
+    <h2>
+      Weapons
+      {{#if editable}}
+      <button type="button" class="kd20-add" data-action="itemCreate" data-item-type="weapon"
+              title="Create a new Weapon">+</button>
+      {{/if}}
+    </h2>
+    <ul class="kd20-items">
+      {{#each weapons as |item|}}
+      <li class="kd20-item draggable" data-item-id="{{item.id}}">
+        <img class="kd20-item-img" src="{{item.img}}" alt="{{item.name}}">
+        <span class="kd20-item-name" data-action="itemEdit">{{item.name}}</span>
+        <span class="kd20-item-detail">
+          {{item.system.damageDie}} &middot; {{item.system.attackStat}}
+        </span>
+        {{#if ../editable}}
+        <button type="button" class="kd20-item-roll" data-action="rollAttack"
+                title="Roll an attack with {{item.name}}">Attack</button>
+        {{/if}}
+        {{#if ../editable}}
+        <button type="button" class="kd20-item-del" data-action="itemDelete"
+                title="Delete">&times;</button>
+        {{/if}}
+      </li>
+      {{else}}
+      <li class="kd20-empty">No Weapons. Drag some here, or press +.</li>
+      {{/each}}
+    </ul>
+  </section>
+
+</div>

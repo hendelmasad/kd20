@@ -1,0 +1,153 @@
+{{!--
+  KD20 roll card — spec sections 1 and 5.
+
+  Must show: the d20 face, the bonuses added, the total, the target (if given),
+  the margin, and the outcome tier, clearly labelled.
+--}}
+<div class="kd20-card">
+
+  <header class="kd20-card-header">
+    <span class="kd20-card-label">{{label}}</span>
+    {{#if isRepost}}<span class="kd20-badge">re-posted</span>{{/if}}
+  </header>
+
+  {{#if spentNow}}
+  <p class="kd20-card-spent">
+    Spent {{spentNow.length}} Action {{#if (eq spentNow.length 1)}}Die{{else}}Dice{{/if}}:
+    {{#each spentNow}}<span class="kd20-die">{{this}}</span>{{/each}}
+  </p>
+  {{/if}}
+
+  {{!-- The breakdown: every die face and bonus that went into the total. --}}
+  <table class="kd20-breakdown">
+    <tbody>
+      {{#each parts as |part|}}
+      <tr>
+        <th>{{part.label}}</th>
+        <td>
+          {{#if part.isDie}}
+            <span class="kd20-die">{{part.value}}</span>
+          {{else}}
+            {{numberFormat part.value decimals=0 sign=true}}
+          {{/if}}
+        </td>
+      </tr>
+      {{/each}}
+      <tr class="kd20-breakdown-total">
+        <th>Total</th>
+        <td>{{total}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{!--
+    Target, margin and tier are shown only when a target was given. Gating on
+    `hasTarget` rather than on `tier` keeps the margin from rendering as "NaN".
+  --}}
+  {{!--
+    Anything that reveals a token's AC (the AC, the margin, "missed by N") is a
+    <span data-kd20-secret> with no <span> nested inside, so it can be removed
+    per viewer when "Show target AC to players" is off.
+  --}}
+  {{#if isMulti}}
+    <table class="kd20-breakdown kd20-targets">
+      <tbody>
+        {{#each targetRows as |row|}}
+        <tr>
+          <th>
+            {{row.name}}
+            {{#if row.hasAc}}
+            <span class="kd20-target-ac" data-kd20-secret>AC {{row.ac}} · margin {{numberFormat row.margin decimals=0 sign=true}}</span>
+            {{/if}}
+          </th>
+          <td>
+            {{#if row.hasAc}}
+              <span class="kd20-tier-chip kd20-tier-{{row.tier.key}}">{{row.tier.label}}</span>
+              {{#if row.hardChoice}}<span class="kd20-tier-chip kd20-hardchoice-chip">Hard Choice</span>{{/if}}
+              {{#if row.followUp}}<span class="kd20-tier-chip">Follow-Up</span>{{/if}}
+              {{#if row.isHit}}{{#if ../damage}}<span class="kd20-target-damage">{{row.damageTotal}} dmg</span>{{/if}}{{/if}}
+            {{else}}
+              <span class="kd20-card-note">AC unknown</span>
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else if hasTarget}}
+    <div class="kd20-target-line">
+      <span>Target
+        {{#if targetName}}<strong>{{targetName}}</strong>{{/if}}
+        {{#if secret}}<span data-kd20-secret>{{#if targetName}}AC {{/if}}<strong>{{target}}</strong></span>{{else}}{{#if targetName}}AC {{/if}}<strong>{{target}}</strong>{{/if}}
+      </span>
+      {{#if secret}}
+      <span data-kd20-secret>Margin <strong>{{numberFormat margin decimals=0 sign=true}}</strong></span>
+      {{else}}
+      <span>Margin <strong>{{numberFormat margin decimals=0 sign=true}}</strong></span>
+      {{/if}}
+    </div>
+
+    <div class="kd20-tier kd20-tier-{{tier.key}}">
+      {{tier.label}}{{#if hardChoice}} — Decisive Failure{{/if}}
+    </div>
+
+    {{!-- Core rules v0.31: the Hard Choice follows from a margin of -10 or worse. --}}
+    {{#if hardChoice}}
+    <p class="kd20-hardchoice">
+      <strong>Decisive failure</strong> — missed the target{{#if secret}}<span data-kd20-secret> by {{missedBy}}</span>{{else}} by {{missedBy}}{{/if}}.
+      The <strong>Hard Choice</strong> is available.
+    </p>
+    {{/if}}
+  {{else}}
+    <p class="kd20-card-note">No target given — total only, no outcome tier.</p>
+  {{/if}}
+
+  {{!-- Spec section 5: damage, only on a hit. --}}
+  {{#if damage}}
+  <table class="kd20-breakdown kd20-damage">
+    <tbody>
+      <tr><th colspan="2" class="kd20-damage-head">Damage</th></tr>
+      <tr>
+        <th>{{damage.die}}</th>
+        <td><span class="kd20-die">{{damage.dieResult}}</span></td>
+      </tr>
+      {{#if damage.statBonus}}
+      <tr>
+        <th>{{damage.statLabel}}</th>
+        <td>{{numberFormat damage.statBonus decimals=0 sign=true}}</td>
+      </tr>
+      {{/if}}
+      {{#if damage.precisionResult}}
+      <tr>
+        <th>Precision {{damage.precisionDie}}{{#if isMulti}} (Decisive+ targets only){{/if}}</th>
+        <td><span class="kd20-die">{{damage.precisionResult}}</span></td>
+      </tr>
+      {{/if}}
+      {{#unless isMulti}}
+      <tr class="kd20-breakdown-total">
+        <th>Damage total</th>
+        <td>{{damage.total}}</td>
+      </tr>
+      {{/unless}}
+    </tbody>
+  </table>
+  {{/if}}
+
+  {{!-- Follow-Up is a GM reminder in v1, not automated. --}}
+  {{#if followUp}}
+  <p class="kd20-followup">
+    {{#if (eq followUp "decisive")}}
+      <strong>Decisive:</strong> you may take a <strong>Follow-Up</strong> instead of
+      the Precision Die.
+    {{else}}
+      <strong>Supreme:</strong> <strong>Follow-Up available</strong>, in addition to
+      the Precision Die.
+    {{/if}}
+  </p>
+  {{/if}}
+
+  <footer class="kd20-card-footer">
+    <button type="button" data-action="kd20SpendActionDice">Spend Action Dice</button>
+  </footer>
+
+</div>

@@ -1,0 +1,63 @@
+{{!-- Feat item sheet — spec section 4b. Must render one top-level element. --}}
+<div class="kd20-sheet kd20-item-sheet">
+
+  <header class="kd20-header">
+    <img class="kd20-portrait small" src="{{document.img}}" alt="{{document.name}}"
+         data-action="editImage" data-edit="img">
+    <input class="kd20-name" type="text" name="name" value="{{document.name}}"
+           placeholder="Feat name" {{#unless editable}}disabled{{/unless}}>
+  </header>
+
+  <section class="kd20-block">
+    <h2>Feat</h2>
+    <div class="kd20-derived">
+      <div class="kd20-field">
+        <label for="feat-type">Type</label>
+        <select id="feat-type" name="system.featType" {{#unless editable}}disabled{{/unless}}>
+          {{selectOptions choices.featTypes selected=system.featType}}
+        </select>
+      </div>
+      <div class="kd20-field">
+        <label for="cost-xp">XP Cost</label>
+        <input id="cost-xp" type="number" step="1" name="system.costXp"
+               value="{{system.costXp}}" {{#unless editable}}disabled{{/unless}}>
+      </div>
+      <div class="kd20-field kd20-check">
+        <label for="spec-die">Grants Specialization Die</label>
+        <input id="spec-die" type="checkbox" name="system.grantsSpecializationDie"
+               {{checked system.grantsSpecializationDie}} {{#unless editable}}disabled{{/unless}}>
+      </div>
+    </div>
+    <p class="kd20-hint">
+      A Specialization Die is one d6, added only when this feat applies. At most one
+      per roll. Master feat die-stacking is out of scope for v1.
+    </p>
+  </section>
+
+  <section class="kd20-block">
+    <h2>Trigger</h2>
+    <p class="kd20-hint">When this feat's die or effect applies. The GM and player decide in v1.</p>
+    <input type="text" name="system.trigger" value="{{system.trigger}}"
+           placeholder="e.g. when attacking with a blade"
+           {{#unless editable}}disabled{{/unless}}>
+  </section>
+
+  <section class="kd20-block">
+    <h2>Prerequisite</h2>
+    <input type="text" name="system.prerequisite" value="{{system.prerequisite}}"
+           placeholder="Display only in v1" {{#unless editable}}disabled{{/unless}}>
+  </section>
+
+  <section class="kd20-block">
+    <h2>Effect</h2>
+    {{formInput systemFields.effect value=system.effect enriched=enriched.effect
+                toggled=true compact=true disabled=disabled classes="content-sized"}}
+  </section>
+
+  <section class="kd20-block">
+    <h2>Description</h2>
+    {{formInput systemFields.description value=system.description enriched=enriched.description
+                toggled=true compact=true disabled=disabled classes="content-sized"}}
+  </section>
+
+</div>

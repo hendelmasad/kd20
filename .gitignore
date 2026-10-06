@@ -1,0 +1,6 @@
+.claude/
+node_modules/
+*.zip
+packs/**/LOCK
+packs/**/LOG
+packs/**/LOG.old

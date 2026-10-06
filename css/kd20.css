@@ -1,0 +1,501 @@
+/* KD20 — Character sheet styling.
+   Deliberately plain for now; readability over decoration. */
+
+.kd20-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.5rem;
+  overflow-y: auto;
+}
+
+/* Header: portrait + name */
+.kd20-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.kd20-portrait {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border: 1px solid var(--color-border-dark, #666);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.kd20-name {
+  flex: 1;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+/* Blocks */
+.kd20-block {
+  border: 1px solid var(--color-border-light-tertiary, #bbb);
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem 0.6rem;
+}
+
+.kd20-block h2 {
+  margin: 0 0 0.4rem;
+  padding-bottom: 0.2rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--color-border-light-tertiary, #bbb);
+}
+
+/* The six statistics */
+.kd20-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.kd20-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.kd20-stat label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.kd20-stat input {
+  width: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Derived rows */
+.kd20-derived {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.kd20-derived + .kd20-derived {
+  margin-top: 0.5rem;
+}
+
+.kd20-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.kd20-field label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.kd20-field input {
+  width: 100%;
+  text-align: center;
+}
+
+/* Computed values are visually distinct from editable ones */
+.kd20-sheet .computed {
+  display: inline-block;
+  min-width: 2.2rem;
+  padding: 0.1rem 0.3rem;
+  text-align: center;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  background: rgba(0, 0, 0, 0.07);
+  border-radius: 3px;
+  cursor: help;
+}
+
+.kd20-sheet .computed.big {
+  font-size: 1.25rem;
+}
+
+/* Current / max pair */
+.kd20-pair {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.kd20-pair input {
+  width: 3.2rem;
+  text-align: center;
+}
+
+.kd20-pair .sep {
+  opacity: 0.6;
+}
+
+.kd20-sheet textarea {
+  width: 100%;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.kd20-sheet input[type="text"] {
+  width: 100%;
+}
+
+/* Rich-text fields (description, effect, benefit) */
+.kd20-sheet prose-mirror {
+  min-height: 4.5rem;
+}
+
+.kd20-sheet prose-mirror table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.35rem 0;
+}
+
+.kd20-sheet prose-mirror th,
+.kd20-sheet prose-mirror td {
+  padding: 0.2rem 0.4rem;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  text-align: left;
+}
+
+/* Item sheets */
+.kd20-portrait.small {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.kd20-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  opacity: 0.7;
+}
+
+.kd20-warning {
+  margin: 0 0 0.4rem;
+  padding: 0.3rem 0.45rem;
+  font-size: 0.75rem;
+  border-left: 3px solid #b8860b;
+  background: rgba(184, 134, 11, 0.12);
+}
+
+.kd20-check {
+  justify-content: flex-end;
+}
+
+/* Owned item lists */
+.kd20-block h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.kd20-add {
+  flex: 0 0 auto;
+  width: 1.4rem;
+  height: 1.4rem;
+  line-height: 1;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.kd20-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kd20-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.2rem 0.3rem;
+  border-radius: 3px;
+}
+
+.kd20-item:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.kd20-item-img {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.kd20-item-name {
+  flex: 1;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.kd20-item-name:hover {
+  text-decoration: underline;
+}
+
+.kd20-item-detail {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  opacity: 0.75;
+  text-transform: capitalize;
+}
+
+.kd20-item-del {
+  flex: 0 0 auto;
+  width: 1.3rem;
+  height: 1.3rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.kd20-item-del:hover {
+  opacity: 1;
+  color: #8b0000;
+}
+
+.kd20-empty {
+  padding: 0.3rem;
+  font-size: 0.75rem;
+  font-style: italic;
+  opacity: 0.6;
+}
+
+/* Dragging feedback */
+.kd20-item.draggable {
+  cursor: grab;
+}
+
+.kd20-derived-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Clickable statistic labels */
+.kd20-stat-roll {
+  width: 100%;
+  padding: 0.1rem 0.2rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+
+.kd20-stat-roll:hover {
+  border-color: currentColor;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.kd20-item-roll {
+  flex: 0 0 auto;
+  padding: 0 0.4rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+/* -------------------------------------------- */
+/*  Chat roll card                              */
+/* -------------------------------------------- */
+
+.kd20-card {
+  font-size: 0.85rem;
+}
+
+.kd20-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.kd20-card-label {
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.8rem;
+}
+
+.kd20-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.05rem 0.3rem;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.kd20-card-spent,
+.kd20-card-note {
+  margin: 0.25rem 0;
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+/* A single die face */
+.kd20-die {
+  display: inline-block;
+  min-width: 1.4rem;
+  margin-right: 0.15rem;
+  padding: 0.05rem 0.2rem;
+  text-align: center;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.kd20-breakdown {
+  width: 100%;
+  margin: 0.3rem 0;
+  border-collapse: collapse;
+}
+
+.kd20-breakdown th,
+.kd20-breakdown td {
+  padding: 0.1rem 0.2rem;
+  text-align: left;
+  border: none;
+}
+
+.kd20-breakdown th {
+  font-weight: normal;
+  opacity: 0.85;
+}
+
+.kd20-breakdown td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.kd20-breakdown-total th,
+.kd20-breakdown-total td {
+  border-top: 1px solid rgba(0, 0, 0, 0.25);
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.kd20-target-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0.25rem 0;
+  font-size: 0.78rem;
+}
+
+/* The outcome tier banner */
+.kd20-tier {
+  margin: 0.35rem 0 0.1rem;
+  padding: 0.3rem;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 3px;
+  color: #fff;
+}
+
+.kd20-tier-fail     { background: #6b6b6b; }
+.kd20-tier-success  { background: #2f6f3e; }
+.kd20-tier-decisive { background: #1f5f8b; }
+.kd20-tier-supreme  { background: #7a3e9d; }
+
+/* Multi-target attack rows */
+.kd20-targets th { font-weight: normal; }
+.kd20-target-ac {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+.kd20-tier-chip {
+  display: inline-block;
+  margin: 0 0.15rem 0.1rem 0;
+  padding: 0 0.3rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff;
+  background: #555;
+}
+.kd20-hardchoice-chip { background: #a33; }
+.kd20-target-damage {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.kd20-hardchoice {
+  margin: 0.3rem 0;
+  padding: 0.3rem 0.4rem;
+  font-size: 0.75rem;
+  border-left: 3px solid #a33;
+  background: rgba(170, 51, 51, 0.12);
+}
+
+.kd20-followup {
+  margin: 0.3rem 0 0;
+  padding: 0.3rem 0.4rem;
+  font-size: 0.75rem;
+  border-left: 3px solid #b8860b;
+  background: rgba(184, 134, 11, 0.12);
+}
+
+.kd20-damage {
+  margin-top: 0.4rem;
+  padding-top: 0.2rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.25);
+}
+
+.kd20-damage-head {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.7rem;
+  font-weight: bold !important;
+  opacity: 1 !important;
+}
+
+.kd20-card-footer {
+  margin-top: 0.4rem;
+}
+
+.kd20-card-footer button {
+  width: 100%;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+/* Saves (core rules v0.34) — reuse the stat tile grid */
+.kd20-save-stat {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
+}
+
+.kd20-save .computed {
+  cursor: help;
+}

@@ -1,0 +1,71 @@
+{
+  "id": "kd20",
+  "title": "KD20",
+  "description": "KD20 — a d20 tabletop roleplaying system. Every check is 1d20 + a stat bonus, with outcome tiers read from the margin against a target.",
+  "version": "0.6.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.368"
+  },
+  "esmodules": [
+    "module/kd20.mjs"
+  ],
+  "styles": [
+    { "src": "css/kd20.css" }
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "character": {}
+    },
+    "Item": {
+      "gateway": {},
+      "feat": {},
+      "weapon": {}
+    }
+  },
+  "packs": [
+    {
+      "name": "gateways",
+      "label": "KD20 Gateways",
+      "type": "Item",
+      "system": "kd20",
+      "path": "packs/gateways",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "feats",
+      "label": "KD20 Feats",
+      "type": "Item",
+      "system": "kd20",
+      "path": "packs/feats",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "weapons",
+      "label": "KD20 Weapons",
+      "type": "Item",
+      "system": "kd20",
+      "path": "packs/weapons",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    }
+  ],
+  "packFolders": [
+    {
+      "name": "KD20",
+      "sorting": "m",
+      "packs": ["gateways", "feats", "weapons"]
+    }
+  ],
+  "primaryTokenAttribute": "hp",
+  "initiative": "1d20 + @initiative.bonus",
+  "url": "https://github.com/hendelmasad/kd20",
+  "manifest": "https://github.com/hendelmasad/kd20/releases/latest/download/system.json",
+  "download": "https://github.com/hendelmasad/kd20/releases/download/v0.6.0/kd20.zip"
+}
