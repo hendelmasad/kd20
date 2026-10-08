@@ -4,10 +4,11 @@
  * A character's calling, profession or culture. Its mechanical effects are the
  * HP bonus it contributes to the owning character's maximum Hit Points, and
  * (core rules v0.34) its Save profile — the Modifier-Ladder step it applies to
- * each of the six rolled Saves.
+ * each of the six rolled Saves. A gateway may also (v0.39) name the stat its
+ * Unarmored Defense adds to AC.
  */
 
-import { SAVE_KEYS } from "../config.mjs";
+import { SAVE_KEYS, STAT_LABELS } from "../config.mjs";
 
 const fields = foundry.data.fields;
 
@@ -33,6 +34,15 @@ export default class KD20GatewayData extends foundry.abstract.TypeDataModel {
           required: true, nullable: false, integer: true, initial: 0, min: -3, max: 5
         })
       ]))),
+
+      // Core rules v0.39: the themed stat Unarmored Defense adds to AC (Monk wis,
+      // Rogue/Swashbuckler cha, Barbarian con). The gateway names it, the player
+      // doesn't choose. Blank = this calling has no Unarmored Defense, so the
+      // feat does nothing for it. None of the five built gateways set one.
+      unarmoredStat: new fields.StringField({
+        required: true, blank: true, initial: "",
+        choices: { "": "(none)", ...STAT_LABELS }
+      }),
 
       // The always-on gateway benefit. Displayed only; not automated in v1.
       benefit: new fields.HTMLField({ required: true, blank: true, initial: "" }),

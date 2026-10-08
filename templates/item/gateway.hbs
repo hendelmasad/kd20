@@ -41,6 +41,23 @@
     <p class="kd20-hint">Fixed template: two +3, one +1, two 0, one &minus;3.</p>
   </section>
 
+  {{!-- Core rules v0.39: the stat this calling's Unarmored Defense adds to AC. --}}
+  <section class="kd20-block">
+    <h2>Unarmored Defense</h2>
+    <div class="kd20-derived">
+      <div class="kd20-field">
+        <label for="unarmored-stat">Themed stat</label>
+        <select id="unarmored-stat" name="system.unarmoredStat" {{#unless editable}}disabled{{/unless}}>
+          {{selectOptions choices.statsWithNone selected=system.unarmoredStat}}
+        </select>
+      </div>
+    </div>
+    <p class="kd20-hint">
+      Monk wis, Rogue/Swashbuckler cha, Barbarian con. Leave as (none) if this calling has no
+      Unarmored Defense.
+    </p>
+  </section>
+
   <section class="kd20-block">
     <h2>Benefit</h2>
     <p class="kd20-hint">The always-on gateway benefit. Displayed only — not automated in v1.</p>

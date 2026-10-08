@@ -59,9 +59,9 @@ console.log("=== Schemas build and expose the expected fields ===");
 /** Spec sections 2-4: the fields each model must have. */
 const EXPECTED = {
   character: ["stats", "hp", "defence", "actionDice", "xp", "conditions", "biography"],
-  gateway: ["description", "hpBonus", "saveProfile", "benefit", "costXp"],
+  gateway: ["description", "hpBonus", "saveProfile", "unarmoredStat", "benefit", "costXp"],
   feat: ["description", "featType", "trigger", "effect", "grantsSpecializationDie",
-    "prerequisite", "costXp"],
+    "prerequisite", "costXp", "mechanic"],
   weapon: ["description", "damageDie", "precisionDie", "attackStat", "damageStat",
     "reach", "properties"]
 };
@@ -137,13 +137,19 @@ console.log("\n=== Seeded gateway Save profiles match KD20_Rules.md ===");
 {
   const fs = await import("node:fs");
   const rules = fs.readFileSync(new URL("../docs/KD20_Rules.md", import.meta.url), "utf8");
-  // Rows of the "five built gateways' Save profiles" table, e.g.
-  // | **Warrior** | +3 | +3 | +1 | 0 | **−3** | 0 |
-  const keys = ["withstand", "fortitude", "reflexes", "composure", "resolve", "poise"];
+  // The "five built gateways' Save profiles" table. Columns are read by their
+  // header ("Str Save", "Dex Save", ...) so the doc's column order never matters:
+  // | Gateway | Str Save | Dex Save | Con Save | Int Save | Wis Save | Cha Save |
+  // | **Warrior** | +3 | +1 | +3 | 0 | 0 | **−3** |
+  const { SAVE_KEYS: keys, SAVE_STATS } = await import("../module/config.mjs");
+  const header = rules.match(/^\| Gateway \|((?: \w+ Save \|){6})\s*$/m);
+  const columns = (header?.[1] ?? "").split("|").map(c => c.trim()).filter(Boolean)
+    .map(c => keys.find(k => SAVE_STATS[k] === c.split(" ")[0].toLowerCase()));
+  if ( (columns.length !== 6) || columns.some(k => !k) ) fail(`could not read the profile table header: ${header?.[0]}`);
   const table = {};
   for ( const m of rules.matchAll(/^\| \*\*(\w+)\*\* \|((?: [^|]+ \|){6})\s*$/gm) ) {
     const cells = m[2].split("|").map(c => c.replace(/\*/g, "").replace("−", "-").trim()).filter(Boolean);
-    if ( cells.every(c => /^[+-]?\d+$/.test(c)) ) table[m[1]] = Object.fromEntries(keys.map((k, i) => [k, Number(cells[i])]));
+    if ( cells.every(c => /^[+-]?\d+$/.test(c)) ) table[m[1]] = Object.fromEntries(columns.map((k, i) => [k, Number(cells[i])]));
   }
   const gateways = PACK_CONTENT["kd20.gateways"];
   if ( Object.keys(table).length !== 5 ) fail(`expected 5 profile rows in the rules doc, found ${Object.keys(table).join(", ")}`);
@@ -449,8 +455,8 @@ console.log("\n=== Save rolls: d20 + stat + gateway profile, read on the margin 
 {
   const { buildCardContext } = await import("../module/dice/kd20-roll.mjs");
   const ck = (label, ok, detail = "") => ok ? pass(label) : fail(detail ? `${label} :: ${detail}` : label);
-  // A Warrior's Withstand: str +2, profile +3, so the static part is +5.
-  const save = d20 => ({ kind: "save", label: "Withstand Save", saveKey: "withstand",
+  // A Warrior's Strength Save: str +2, profile +3, so the static part is +5.
+  const save = d20 => ({ kind: "save", label: "Strength Save", saveKey: "withstand",
     statKey: "str", statBonus: 2, profileBonus: 3, profileLabel: "Warrior",
     d20, specDie: null, actionDice: [], target: 15, damage: null });
 
@@ -471,6 +477,18 @@ console.log("\n=== Save rolls: d20 + stat + gateway profile, read on the margin 
   ck("25 vs 5 = Supreme", tierAt(20, 5) === "supreme");
   ck("no target = total only, no tier", tierAt(10, null) === undefined);
   ck("action dice add on top", computeTotal({ ...save(10), actionDice: [4] }) === 19);
+
+  // Core rules v0.37: Hardened Save steps are a separate, flat term on the card.
+  const hardened = { ...save(10), hardenedBonus: 2 };
+  ck("Hardened Save adds to the total (10 + 2 + 3 + 2 = 17)", computeTotal(hardened) === 17,
+    `got ${computeTotal(hardened)}`);
+  ck("card breakdown lists the Hardened Save term",
+    buildCardContext(hardened).parts.some(p => p.label === "Hardened Save" && p.value === 2));
+  ck("no Hardened Save = no breakdown line",
+    !buildCardContext(save(10)).parts.some(p => p.label === "Hardened Save"));
+  ck("Hardened Save can turn a Fail into a Success (15 vs 17)",
+    buildCardContext({ ...save(10), target: 17 }).tier?.key === "fail"
+    && buildCardContext({ ...hardened, target: 17 }).tier?.key === "success");
 }
 
 console.log("\n=== Chat card renders without NaN in any combination ===");
@@ -649,13 +667,16 @@ const fs = await import("node:fs");
 const compile = rel => Handlebars.compile(fs.readFileSync(new URL(rel, import.meta.url), "utf8"));
 const badText = html => ["NaN", "undefined", "null"].filter(s => html.includes(s));
 
+/** Core rules v0.36: the Warrior's Save profile (Str +3, Dex +1, Con +3, Int 0, Wis 0, Cha -3). */
+const warriorProfile = { withstand: 3, reflexes: 1, fortitude: 3, composure: 0, resolve: 0, poise: -3 };
+
 /** Build and prepare a character the way Foundry would, with the given owned items. */
-const makeCharacter = (items, parent = { items }) => {
+const makeCharacter = (items, parent = { items }, defence = { armour: 2, shield: 0, misc: 0 }) => {
   const m = new models.character({
     stats: { str: { score: 15 }, dex: { score: 13 }, con: { score: 14 },
       int: { score: 10 }, wis: { score: 12 }, cha: { score: 11 } },
     hp: { value: 19 },
-    defence: { armour: 2, shield: 0, misc: 0 }
+    defence
   }, { parent: null });
   Object.defineProperty(m, "parent", { value: parent, configurable: true });
   m.prepareDerivedData();
@@ -693,8 +714,8 @@ console.log("\n=== A Character with no Gateway derives every stat ===");
 console.log("\n=== Saves: stat bonus + gateway profile step ===");
 {
   // Test stats: str +2, dex +1, con +2, int +0, wis +1, cha +0.
-  const warriorProfile = { withstand: 3, fortitude: 3, reflexes: 1, composure: 0, resolve: -3, poise: 0 };
-  const want = { withstand: 5, fortitude: 5, reflexes: 2, composure: 0, resolve: -2, poise: 0 };
+  // Warrior, core rules v0.36: Str +3, Dex +1, Con +3, Int 0, Wis 0, Cha -3.
+  const want = { withstand: 5, reflexes: 2, fortitude: 5, composure: 0, resolve: 1, poise: -3 };
   const warrior = makeCharacter([{ type: "gateway", name: "Warrior",
     system: { hpBonus: 6, saveProfile: warriorProfile } }]);
   for ( const [key, total] of Object.entries(want) ) {
@@ -712,6 +733,160 @@ console.log("\n=== Saves: stat bonus + gateway profile step ===");
   const blank = makeCharacter([{ type: "gateway", system: {} }]);
   check("gateway with no profile: Saves are numbers, not NaN",
     Object.values(blank.saves).every(s => Number.isFinite(s.total) && s.profile === 0), JSON.stringify(blank.saves));
+}
+
+/* -------------------------------------------- */
+/*  Hardened Save (core rules v0.37)            */
+/* -------------------------------------------- */
+
+console.log("\n=== Hardened Save: each copy climbs one ladder step, gated by the profile ===");
+{
+  const gateway = { type: "gateway", name: "Warrior", system: { hpBonus: 6, saveProfile: warriorProfile } };
+  const hs = save => ({ type: "feat", name: "Hardened Save", system: { mechanic: { kind: "hardenedSave", save } } });
+  const withFeats = (...saves) => makeCharacter([gateway, ...saves.map(hs)]);
+  const s = (c, key) => c.saves[key];
+
+  // Cha -3 (cha +0): one copy patches it to 0; a second raises nothing.
+  let c = withFeats("poise");
+  check("Cha -3 + 1 copy -> 0 (total -3 -> 0)", s(c, "poise").total === 0 && s(c, "poise").hardened.bonus === 3,
+    JSON.stringify(s(c, "poise")));
+  c = withFeats("poise", "poise");
+  check("Cha -3 + 2 copies -> still 0; a hindrance lifts only to neutral",
+    s(c, "poise").total === 0 && s(c, "poise").hardened.wasted === 1, JSON.stringify(s(c, "poise")));
+
+  // Int 0 (int +0): 0 -> +1 -> +3, never +5 (not gateway-Solid).
+  c = withFeats("composure", "composure");
+  check("Int 0 + 2 copies -> +3 (0 -> +1 -> +3)", s(c, "composure").total === 3, JSON.stringify(s(c, "composure")));
+  check("Int 0 climb costs 20 then 30 XP",
+    s(c, "composure").hardened.steps.map(x => x.cost).join(",") === "20,30", JSON.stringify(s(c, "composure").hardened));
+  c = withFeats("composure", "composure", "composure");
+  check("Int 0 + 3 copies -> capped at +3; Major needs a gateway-Solid Save",
+    s(c, "composure").total === 3 && s(c, "composure").hardened.wasted === 1, JSON.stringify(s(c, "composure")));
+
+  // Dex +1 (dex +1): one copy to +3.
+  c = withFeats("reflexes");
+  check("Dex +1 + 1 copy -> +3 (total 2 -> 4)", s(c, "reflexes").total === 4, JSON.stringify(s(c, "reflexes")));
+
+  // Str +3 (str +2): gateway-Solid, so Major +5 is reachable, at 40 XP.
+  c = withFeats("withstand", "withstand");
+  check("Str +3 + 1 copy -> Major +5 (total 5 -> 7), cost 40",
+    s(c, "withstand").total === 7 && s(c, "withstand").hardened.steps[0].cost === 40
+    && s(c, "withstand").hardened.wasted === 1, JSON.stringify(s(c, "withstand")));
+
+  // Copies only touch their own Save.
+  check("a copy on Str leaves every other Save unchanged",
+    ["reflexes", "fortitude", "composure", "resolve", "poise"].every(k => s(c, k).total === s(warriorBase(), k).total));
+
+  // A copy with no Save chosen raises nothing but is counted for the sheet to flag.
+  c = withFeats("");
+  check("Hardened Save with no Save chosen raises nothing, flagged",
+    c.unassignedHardenedSaves === 1 && Object.values(c.saves).every(x => x.hardened.bonus === 0));
+
+  // No gateway: every profile is 0, so the cap is +3.
+  const bare = makeCharacter([hs("withstand"), hs("withstand"), hs("withstand")]);
+  check("no gateway: Str 0 + 3 copies -> +3 (total 2 -> 5)", s(bare, "withstand").total === 5,
+    JSON.stringify(s(bare, "withstand")));
+
+  // A non-feat item claiming the mechanic is ignored.
+  const fake = makeCharacter([gateway, { type: "weapon", system: { mechanic: { kind: "hardenedSave", save: "poise" } } }]);
+  check("only feat items count", s(fake, "poise").total === -3);
+
+  function warriorBase() { return makeCharacter([gateway]); }
+}
+
+/* -------------------------------------------- */
+/*  AC feats (core rules v0.39)                 */
+/* -------------------------------------------- */
+
+console.log("\n=== AC feats: Armour Training and Unarmored Defense change computed AC ===");
+{
+  // Test stats: dex +1, con +2, wis +1.
+  const at = { type: "feat", name: "Armour Training", system: { mechanic: { kind: "armourTraining", save: "" } } };
+  const ud = { type: "feat", name: "Unarmored Defense", system: { mechanic: { kind: "unarmoredDefense", save: "" } } };
+  const warrior = { type: "gateway", name: "Warrior", system: { hpBonus: 6, saveProfile: warriorProfile } };
+  const barbarian = { type: "gateway", name: "Barbarian", system: { hpBonus: 6, unarmoredStat: "con" } };
+  const ac = (items, defence) => {
+    const c = makeCharacter(items, undefined, { armour: 0, armourType: "none", shield: 0, misc: 0, ...defence });
+    const sum = c.acParts.reduce((t, p) => t + p.value, 0);
+    if ( sum !== c.ac ) fail(`AC breakdown ${JSON.stringify(c.acParts)} sums to ${sum}, not ${c.ac}`);
+    return c;
+  };
+
+  check("no feats: 10 + dex 1 + armour 4 + shield 1 = 16",
+    ac([warrior], { armour: 4, armourType: "medium", shield: 1 }).ac === 16);
+
+  let c = ac([warrior, at], { armour: 4, armourType: "medium" });
+  check("Armour Training x1 in medium armour: 10 + 1 + 4 + 1 = 16", c.ac === 16, `got ${c.ac}`);
+  c = ac([warrior, at, at], { armour: 6, armourType: "heavy" });
+  check("Armour Training x2 in heavy armour: 10 + 1 + 6 + 2 = 19", c.ac === 19, `got ${c.ac}`);
+  c = ac([warrior, at, at, at], { armour: 6, armourType: "heavy" });
+  check("Armour Training x3: still +2 (max), flagged", c.ac === 19 && Boolean(c.acFeats.armourTraining.reason),
+    JSON.stringify(c.acFeats));
+  c = ac([warrior, at], { armour: 1, armourType: "light" });
+  check("Armour Training in light armour: no bonus, flagged (12)",
+    c.ac === 12 && c.acFeats.armourTraining.bonus === 0 && Boolean(c.acFeats.armourTraining.reason), JSON.stringify(c.acFeats));
+  c = ac([warrior, at], { armourType: "none" });
+  check("Armour Training with no armour: no bonus (11)", c.ac === 11, `got ${c.ac}`);
+
+  c = ac([barbarian, ud], { armourType: "none", shield: 1 });
+  check("Unarmored Defense (Barbarian con), no armour: 10 + dex 1 + con 2 + shield 1 = 14",
+    c.ac === 14 && c.acFeats.unarmoredDefense.active, `got ${c.ac}`);
+  c = ac([barbarian, ud], { armour: 1, armourType: "light" });
+  check("Unarmored Defense in light armour replaces the armour term (13, not 12)", c.ac === 13, `got ${c.ac}`);
+  c = ac([barbarian, ud], { armour: 4, armourType: "medium" });
+  check("Unarmored Defense in medium armour: inactive, normal AC (15), flagged",
+    c.ac === 15 && !c.acFeats.unarmoredDefense.active && Boolean(c.acFeats.unarmoredDefense.reason), JSON.stringify(c.acFeats));
+  c = ac([warrior, ud], { armourType: "none" });
+  check("Unarmored Defense under a gateway with no themed stat: inactive, flagged (11)",
+    c.ac === 11 && Boolean(c.acFeats.unarmoredDefense.reason), JSON.stringify(c.acFeats));
+  c = ac([ud], { armourType: "none" });
+  check("Unarmored Defense with no gateway at all: inactive (11)", c.ac === 11 && !c.acFeats.unarmoredDefense.active);
+  const monk = { type: "gateway", name: "Monk", system: { unarmoredStat: "wis" } };
+  check("the gateway names the stat: Monk wis gives 10 + 1 + 1 = 12",
+    ac([monk, ud], { armourType: "none" }).ac === 12);
+
+  // Mutually exclusive by requirement: whatever is worn, at most one applies.
+  for ( const armourType of ["none", "light", "medium", "heavy"] ) {
+    c = ac([barbarian, at, ud], { armour: 3, armourType });
+    const both = (c.acFeats.armourTraining.bonus > 0) && c.acFeats.unarmoredDefense.active;
+    const expected = ["medium", "heavy"].includes(armourType) ? 10 + 1 + 3 + 1 : 10 + 1 + 2;
+    check(`both feats owned, ${armourType} armour: exactly one applies (AC ${expected})`,
+      !both && c.ac === expected, `got ${c.ac} ${JSON.stringify(c.acFeats)}`);
+  }
+
+  check("no AC hard cap: misc 10 on top of a maxed build still counts (29)",
+    ac([warrior, at, at], { armour: 6, armourType: "heavy", misc: 10 }).ac === 29);
+  check("AC feats leave the Saves alone",
+    Object.values(ac([warrior, at, at], { armour: 6, armourType: "heavy" }).saves)
+      .every(x => x.hardened.bonus === 0));
+}
+
+/* -------------------------------------------- */
+/*  Seeded v0.37/v0.39 feats and v0.36 wording  */
+/* -------------------------------------------- */
+
+console.log("\n=== Seeded content: the computed feats, and no retired Save names ===");
+{
+  const feats = PACK_CONTENT["kd20.feats"];
+  const kindOf = name => feats.find(f => f.name === name)?.system.mechanic?.kind;
+  check("Hardened Save is seeded with the hardenedSave mechanic", kindOf("Hardened Save") === "hardenedSave");
+  check("Armour Training is seeded with the armourTraining mechanic", kindOf("Armour Training") === "armourTraining");
+  check("Unarmored Defense is seeded with the unarmoredDefense mechanic", kindOf("Unarmored Defense") === "unarmoredDefense");
+  check("Armour Training costs 30, Unarmored Defense 30",
+    feats.find(f => f.name === "Armour Training").system.costXp === 30
+    && feats.find(f => f.name === "Unarmored Defense").system.costXp === 30);
+  check("no other seeded feat claims a computed mechanic",
+    feats.filter(f => f.system.mechanic?.kind).length === 3);
+
+  // v0.36 retired the flavour names; none may reach a player through the seeds.
+  const retired = /\b(Withstand|Reflexes|Fortitude|Composure|Resolve|Poise|Endurance)\b/;
+  const leaks = Object.values(PACK_CONTENT).flat()
+    .flatMap(e => Object.entries(e.system).filter(([, v]) => typeof v === "string" && retired.test(v))
+      .map(([k, v]) => `${e.name}.${k}: "${v.match(retired)[0]}"`));
+  check("no retired Save flavour name in any seeded text", leaks.length === 0, leaks.join("; "));
+
+  const { CONTENT_VERSION } = await import("../module/seed-content.mjs");
+  check("CONTENT_VERSION bumped to 8", CONTENT_VERSION === "8", `got ${CONTENT_VERSION}`);
 }
 
 /* -------------------------------------------- */

@@ -43,7 +43,7 @@
 
       <div class="kd20-field">
         <label>Armour Class</label>
-        <span class="computed big" title="10 + dex + armour + shield + misc">{{system.ac}}</span>
+        <span class="computed big" title="{{acBreakdown}}">{{system.ac}}</span>
       </div>
 
       <div class="kd20-field">
@@ -64,8 +64,17 @@
       </div>
     </div>
 
-    {{!-- Manual AC contributions; equipment automation is out of scope for v1. --}}
-    <div class="kd20-derived">
+    {{!--
+      Manual AC contributions; equipment automation is out of scope for v1.
+      Core rules v0.39: the armour category gates the AC feats.
+    --}}
+    <div class="kd20-derived kd20-derived-4">
+      <div class="kd20-field">
+        <label for="armour-type">Armour worn</label>
+        <select id="armour-type" name="system.defence.armourType" {{#unless editable}}disabled{{/unless}}>
+          {{selectOptions armourTypes selected=system.defence.armourType}}
+        </select>
+      </div>
       <div class="kd20-field">
         <label for="armour">Armour</label>
         <input id="armour" type="number" step="1" name="system.defence.armour"
@@ -86,7 +95,8 @@
 
   {{!--
     Core rules v0.34: the six rolled Saves. Each shows its static part,
-    stat + gateway profile step; the d20 is added when rolled. AC stays static.
+    stat + gateway profile step + Hardened Save steps (v0.37); the d20 is added
+    when rolled. AC stays static. v0.36: named for their stat.
   --}}
   <section class="kd20-block">
     <h2>Saves</h2>
@@ -94,17 +104,24 @@
       {{#each saves as |save|}}
       <div class="kd20-stat kd20-save">
         <button type="button" class="kd20-stat-roll" data-action="rollSave"
-                data-save="{{save.key}}" title="Roll a {{save.label}} Save">
+                data-save="{{save.key}}" title="Roll a {{save.label}}">
           {{save.label}}
         </button>
         <span class="computed big" title="{{save.breakdown}}">
           {{numberFormat save.total decimals=0 sign=true}}
         </span>
-        <span class="kd20-save-stat">{{save.stat}}</span>
+        <span class="kd20-save-stat">{{save.stat}}{{#if save.hardened}} &middot; hardened{{/if}}</span>
       </div>
       {{/each}}
     </div>
-    <p class="kd20-hint">Save = 1d20 + stat + Gateway profile. Hover a total for its breakdown.</p>
+    <p class="kd20-hint">
+      Save = 1d20 + stat + Gateway profile + Hardened Save. Hover a total for its breakdown
+      and what it defends against. The GM may let a described defense roll a different
+      Save instead (the Fitting Save) — one Save, not best-of, and the fiction's consequences stay.
+    </p>
+    {{#each featWarnings as |warning|}}
+    <p class="kd20-warning">{{warning}}</p>
+    {{/each}}
   </section>
 
   {{!--
@@ -204,6 +221,8 @@
         <span class="kd20-item-name" data-action="itemEdit">{{item.name}}</span>
         <span class="kd20-item-detail">
           {{item.system.featType}}{{#if item.system.grantsSpecializationDie}} &middot; d6{{/if}}
+          {{#if item.system.mechanic.save}}{{#if (eq item.system.mechanic.kind "hardenedSave")}}
+            &middot; {{lookup ../saveLabels item.system.mechanic.save}}{{/if}}{{/if}}
         </span>
         {{#if ../editable}}
         <button type="button" class="kd20-item-del" data-action="itemDelete"

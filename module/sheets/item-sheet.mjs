@@ -9,7 +9,7 @@
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
-import { FEAT_TYPES, DIE_CHOICES, STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS, SAVE_STATS }
+import { FEAT_TYPES, FEAT_MECHANICS, DIE_CHOICES, STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS, SAVE_STATS }
   from "../config.mjs";
 
 export default class KD20ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
@@ -46,7 +46,10 @@ export default class KD20ItemSheet extends HandlebarsApplicationMixin(ItemSheetV
       featTypes: FEAT_TYPES,
       dice: DIE_CHOICES,
       diceWithDefault: { "": "(same as damage die)", ...DIE_CHOICES },
-      stats: Object.fromEntries(STAT_KEYS.map(k => [k, STAT_LABELS[k]]))
+      stats: Object.fromEntries(STAT_KEYS.map(k => [k, STAT_LABELS[k]])),
+      statsWithNone: { "": "(none)", ...Object.fromEntries(STAT_KEYS.map(k => [k, STAT_LABELS[k]])) },
+      featMechanics: FEAT_MECHANICS,
+      saves: { "": "(choose a Save)", ...SAVE_LABELS }
     };
 
     // Gateways: the six Save-profile steps, shaped into a list for one loop.

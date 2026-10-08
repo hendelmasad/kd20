@@ -12,7 +12,7 @@
 const { HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 
-import { STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS } from "../config.mjs";
+import { STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS, SAVE_COVERAGE, ARMOUR_TYPES } from "../config.mjs";
 import { rollCheck, rollSave, rollAttack, refreshActionDice, promptRollOptions, promptAttackOptions }
   from "../dice/kd20-roll.mjs";
 
@@ -58,19 +58,46 @@ export default class KD20CharacterSheet extends HandlebarsApplicationMixin(Actor
       bonus: system.stats[key].bonus
     }));
 
-    // Core rules v0.34: the six Saves, with a hover breakdown of stat + profile.
+    // Core rules v0.34: the six Saves, with a hover breakdown of stat + profile
+    // (+ Hardened Save, v0.37) and what the Save defends against (v0.36).
     const profileSource = system.gatewayName ?? "Gateway";
     const signed = n => (n < 0 ? `−${-n}` : `+${n}`);
     context.saves = SAVE_KEYS.map(key => {
       const save = system.saves[key];
+      const terms = [`${save.stat} ${signed(save.statBonus)}`, `${profileSource} profile ${signed(save.profile)}`];
+      if ( save.hardened.applied ) terms.push(`Hardened Save ×${save.hardened.applied} ${signed(save.hardened.bonus)}`);
       return {
         key,
         label: SAVE_LABELS[key],
         stat: save.stat,
         total: save.total,
-        breakdown: `${save.stat} ${signed(save.statBonus)}, ${profileSource} profile ${signed(save.profile)}`
+        hardened: save.hardened.applied,
+        breakdown: `${terms.join(", ")}\n${SAVE_COVERAGE[key]}`
       };
     });
+
+    // Feat rules the sheet could not apply, so the player knows why a number
+    // did not move. Core rules v0.37 (Hardened Save) and v0.39 (AC feats).
+    const warnings = [];
+    for ( const key of SAVE_KEYS ) {
+      const { wasted, cap } = system.saves[key].hardened;
+      if ( wasted ) warnings.push(`${SAVE_LABELS[key]}: ${wasted} Hardened Save purchase(s) beyond its `
+        + `${signed(cap)} cap raise nothing (Major +5 needs a gateway-Solid Save; a −3 lifts only to 0).`);
+    }
+    if ( system.unassignedHardenedSaves ) {
+      warnings.push(`${system.unassignedHardenedSaves} Hardened Save feat(s) have no Save chosen — `
+        + "open the feat and pick one.");
+    }
+    for ( const [label, feat] of [["Armour Training", system.acFeats.armourTraining],
+      ["Unarmored Defense", system.acFeats.unarmoredDefense]] ) {
+      if ( feat.reason ) warnings.push(`${label}: ${feat.reason}`);
+    }
+    context.featWarnings = warnings;
+
+    // Core rules v0.39: AC breakdown and the armour category that gates the AC feats.
+    context.acBreakdown = system.acParts.map(p => `${p.label} ${signed(p.value)}`).join(", ");
+    context.armourTypes = ARMOUR_TYPES;
+    context.saveLabels = SAVE_LABELS;
 
     // Split the actor's owned items into the three KD20 categories.
     context.gateways = this.actor.items.filter(i => i.type === "gateway");
@@ -156,7 +183,7 @@ export default class KD20CharacterSheet extends HandlebarsApplicationMixin(Actor
   static async #onRollSave(event, target) {
     const saveKey = target.dataset.save;
     if ( !SAVE_KEYS.includes(saveKey) ) return;
-    const options = await promptRollOptions(`${SAVE_LABELS[saveKey]} Save`, "Attacker's total / DC");
+    const options = await promptRollOptions(SAVE_LABELS[saveKey], "Attacker's total / DC");
     if ( !options ) return;
     await rollSave({ actor: this.actor, saveKey, ...options });
   }

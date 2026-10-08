@@ -2,7 +2,7 @@
   "id": "kd20",
   "title": "KD20",
   "description": "KD20 — a d20 tabletop roleplaying system. Every check is 1d20 + a stat bonus, with outcome tiers read from the margin against a target.",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14.368"
@@ -67,5 +67,5 @@
   "initiative": "1d20 + @initiative.bonus",
   "url": "https://github.com/hendelmasad/kd20",
   "manifest": "https://github.com/hendelmasad/kd20/releases/latest/download/system.json",
-  "download": "https://github.com/hendelmasad/kd20/releases/download/v0.6.0/kd20.zip"
+  "download": "https://github.com/hendelmasad/kd20/releases/download/v0.7.0/kd20.zip"
 }
