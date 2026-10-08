@@ -1,5 +1,5 @@
 # KD20 — Core Rules
-**Version: v0.35 — 2026-10-03**
+**Version: v0.39 — 2026-10-08**
 
 *Official KD20 ruleset. This is canon. Anything prefixed `MYD20_Resource` is inspiration only, not a rule.*
 
@@ -322,6 +322,17 @@ Every character is described by six **Statistics**. A Statistic is the raw score
 
 A Statistic is written out and capitalized (**Strength**). Its derived bonus is written as the **lowercase three-letter short form** (**str**). This distinction is exact and load-bearing: **when a rule asks for "str," it is asking for the bonus, never the raw Statistic.** "Add str to the roll" means add the derived bonus.
 
+**The character of each Statistic** — *what each one governs.* This is the **engine of the whole game's "which bonus do I roll?" question**, far more than any list of named activities: a GM who knows what each stat *is* can assign any action to a stat on the spot, and never needs a skill list to look it up (see *Capability Roll-Types*, below). Each stat also owns one Save (see *Defenses*).
+
+- **Strength (str)** — raw physical force and power. **Governs:** melee force, lifting, breaking, climbing, grappling, hauling, any feat of muscle. Powers most melee damage, and the **Strength Save** against being shoved, grappled, tripped, or moved against your will.
+- **Dexterity (dex)** — agility, speed, and precision. **Governs:** balance, tumbling, sleight of hand, stealthy movement, aim, finesse, reflexive dodging, anything needing a steady or quick hand. Feeds AC and most ranged/finesse attacks, and the **Dexterity Save** to dodge clear of blasts, areas, and traps.
+- **Constitution (con)** — toughness, stamina, and vitality. **Governs:** endurance, holding your breath, resisting fatigue and the elements, going without food or sleep, simply outlasting. Anchors HP, and the **Constitution Save** against poison, disease, exhaustion, and raw bodily assault.
+- **Intelligence (int)** — the *learned* mind: knowledge, reason, and study. **Governs:** recall and lore, languages, deduction and logic, crafting and engineering, arcane theory — anything *studied, reasoned out, or known*. Powers learned arcane capability, and the **Intelligence Save** guarding your *thoughts* (telepathy, memory-tampering, mind-reading, logic-scrambling confusion).
+- **Wisdom (wis)** — the *sensing* mind: perception, judgment, and intuition. **Governs:** noticing and searching, reading people and intent, tracking, survival and animal handling, gut judgment — anything *perceived or felt in the moment* rather than studied. Feeds initiative and awareness, and the **Wisdom Save** guarding your *clarity* (seeing through illusion and deception, sensing that something is wrong, spotting the trap).
+- **Charisma (cha)** — force of personality, presence, and will. **Governs:** persuasion, intimidation, deception, performance, leadership, commanding a room — any bending of others by sheer self. Powers social capability, and the **Charisma Save** guarding your *self* (defiance of domination, compulsion, possession, fear that would break you, and the crowd that would turn you).
+
+*(The classic **Int vs. Wis** line, stated once so it never needs re-arguing: **Intelligence is what you learned; Wisdom is what you sense.** Recalling a monster's weakness from study is Int; *noticing* the same weakness in the moment is Wis. Knowing the law is Int; reading whether the judge believes you is Wis.)*
+
 ### Deriving the Bonus
 
 The stat bonus is the standard d20 derivation:
@@ -378,7 +389,7 @@ The bonus on any given d20 roll is a flat total built from the relevant **stat b
 Character growth runs through **four distinct lanes**, and keeping them separate is what protects the game from power-creep. Each kind of "getting better" has exactly one home:
 
 - **Height** — a higher permanent ceiling. This comes *only* from **raising a Statistic**, which is deliberately the hardest advancement to get (a GM-gated narrative catalyst plus a low XP consolidation; see *Raising a Statistic*). Flat, always-on power is rationed and earned through story.
-- **Breadth** — more things you can *do*. This comes from **feats**: each adds a new trigger, option, permission, or consequence — never a bigger number at something you already do. Growth here is horizontal (more situations you're exceptional in), never a rising bonus.
+- **Breadth** — more things you can *do*. This comes from **feats**: each adds a new trigger, option, permission, or consequence — never a bigger number at something you already do. Growth here is horizontal (more situations you're exceptional in), never a rising bonus. *(One sanctioned exception: a **Hardened Save** feat buys permanent flat height on a defensive Save — allowed because it is defensive, costed as height, and gated by the gateway Save profile. See Defenses.)*
 - **Focus** — being better *right now, when it matters*. This comes from **spending Action Dice** — dynamic, dramatic, and earned-and-spent through play rather than fixed on the sheet.
 - **Consistency** — a *less-bad worst case*, never a higher best case. This is the niche of the **Action-Die floor** carried by some gateway benefits: it raises the low end of a boost die on a signature act while leaving the ceiling untouched (anyone can still roll a 6). It models expertise-as-reliability — the expert doesn't have a higher peak, they simply whiff less often.
 
@@ -425,18 +436,41 @@ KD20 splits defense into two kinds, by a line that matches how it *feels* to def
 - **AC (Armour Class) is static** — being hard to *hit* is passive (you're armoured, you're nimble, the blow finds no opening). The attacker rolls against it. **AC = 10 + dex + armour + shield + misc.** Unchanged; this is the one defense the defender never rolls, because not-getting-hit isn't an act of will — it's a condition.
 - **The six Saves are rolled** — resisting a *specific assault* on you (a grapple, a poison, a fear, a blast) is *active*: you brace, you dodge, you steel your mind. The dice belong in the defender's hands at that moment. Each Save is `1d20 + stat + gateway profile step + feats`, rolled against the attacker's total, read on the outcome ladder by margin.
 
-**The six Saves — one per Statistic:**
+**The six Saves — one per Statistic, named for the stat.** Each Save is simply *"[Statistic] Save"* — the stat name tells you which bonus it uses and, with the coverage below, what it defends:
 
-| Save | Stat | Resists |
+| Save | Stat | Defends against |
 |---|---|---|
-| **Withstand** | str | being shoved, grappled, tripped, overborne, moved against your will |
-| **Fortitude** | con | poison, disease, exhaustion, raw bodily assault |
-| **Reflexes** | dex | area effects, blasts, traps — anything you dodge clear of |
-| **Composure** | int | confusion, illusion, mental intrusion |
-| **Resolve** | wis | fear, domination, temptation |
-| **Poise** | cha | social pressure, shaming, a crowd turning |
+| **Strength Save** | str | being shoved, grappled, tripped, overborne, moved against your will |
+| **Dexterity Save** | dex | area effects, blasts, traps — anything you dodge clear of |
+| **Constitution Save** | con | poison, disease, exhaustion, raw bodily assault |
+| **Intelligence Save** | int | **the mind** — telepathy, mind-reading, memory tampering, logic-scrambling confusion |
+| **Wisdom Save** | wis | **perception** — illusion, deception, sensing wrongness, spotting the trap |
+| **Charisma Save** | cha | **the self / force of will** — domination, compulsion, possession, fear, intimidation, a crowd turning |
 
-*(Six Saves, one clean per stat. **Withstand (str)** is the physical-force defense — it answers "does a grapple target my strength?": yes. AC is separate: it uses dex + armour but is the "hard to hit" number, not str's or anyone's Save. A gateway may still make a calling hard to hit through a **cluster feat** that boosts AC — AC is built and invested in, not handed out in the free Save profile.)*
+*The three mental Saves divide cleanly, no overlap: **Intelligence** guards the integrity of your* thoughts *(someone reaching into your mind); **Wisdom** guards the clarity of your* perception *(something trying to fool your senses or judgment); **Charisma** guards your* self *(something trying to override your will — to dominate, terrify, or break you). Charisma is force of personality on defense exactly as it is on offense: the Face bends others' wills, and the Charisma Save is the will that refuses to be bent.*
+
+*(Bare stat names replace the earlier flavour names — retired synonyms, kept here once so older notes still parse: Strength Save = "Withstand," Dexterity = "Reflexes," Constitution = "Fortitude," Intelligence = "Composure," Wisdom = "Resolve"/"discernment," Charisma = "Poise"/"Resolve-of-will." The bare name is clearer at the table and makes the* Fitting Save *rule below legible — when which stat applies can shift, the plain stat name is the clearest possible label.)*
+
+**Why the stat name, not a flavour name.** A new player reading "Charisma Save" knows instantly which bonus to add and, from the coverage line, what it covers — no vocabulary to memorize, no "is Endurance the con one or the str one?" The stat name also does real work for the *Fitting Save* rule (below): because the save that applies to a given threat can shift with the fiction, the clearest label is the one that names the stat you're actually rolling.
+
+**AC is separate from the Saves.** AC uses dex + armour but is the "hard to hit" number, not any stat's Save. A gateway may make a calling hard to hit through a **cluster feat** that boosts AC — AC is built and invested in, not handed out in the free Save profile.
+
+### The Fitting Save — When More Than One Save Could Apply
+
+A threat names a **default Save** (the obvious one: a fireball → Dexterity, a fear-spell → Charisma, a grapple → Strength). But the world is not always obvious, and KD20's whole stance is that *the fiction leads*. So:
+
+> **If a defender describes a defense that credibly routes the threat through a different Statistic, the GM may allow that Statistic's Save to apply instead of the default.**
+
+This is the defensive mirror of the capability philosophy — anyone may attempt anything; your build just makes you *good* at it — and it is deliberately a piece of **GM craft, not a player entitlement.** The rules:
+
+- **Fiction leads, the GM decides.** It is permission the GM *grants*, not a Save the player *picks*. If the described defense doesn't convince, the default Save stands. **No table debate — the GM's "no" is final and fast.** This stays a texture the GM reaches for, never a negotiation on every attack.
+- **One Save, not best-of.** The Fitting Save *replaces* the default; you never roll two and take the higher. You commit to the approach and you roll it.
+- **Earned by commitment — there is usually a cost or condition.** The alternative Save is bought with something concrete in the fiction: the greatshield has to be in hand and braced; the Monk's evasion needs room to move; hiding behind cover needs cover to hide behind. This is what keeps a gateway's mandatory −3 Save meaningful most of the time — you can route *around* your weak Save only when you've genuinely set up to.
+- **The fiction's consequences stay — this is the key balancer.** Succeeding on a Fitting Save does **not** erase everything else that defense implies. The default Save is frequently *also* the "get clear" Save; the Fitting Save keeps you *alive*, not *clear*. Choosing a **Strength Save** to brace against a fireball rather than a **Dexterity Save** to dodge it means you *chose to stay in the area of effect* — you survive the blast, but the fire is still there: your cloak is smoking, the bridge you're standing on is burning, everything flammable around you caught. The GM narrates those consequences in full. You traded "away from the danger" for "through the danger, still standing."
+- **It cuts both ways — threats use it too.** A monster may route a would-be Charisma (fear) effect through Constitution if the fiction fits ("it's not dread — it's a neurotoxin that *feels* like dread, resist it with your body"). The Fitting Save is a GM tool for making threats characterful, not a PC-only escape hatch.
+- **Baseline is universal and free.** Any actor may invoke a Fitting Save with fiction + GM permission, exactly as maneuvers are universal. Feats may later grant *reliability* — making a particular substitution automatic and permission-free (e.g. a shield feat that always lets you brace a Strength Save vs. area effects) — but the baseline is open to everyone without investment.
+
+**Worked example — the braced greatshield.** A Warrior (profile: Strength Save +3, Dexterity Save −3) faces a dragon's breath. Normally this is a **Dexterity Save** — his *worst* save, exactly the kind of area effect dex is for. Instead he plants his **large shield** (large shields only — no bucklers or small shields brace a breath weapon) and declares he's bracing behind it. The GM, convinced, lets him roll a **Strength Save** — trading his worst save for his best. But he *chose to stand in the fire*: he makes the save and survives the cone, yet he didn't move, the ground around him is scorched, and anything flammable on or near him is now burning. He bought survival with commitment and position, not a free upgrade. *(This is the canonical teaching example: the big shield, the stat-swap, the price paid in staying put.)*
 
 ### Contest or Save? The Active/Passive Line
 
@@ -444,8 +478,8 @@ Because Saves are rolled, "a resistance" and "a contest" become nearly the same 
 
 > **Passive target → roll against a static number. Active opposition → both roll (a contest).**
 
-- A **Save** is the *active* case: the attacker is pushing an effect at you and you actively resist → effectively a contest (attacker's total vs. your Save roll). Fear spell → your **Resolve** roll vs. the caster's total. Poison → **Fortitude**. Blast → **Reflexes**.
-- A **grapple, shove, or trip** is active opposition → a **contest**: the attacker's maneuver roll vs. your **Withstand** roll. (A "Withstand Save" and "a contest against Withstand" are the same thing — that's the elegance.)
+- A **Save** is the *active* case: the attacker is pushing an effect at you and you actively resist → effectively a contest (attacker's total vs. your Save roll). Fear spell → your **Charisma Save** vs. the caster's total. Poison → **Constitution Save**. Blast → **Dexterity Save**.
+- A **grapple, shove, or trip** is active opposition → a **contest**: the attacker's maneuver roll vs. your **Strength Save**. (A "Strength Save" and "a contest against your Strength" are the same thing — that's the elegance.)
 - **Stealth vs. an unaware guard** (passive target) → you roll Stealth vs. the guard's **static** Perception DC (`10 + wis`). The guard isn't actively looking, so they don't roll.
 - **Stealth vs. a guard actively searching** → **contest**: your Stealth vs. their Perception roll. Both active.
 - **A PC actively searching for a hidden foe** → **contest**: Perception vs. Stealth. Both active.
@@ -466,31 +500,78 @@ A bare `10 + stat` Save would make every calling resist identically for a given 
 - **two Unmodified (0)** — neutral
 - **one Solid hindrance (−3)** — a real, exploitable soft spot
 
-This is an *assignment*, not a budget to optimize — every gateway carries the identical total Save weight, only *distributed* differently to express the calling. There is no point-trading to exploit, and the mandatory −3 hindrance guarantees every calling has a genuine weakness a clever foe can target.
+This is an *assignment*, not a budget to optimize — every gateway carries the identical total Save weight, only *distributed* differently to express the calling. There is no point-trading to exploit, and the mandatory −3 hindrance guarantees every calling has a genuine weakness a clever foe can target. (The *Fitting Save* rule lets a prepared character route *around* that −3 when the fiction earns it — at a cost — without erasing it.)
 
 **AC is not part of the profile.** AC is the static "hard to hit" number (`10 + dex + armour`); a gateway that wants its calling to be hard to hit expresses that through a **cluster feat** that boosts AC, not through the free Save profile. AC is built and invested in; the Save profile is handed out.
 
-*This is deliberate, because "how are you hard to hit?" is a characterful question with different answers per calling — and AC-boosting feats come in (at least) two flavors, a natural fit for the shared feat library:*
-- ***Armour-based** (Warrior, Guardian): a feat that improves what you get from worn armour/shields — the plate-knight fantasy.*
-- ***Unarmored** (Monk, Rogue/Scout, Swashbuckler): a feat granting AC **while lightly or un-armored**, from agility, training, and instinct — the slippery-dodger fantasy (the monk isn't there; the rogue slips aside). Drawn from the library by any calling built around evasion.*
+*This is deliberate, because "how are you hard to hit?" is a characterful question with different answers per calling — and the two AC feats (authored in the Feats document) answer it two ways:*
+- ***Armour Training** (Warrior, Guardian, future heavies): **+1 AC** from trained use of worn armour, **max +2** (two purchases), only while armour heavier than light is worn — the plate-knight fantasy, where the AC is in the steel and the feat is the mastery of it.*
+- ***Unarmored Defense** (Monk, Rogue/Swashbuckler, Barbarian, future light fighters): while in **light or no armour**, AC becomes **`10 + dex + [the gateway's themed stat]`** — Monk **wis** (awareness as armour), Rogue/Swashbuckler **cha** (audacity), Barbarian **con** (toughness). The gateway names the stat, exactly as it names its casting stat. The slippery-dodger fantasy, where the AC is in *you*.*
 
-*Because AC is feat-driven rather than profiled, a plate knight, a naked monk, and a slippery rogue can all be "hard to hit" by entirely different fictions — which a flat "AC +X" profile grant could never distinguish. (Feats to author in the capability pass.)*
+*The two are **mutually exclusive by requirement** — one needs armour, the other its absence — so a character is one or the other, never both. Both are held in the static band: Armour Training by its +2 cap, Unarmored Defense by being self-limiting (two stats ≈ +5 each → ~20 at the extreme, the same band-top an agile-armoured veteran reaches). AC is **flat defensive height**, the AC sibling of Hardened Save, and the only other place a feat sells a flat bonus (see the Feats document's Design Principles).*
 
-**Feats raise a Save one ladder step from its gateway baseline** (Unmodified → Minor → Solid → **Major +5**). So **Major is reachable only by feat investment, and only on a Save your gateway already set to Solid (+3)** — your best Saves are the ones you can push to exceptional, and a feat can also patch a hindrance up toward neutral. The untrained baseline is the gateway profile; feats are the trained spike on top.
+**The AC soft cap (~20).** Across *all* sources — base, dex, armour, shield, and the AC feats — a character's AC should land in the **~13–17 band**, reaching **~20 only at the extreme** (a veteran who is both agile and well-armoured, or a maxed unarmored fighter). **~20 is a design target the GM upholds, not a hard rule**: it is the ceiling the static-band promise depends on, and the AC feats are costed and capped to respect it. If a build somehow threatens to climb past ~20, that is the signal that something is stacking that shouldn't — not an invitation to raise DCs to chase it. (This mirrors the trust-the-GM stance everywhere else: the band is protected by design and judgment, not a hard wall.)
 
-**The five built gateways' Save profiles:**
+**Feats raise a Save one ladder step from its gateway baseline** (Unmodified → Minor → Solid → **Major +5**), via the universal **Hardened Save** feat (see the Feats document). So **Major is reachable only by feat investment, and only on a Save your gateway already set to Solid (+3)** — your best Saves are the ones you can push to exceptional, and a feat can also patch a hindrance up toward neutral (−3 → 0, never spiking a mandatory soft spot to exceptional). The untrained baseline is the gateway profile; feats are the trained, **flat, always-on** spike on top — a permanent step up the Modifier Ladder, added to the Save exactly as the gateway profile step is.
 
-| Gateway | Withstand (str) | Fortitude (con) | Reflexes (dex) | Composure (int) | Resolve (wis) | Poise (cha) |
+**Save height is the one sanctioned feat-bought height in KD20** (see *Where Bonuses Come From* — feats otherwise never sell flat bonuses). It is allowed only because it is *defensive* (it never drives the margin/DC treadmill) and *gated by the profile* (the Solid-save requirement for Major, and the lift-toward-neutral-only cap on a hindrance, do the rationing). It is therefore costed **above a cluster feat**, on a **scaled ladder** that makes patching a weakness cheap and reaching exceptional dear:
+
+| Step | From → To | Cost |
+|---|---|---|
+| Patch a hindrance | **−3 → 0** | **20** XP |
+| Train a neutral Save | **0 → +1** (Minor) | **20** XP |
+| Spike toward strong | **+1 → +3** (Solid) | **30** XP |
+| Reach exceptional | **+3 → +5** (Major) | **40** XP *(gateway-Solid Save only)* |
+
+A step is bought from the Save's *current* value, so climbing 0 → +3 is two purchases. *(Distinct from a **Specialization Die on a Save**, which a few gateway feats grant — e.g. Steel Discipline, Iron Aegis — as a conditional rider on a feat that does more; that die is not this flat height, and both can apply.)*
+
+**The five built gateways' Save profiles** (by stat; read each column as that stat's Save):
+
+| Gateway | Str Save | Dex Save | Con Save | Int Save | Wis Save | Cha Save |
 |---|---|---|---|---|---|---|
-| **Warrior** | +3 | +3 | +1 | 0 | **−3** | 0 |
-| **Scout** | +1 | 0 | +3 | 0 | +3 | **−3** |
-| **Adept** | 0 | **−3** | 0 | +3 | +3 | +1 |
-| **Guardian** | +3 | +3 | **−3** | 0 | +1 | 0 |
-| **Face** | 0 | **−3** | 0 | +3 | +1 | +3 |
+| **Warrior** | +3 | +1 | +3 | 0 | 0 | **−3** |
+| **Scout** | +1 | +3 | 0 | 0 | +3 | **−3** |
+| **Adept** | 0 | 0 | **−3** | +3 | +3 | +1 |
+| **Guardian** | +3 | **−3** | +3 | 0 | 0 | +1 |
+| **Face** | 0 | 0 | **−3** | +3 | +1 | +3 |
 
-*The profile tells a story: the **Warrior** is strong and hardy but shakeable of spirit (Resolve −3); the **Scout** is nimble and self-reliant but awkward in a crowd (Poise −3); the **Adept** has a fortified, disciplined mind but a frail body (Fortitude −3); the **Guardian** is an immovable bulwark that cannot dodge (Reflexes −3); the **Face** is socially unflappable and sharp-minded but no fighter's constitution (Fortitude −3).*
+*The profile tells a story — now with the force-of-will reading of Charisma: the **Warrior** is strong and hardy but shakeable of will (Cha Save −3: brave in body, but fear and domination find the crack); the **Scout** is nimble and keen-eyed but awkward under social pressure (Cha Save −3); the **Adept** has a fortified, disciplined mind and clear perception but a frail body (Con Save −3); the **Guardian** is an immovable bulwark that cannot dodge (Dex Save −3); the **Face** is iron-willed and sharp-minded but no fighter's constitution (Con Save −3).*
+
+*(Note on the Warrior: its old soft spot was "Resolve −3," which under the new coverage is the **Charisma Save** — so fear/domination/"force of will" is still the Warrior's crack, exactly as before. The reassignment preserved every gateway's intended weakness; only the label on the column changed, except the Warrior's Minor/none pairing, which now reads Dex Save +1 / Wis Save 0 — strong footwork, ordinary read of a room — matching the martial fantasy.)*
 
 **Effects scale with the attacker's success tier** (Success / Decisive / Supreme) the same way damage does — see *Effect Escalation* below.
+
+### Capability Roll-Types — Named Stat-Rolls, Not a Skill List
+
+KD20 retired the skill list; it did **not** replace it with a new list. There is no "Persuasion skill," no "Perception skill" — there is **Charisma, used to persuade** and **Wisdom, used to perceive.** A *capability roll-type* is simply a **named stat-roll**: a convenient name for "roll this stat, applied to this kind of thing." The name does two jobs and only two — it tells you **which stat** governs, and it **sets the fiction** (and so shapes the consequences). It carries no number of its own; the bonus is the stat, period.
+
+> **A capability roll is `1d20 + stat + (a Specialization Die, if a feat's trigger fires)`** — the same anatomy as every KD20 roll. "A Persuasion roll" *is* a Charisma roll; "a Perception roll" *is* a Wisdom roll. The three-tier stack applies: anyone may attempt it (base `d20 + stat`), a **feat** trains it (the d6 on its trigger), and Action Dice push it (the gradient).
+
+**The GM names the stat at the table — from the stat definitions, not a lookup.** Because *The Character of each Statistic* (above) says what each stat governs, the GM answers "what do I roll to do X?" by asking **"which stat does this lean on?"** and reading it off the fiction. This is the whole mechanism. KD20 deliberately does **not** try to name every possible action — a master list is exactly the skill list the Capabilities cut removed. The guide below is a **baseline for the common cases and the activities the feat library references by name** — a starting point and a consistency anchor, **not an exhaustive registry.** When something isn't on it, the GM assigns a stat from the definitions and plays on; nothing is "missing."
+
+**The baseline guide** (common roll-types the feats reference — default stat, and what it covers; all overridable per *Rerouting*, below):
+
+| Roll-type | Default stat | Covers |
+|---|---|---|
+| **Perception** | wis | noticing, spotting, searching, reading a scene |
+| **Insight** | wis | reading intent, sensing a lie, gauging a person |
+| **Stealth** | dex | moving unseen or unheard, hiding |
+| **Tracking / Survival** | wis | following trails, foraging, weather, living off the land |
+| **Persuasion** | cha | convincing, negotiating, charming |
+| **Presence** | cha | commanding, intimidating, performing, holding a room |
+| **Deception** | cha | lying, disguise, running a con |
+| **Athletics** | str | climbing, jumping, swimming, forcing, hauling |
+| **Acrobatics** | dex | balance, tumbling, squeezing through, sleight of hand |
+| **Lore / Academics** | int | recalling knowledge, languages, deduction, arcane theory |
+| **Craft** | int | building, repairing, engineering, fine work |
+| **Medicine** | int or wis | treating wounds, diagnosing, aiding Recovery *(GM's call which, by approach)* |
+| **Spellcasting** | **gateway-determined** | casting a spell-feat — **the gateway sets the stat** (Adept = int; a faith caller = wis; an innate/sorcerous caller = cha) |
+
+*Spellcasting is the clearest proof that a roll-type is just a stat-plus-fiction: the same act (casting) hangs off different stats depending on* how *your calling works magic — studied (int), devout/intuited (wis), or innate force of self (cha). The gateway declares it; the roll-type name just means "your casting stat."*
+
+**Rerouting a roll-type — the offensive mirror of the Fitting Save.** The listed stat is the **default**, not a cage. Exactly as a defender may route a threat through a different Save when the fiction earns it (see *The Fitting Save*), **an actor who credibly describes a different approach to a task may, with GM permission, use a different stat for it.** Intimidate a guard with a looming display of **Strength** instead of **Charisma**; pick a lock by patient **Wisdom** (feel and intuition) rather than deft **Dexterity**; recall a route by **Intelligence** (you studied the map) or by **Wisdom** (you've walked it). The same guard-rails apply as the Fitting Save: **the fiction leads and the GM decides** (permission granted, not picked; the GM's "no" is fast and final); you use **one stat, not best-of**; the approach is **earned by commitment**, and **its consequences follow the method you chose** — intimidating by force may cow this guard but make an enemy, where charm would have made a contact. One principle, both halves of the game: *the fiction can always move which stat you roll, offense or defense, at the GM's word.*
+
+**"A [roll-type] feat"** — wherever the feat library gives a prerequisite like "requires a Perception feat" or "an Insight feat," it means **any feat that grants a Specialization Die on that roll-type.** The roll-type names the *competence*; the feat is the *trained investment* in it. (So "requires a Perception feat" is satisfied by Eagle Eye, Battle Awareness, or any future feat that trains perceiving.) Base competence needs no feat — anyone rolls `d20 + stat`; the feat is the trained spike, exactly as everywhere else.
 
 ---
 
@@ -522,7 +603,7 @@ This split is what keeps GM bookkeeping sane: the GM tracks, at most, the pools 
 
 Regardless of track, every actor shares a common chassis of stats — the things that let any two actors interact in the same combat. **This baseline is universal:**
 
-- **Armour Class (AC)** — how hard the actor is to hit. **AC = 10 + dex + armour + shield + misc.** DEX always applies, regardless of armour type (well-fitted armour distributes its load; it does not cap agility). Armour and shields add on top. Typical characters sit in a **static band of ~13–17** (naked ~10, agile-and-armoured veteran ~20), and **that band holds for the whole campaign** — see the item note below. *(AC is the one **static** defense — the attacker rolls against it. The six **Saves** (Withstand/Fortitude/Reflexes/Composure/Resolve/Poise) are **rolled by the defender**; see Defenses, below.)*
+- **Armour Class (AC)** — how hard the actor is to hit. **AC = 10 + dex + armour + shield + misc.** DEX always applies, regardless of armour type (well-fitted armour distributes its load; it does not cap agility). Armour and shields add on top. Typical characters sit in a **static band of ~13–17** (naked ~10, agile-and-armoured veteran ~20), and **that band holds for the whole campaign** — see the item note below. *(AC is the one **static** defense — the attacker rolls against it. The six **Saves** — Strength / Dexterity / Constitution / Intelligence / Wisdom / Charisma Save — are **rolled by the defender**; see Defenses, above.)*
 - **Hit Points (HP)** — how much punishment the actor can take before going down. HP is **abstracted**, not a measure of flesh: it folds together stamina, combat experience, the instinct to not be where the blow lands, luck, divine interest, and every other "soft" factor that keeps a capable actor in the fight. A low HP total means *little of that buffer banked yet* — which is why a starting character is fragile and a veteran is not, without either being made of different meat. (This is Pillar 1 in the health system: the buffer is earned.)
   - **HP = 10 + con + wis + gateway bonus.** The gateway bonus reflects a calling's durability (provisionally ~+2 for fragile callings like scholars/mages, ~+4 for mid ones like rogues/scouts, ~+6 for hardy ones like warriors/guardians). Starting characters land roughly **13–20**. DEX is deliberately *not* in HP — DEX avoids the hit (AC), while con+wis absorb or slip it (HP).
   - **HP feats** (deferred to the feat system) let a character fold an additional stat's bonus into HP — one feat per stat, each bought once, each granting that stat's *living* bonus (it tracks the stat), and each requiring the stat at **16+**. Bulwark (+con), I See It Coming (+wis), NOT IN THE FACE! (+cha, force of personality), and so on. Buy-once-each caps the total; the 16+ gate ties durability growth to stat growth (which is GM-catalyst-gated), so HP earns in over the campaign.
@@ -709,6 +790,8 @@ Named and scoped here so they aren't reinvented or forgotten. Not yet designed.
 
 Predictions logged *before* play, checked against ready-made levers rather than discovering problems cold. **A first-pass Monte Carlo simulation (v0.23, real RNG) has now been run** — a starting character ("Bram": STR/DEX 14, CON/WIS 12–13, Warrior gateway, short sword, AC 14, HP 18) against a matched threat, plus 100k-roll outcome-distribution sweeps. Findings are folded in below and marked **[SIM]**. These remain provisional pending *live-table* play, which tests *feel* (tone, fun) as the sim cannot.
 
+**0. Defenses — rolled Saves CONFIRMED well-received at the table.** Live play of the static-AC / rolled-Saves model landed well — players wanted the dice in their hands and the model delivers. The one piece of feedback was on the *names* of the saves and what they imply; resolved in v0.36 by renaming the six Saves to bare stat names (Strength Save, Dexterity Save, …) and re-dividing the three mental Saves (Int = mind, Wis = perception, Cha = will). The **Fitting Save** rule (a described defense may route a threat through a different stat's Save, GM-granted, consequences intact) was added in the same pass. *Watch:* whether the Fitting Save stays a crisp GM tool or starts generating table-debate (the "GM's no is fast and final" guard is the lever if it drifts).
+
 **1. HP / lethality — prediction CONFIRMED, but not broken. [SIM]** Combat is fast and lethal: a matched no-Action-Dice duel averages ~5.5 rounds (range 2–14), and 2–4 solid hits drop a starting character. *But* the better-built side still wins reliably (~61/39 over 2000 fights), so it is **fast-and-deadly-and-high-variance, not a coin-flip.** No emergency. *Decision deferred to live play, which alone can judge tone:* if fast-and-lethal is the desired feel, leave it; if it feels too swingy at the table, the lever is a modest **HP bump (~20–25%)** (raise base or gateway bonus). The Precision Die is already capped at one die per hit, so it is *not* the culprit — HP scale is the only dial in question. Diagnose from *feel*, not the sim.
 
 **2. Zero-to-hero curve — VALIDATED; my "too frequent" worry was wrong. [SIM]** Over 100k rolls the outcome ladder is near-perfect: Decisive fires **10% at starting (+4), 20% skilled (+6), 40% veteran (+10), 50% master (+13)**; Supreme stays **0% until master (5%)**. Decisive is a genuine achievement early and a signature of mastery late; Supreme is correctly legendary-rare. **This is the system's best-proven decision** — the margin ladder delivers Pillar 1 straight from the arithmetic, no tuning needed. Nothing to watch here except confirming it *feels* as good as it measures.
@@ -727,4 +810,4 @@ Predictions logged *before* play, checked against ready-made levers rather than 
 
 ---
 
-*KD20 Core Rules — v0.35 — adds pool-depth advancement (throughput lane): **Deep Well** (universal, expensive, +1 Action Dice refresh, cap +2) and **Singular Path** (universal; requires Deep Well + single-gateway lock; +2 Action Dice usable only within your gateway's written theme) — the FOCUS reward mirroring multi-gateway's BREADTH. Establishes the **no-XP-refund principle** (XP buys what you had, not a cancelable reservation; breaking Singular Path forfeits it with no refund). Gateway theme descriptors added. Prior (v0.34): DEFENSE MODEL (playtest-revised): **AC is static** (passive avoidance; attacker rolls against it), but **the six Saves are ROLLED by the defender** (active resistance — players wanted the dice in hand; static saves felt helpless). The six Saves are one-per-stat: **Withstand (str)** = shove/grapple/trip, Fortitude (con), Reflexes (dex), Composure (int), Resolve (wis), Poise (cha). **Contest-or-Save line:** target actively opposing → contest (both roll); passive target → roll vs. their static number; AC is the one always-static defense. **Gateway Save profiles** (fixed template: 2 Solid / 1 Minor / 2 none / 1 Solid-hindrance across the six Saves; AC excluded — boost AC via a cluster feat; all five gateways profiled; feats raise a Save one step, Major only via feat on a Solid Save). **Multi-Gateway rule:** rare (narrative catalyst + 30 XP), breadth-not-power — primary gateway (first, fixed) sets the Save profile, never stacks (hindrance stays); HP bonus highest-only; gain each gateway's benefit + feat access; capstones count only their own gateway's feats. **Effect Escalation:** non-damage effects scale Success/Decisive/Supreme via a default ladder along a chosen axis (Magnitude / Severity / Duration / Scope), parallel to damage. (History: v0.33 briefly adopted fully-static defenses; live play reverted the Saves to rolled while keeping AC static and preserving all profile/feat/weakness design.) Prior: HP/Recovery/Defeat; symmetric margin ladder; Capabilities cut; States/Two Levers; five gateways; sim-validated core.*
+*KD20 Core Rules — v0.39 — AC FEATS & SOFT CAP: the two AC-boosting feats are authored (in the Feats document) and referenced from Defenses. **Armour Training** (+1 AC from worn armour, max +2, armour-gated — plate-knight). **Unarmored Defense** (while light/no armour, AC = `10 + dex + gateway's themed stat`: Monk wis, Rogue/Swashbuckler cha, Barbarian con — slippery-dodger). Mutually exclusive by requirement (armour vs. its absence); both are flat defensive height, the AC sibling of Hardened Save, and the only other feat-bought flat bonus. Establishes the **~20 AC soft cap** — a GM-upheld design target, not a hard rule, that protects the static ~13–17 band. Names **Monk / Rogue / Swashbuckler / Barbarian** as the gateways the unarmored route implies. Prior (v0.38) — CAPABILITY ROLL-TYPES: defines how the retired skill list is replaced — a **roll-type is a named stat-roll** (the name picks the stat + the fiction; the bonus is purely the stat), and **the GM names the governing stat at the table from the stat definitions**, not from a master list. Expands *The Character of each Statistic* into the real engine (what each stat governs, with the Int-is-learned / Wis-is-sensed line stated once). Adds a **baseline guide table** of common roll-types (Perception/Insight/Stealth/Persuasion/Presence/Deception/Athletics/Acrobatics/Lore/Craft/Medicine/Tracking) as a consistency anchor, explicitly not a registry. **Spellcasting is gateway-determined** (int/wis/cha by calling). Adds **Rerouting** — the offensive mirror of the Fitting Save: a described approach may, GM-granted, use a different stat (one stat not best-of, earned by commitment, consequences follow the method). Defines "a [roll-type] feat" = any feat granting a Spec Die on that roll-type, resolving the dangling feat prereqs. Prior (v0.37) — SAVE-RAISING FEAT: canonizes the **Hardened Save** feat (in the Feats document) as the one sanctioned feat-bought **height** in KD20 — permanent flat +1 ladder steps on a defensive Save, the trained spike on top of the gateway profile. Allowed as an exception to "feats never sell height" because it is defensive (no margin/DC treadmill) and gated by the Save profile (Major +5 only on a gateway-Solid Save; a mandatory −3 can only be lifted toward neutral). **Scaled cost:** −3→0 and 0→+1 = 20 XP; +1→+3 = 30; +3→+5 = 40 (gateway-Solid only); bought one step at a time from the current value. Distinct from a Specialization Die on a Save (a conditional rider on a feat that does more). Prior (v0.36) — DEFENSE NAMING & FITTING SAVE: renames the six Saves to bare **stat names** (Strength Save, Dexterity Save, Constitution Save, Intelligence Save, Wisdom Save, Charisma Save) — clearer at the table, and legible for the new Fitting Save rule; old flavour names (Withstand/Reflexes/Fortitude/Composure/Resolve/Poise) retired to a one-line synonym note. **Re-divides the three mental Saves** (force-of-will model): Int Save = the mind (telepathy, memory, confusion); Wis Save = perception (illusion, deception, sensing wrongness); Cha Save = the self / force of will (domination, compulsion, possession, FEAR moved here, intimidation, crowd). Gateway profiles preserved — every calling's intended −3 weakness is unchanged, only the column label moved (the Warrior's old "Resolve −3" is now "Cha Save −3," still fear/domination). Adds the **Fitting Save** rule: a defender who describes a defense routing a threat through a different stat may, GM-granted, roll that stat's Save instead of the default — one save not best-of, earned by commitment, the fiction's consequences stay (Strength-brace vs. fireball = you chose to stand in the fire), cuts both ways for threats, universal + free at baseline (feats may later grant reliability); canonical example = the braced large shield (no bucklers) vs. a breath weapon. Prior (v0.35): pool-depth advancement (Deep Well, Singular Path); no-XP-refund principle; gateway themes. (v0.34): static AC + rolled Saves (playtest-revised); gateway Save profiles; contest-or-Save line; Effect Escalation; Multi-Gateway rule. Prior: HP/Recovery/Defeat; symmetric margin ladder; Capabilities cut; States/Two Levers; five gateways; sim-validated core.*

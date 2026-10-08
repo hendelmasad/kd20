@@ -1,5 +1,5 @@
 # KD20 — Quick Reference
-**Version: v0.35 — 2026-10-03** *(companion to Core Rules v0.35)*
+**Version: v0.39 — 2026-10-08** *(companion to Core Rules v0.39)*
 
 *Rules as they currently stand. Facts only.*
 
@@ -32,6 +32,7 @@ Six **Statistics**: Strength, Dexterity, Constitution, Intelligence, Wisdom, Cha
 
 - **Bonus = (Statistic − 10) ÷ 2, round down.** (14 → +2, 10 → +0, 7 → −2.)
 - **Short form = the bonus:** str, dex, con, int, wis, cha. "Add str" = add the derived bonus, not the raw score.
+- **Each stat also owns a Save** (see Defenses): str = shove/grapple, dex = dodge/area, con = poison/body, int = mind, wis = perception, cha = will.
 - **Generation (2 Session-Zero knobs):** *Dice* — **3d6** (gritty) or **4d6-drop** (heroic); *Method* — **Individual** (keep your own array) or **Shared Pool** (all arrays pooled, take any, duplicates fine, assign individually — fixes bad rolls). With small creation bumps (≤ +2), **20 is the effective creation ceiling**.
 - **Raising a stat:** *not* an open XP buy — a **GM-gated narrative catalyst** (quest, training arc, boon) unlocks it, then a **low XP cost** completes it. GM controls the pace.
 
@@ -49,9 +50,31 @@ Everything that makes you better is a **d6 under a condition**. Three tiers:
 
 - **One die applies.** Even if several feats fit, only **one** Specialization Die is added — more feats = broader *coverage*, never a bigger bonus. When several fit, **the chosen feat sets the fiction** (sneak vs. bribe vs. seduce = same die, different scene).
 - **Growth is breadth** — feats are **buy-once**, no tiers. Sole exception: the **Master Feat** — once, permanent, narrow one held feat further for a **second d6** there (the only stack). No retraining. Protects your niche.
-- **Defenses are static** — the attacker/effect rolls against them; you never roll to resist (see Defenses below). Feats raise a defense; they don't grant a resist roll.
+- **Defense splits two ways** — **AC is static** (attacker rolls vs. it), the **six Saves are rolled** by the defender (see Defenses below). Feats raise a Save a ladder step or add a Spec Die on defence.
 - **The Gateway IS the profession** — callings, trades, cultures are one thing: a gateway (identity) opening a menu of narrow d6 cluster feats.
 - **Costs (provisional, sim-validated):** cluster feat **20** · gateway **30** · Master Feat **40**. The cluster feat is the economy's peg.
+
+## Capability Roll-Types — Named Stat-Rolls (no skill list)
+
+**A roll-type is just a named stat-roll:** the name picks the **stat** + the fiction; the bonus is purely the stat. "A Persuasion roll" = a **Charisma** roll; "a Perception roll" = a **Wisdom** roll. `1d20 + stat + (Spec Die if a feat fires)`, as always.
+
+**The GM names the stat at the table** by asking *"which stat does this lean on?"* — read off what each stat governs. No master list; KD20 doesn't name every action. The guide below is a **baseline for common cases**, not a registry.
+
+**What each stat governs** (the engine of the "which bonus?" call):
+- **str** — force: melee, lift, break, climb, grapple, haul.
+- **dex** — agility & precision: balance, tumble, aim, sleight of hand, stealthy movement, dodge.
+- **con** — stamina: endurance, resist fatigue/elements, outlast.
+- **int** — the *learned* mind: lore, languages, deduction, craft, arcane theory *(what you studied)*.
+- **wis** — the *sensing* mind: notice, read people, track, survive, gut judgment *(what you sense in the moment)*.
+- **cha** — force of self: persuade, intimidate, deceive, perform, lead.
+
+*Int-vs-Wis, once: **Int = what you learned; Wis = what you sense.** Recall a weakness from study (int) vs. notice it in the moment (wis).*
+
+**Baseline guide** (default stat · all rerouteable): Perception wis · Insight wis · Stealth dex · Tracking/Survival wis · Persuasion cha · Presence cha · Deception cha · Athletics str · Acrobatics dex · Lore/Academics int · Craft int · Medicine int/wis · **Spellcasting = gateway-determined** (Adept int · faith wis · innate cha).
+
+**Rerouting (offensive mirror of the Fitting Save):** the listed stat is the default, not a cage — a player who credibly describes a different approach may, **GM-granted**, use a different stat (intimidate by **str**, pick a lock by **wis**). One stat not best-of; earned by commitment; **consequences follow the method chosen.** GM's "no" is fast and final.
+
+**"A [roll-type] feat"** (in prereqs) = any feat granting a Spec Die on that roll-type. Base competence needs no feat.
 
 ## Contests
 
@@ -127,22 +150,40 @@ Each round: **1 Move + 1 Action.**
 
 **AC is static** (passive avoidance): `10 + dex + armour + shield`. Attacker rolls against it; defender never rolls.
 
-**The six Saves are rolled** (active resistance): `1d20 + stat + gateway profile + feats`, vs. the attacker's total.
+**The six Saves are rolled** (active resistance): `1d20 + stat + gateway profile + feats`, vs. the attacker's total. **Each Save is just "[Stat] Save"** — the stat name says which bonus and (with the coverage) what it defends:
 
-| Save | Stat | Resists |
+| Save | Stat | Defends against |
 |---|---|---|
-| **Withstand** | str | shove, grapple, trip, forced movement |
-| **Fortitude** | con | poison, disease, exhaustion |
-| **Reflexes** | dex | areas, blasts, traps (dodge) |
-| **Composure** | int | confusion, illusion |
-| **Resolve** | wis | fear, domination |
-| **Poise** | cha | social pressure |
+| **Strength Save** | str | shove, grapple, trip, forced movement |
+| **Dexterity Save** | dex | areas, blasts, traps (dodge) |
+| **Constitution Save** | con | poison, disease, exhaustion |
+| **Intelligence Save** | int | **the mind** — telepathy, memory, confusion |
+| **Wisdom Save** | wis | **perception** — illusion, deception, sensing wrongness |
+| **Charisma Save** | cha | **the will / self** — domination, compulsion, fear, intimidation, crowd |
+
+*The three mental Saves divide clean: **Int** = your thoughts (mind-reading, memory, confusion); **Wis** = your perception (illusion, spotting the trap); **Cha** = your will (defiance of domination, fear, being broken). Charisma is force of personality on defense as on offense.*
+
+*(Retired flavour names, kept once so old notes parse: Str = "Withstand," Dex = "Reflexes," Con = "Fortitude," Int = "Composure," Wis = "Resolve/discernment," Cha = "Poise.")*
 
 **Contest or Save? → Is the target *actively opposing* right now?**
-- **Yes → contest** (both roll): grapple/shove vs. **Withstand**; sneaking past a guard who's *actively searching* = Stealth vs. Perception.
+- **Yes → contest** (both roll): grapple/shove vs. **Strength Save**; sneaking past a guard who's *actively searching* = Stealth vs. Perception.
 - **No → roll vs. their static number**: sneaking past an *unaware* guard = Stealth vs. static Perception (10 + wis).
 - A Save *is* a contest (attacker's total vs. your Save roll). **AC is the one always-static defense.**
-- **Action Dice boost a Save roll** like any roll (Parry/Ward aid it). Gateway Save profile: 2 Solid / 1 Minor / 2 none / 1 Solid-hindrance; feats raise a Save one step (Major only via feat, on a Solid Save). **AC isn't in the profile — boost it via a cluster feat.**
+- **Action Dice boost a Save roll** like any roll (Parry/Ward aid it). Gateway Save profile: 2 Solid / 1 Minor / 2 none / 1 Solid-hindrance. **AC isn't in the profile — boost it via a cluster feat.**
+- **Hardened Save feat** (universal) raises one Save one flat ladder step — defensive feat-bought height, gated. **Scaled cost:** −3→0 = 20 · 0→+1 = 20 · +1→+3 = 30 · +3→+5 = 40. Major (+5) only on a gateway-Solid Save; a −3 can only be lifted toward neutral. Bought one step at a time.
+- **AC feats** (how a calling gets hard to hit — AC isn't in the profile): **Armour Training** (+1 AC from worn armour, max +2, needs armour > light; 30/40 XP) *or* **Unarmored Defense** (while light/no armour, AC = `10 + dex + gateway's themed stat` — Monk wis · Rogue/Swashbuckler cha · Barbarian con; 30 XP). Mutually exclusive (armour vs. its absence). **AC soft cap ~20** — a GM-upheld band target, not a hard rule.
+
+### The Fitting Save (more than one Save can apply)
+
+A threat names a **default Save** (fireball → Dexterity, fear → Charisma, grapple → Strength). But **if a defender describes a defense that credibly routes the threat through a different stat, the GM may allow that stat's Save instead.**
+
+- **Fiction leads, GM decides** — permission *granted*, not *picked*. **GM's "no" is fast and final** (no table debate).
+- **One Save, not best-of** — it *replaces* the default; never roll two and take the higher.
+- **Earned by commitment** — the greatshield in hand and braced, room to move, cover to hide behind. This is what keeps a gateway's −3 meaningful.
+- **The fiction's consequences stay** — succeeding doesn't erase what you chose to stand in. A **Strength Save** braced vs. a fireball (instead of a **Dexterity Save** to dodge) = you *chose to stay in the blast*: you live, but you're standing in the fire, cloak smoking, surroundings alight. The default save is often also the "get clear" save; the Fitting Save keeps you *alive*, not *clear*.
+- **Cuts both ways** — a threat may route a fear effect through Constitution ("a toxin that *feels* like dread") if the fiction fits.
+- **Universal & free** at baseline (fiction + GM, like maneuvers); feats may later grant *reliability* (a shield feat that always allows the Str-brace vs. areas).
+- *Example:* a Warrior (Str Save +3 / Dex Save −3) braces his **large shield** (no bucklers) vs. a dragon's breath → rolls a **Strength Save** instead of his awful Dexterity Save, but stands in the cone and everything around him burns.
 
 ## Effect Escalation (non-damage effects scale like damage)
 
@@ -189,6 +230,7 @@ A spendable pool that adds dice to rolls — the one exception to KD20's flat-mo
 - Uses: **boost a roll**, or **buy a Reaction** (act outside your turn).
 - **Pool refresh (default floor-raising):** start each session at the **greater of** carryover or the rate — earned dice survive the session boundary, so end-of-session rewards still matter. *(Optional hard-reset variant: reset to the rate, strict spend-or-lose.)*
 - **Pool size (refresh rate)** is a Session Zero dial: **Gritty 3 / Heroic 5 (default) / Cinematic 8.** *(Provisional; Heroic 5 sim-anchored.)*
+- **Pool depth (throughput feats):** **Deep Well** (universal, 40/60 XP, +1 refresh each, cap +2) · **Singular Path** (universal, 40 XP, needs Deep Well + single-gateway lock, +2 dice usable only within your gateway's theme). No XP refund if Singular Path is later broken.
 
 ### Earning Action Dice (fiction & character — never raw success)
 
@@ -234,12 +276,6 @@ Centered at **0 = human**. **Additive, upward only:** sizes **above** human add 
 
 ---
 
-## Action Economy *(to be written)*
-
-**1 Action + 1 Move** per turn (character track). **Reactions** are bought with Action Dice. Threat-track actors are not bound by this.
-
----
-
 ## Session Zero Dials
 
 | Dial | Options | Default |
@@ -254,4 +290,4 @@ Centered at **0 = human**. **Additive, upward only:** sizes **above** human add 
 
 ---
 
-*Companion to KD20 Core Rules v0.35. Provisional values flagged TBD.*
+*Companion to KD20 Core Rules v0.39. Provisional values flagged TBD.*
