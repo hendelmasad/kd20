@@ -1,6 +1,6 @@
 # KD20 — Design Session TODO
 
-**Version: v0.7 — 2026-10-08** *(against Core Rules v0.39 — defense model, Save naming, Fitting Save, Hardened Save, capability roll-types, AND AC feats all resolved. **Next action: the Foundry VTT update — consolidated change-list at the bottom.**)*
+**Version: v0.8 — 2026-10-08** *(against Core Rules v0.40 — all defense work resolved, PLUS the armour table now defined (Light +1 / Medium +2 / Heavy +3 / Shield +1, equippable items) and folded into the Foundry v0.39 branch. The v0.36–v0.39 Foundry work is built + tested; armour items being added to the same branch now.)*
 
 The playable Foundry system and the five-gateway catalogue (Warrior, Scout, Adept, Guardian, Face — 34 feats) are built. Populating the catalogue surfaced a set of **referenced-but-undefined terms** and some **rules gaps** the gateways lean on. This doc is the roadmap for the next focused *design* session. Most items interlock, so they should be tackled together, not piecemeal.
 
@@ -40,6 +40,14 @@ The defense model is settled, **playtest-blessed**, and the save naming is now f
 - **Rerouting** added: a described approach may use a different stat (GM-granted) — the offensive mirror of the Fitting Save; one principle across the game.
 - **"A [roll-type] feat"** = any feat granting a Spec Die on that roll-type — this resolves every dangling prereq (see §3).
 - Social-attack *targets* were already settled in v0.36 (Taunt/Rattled contest the Charisma Save); the attacker's own roll type is now a Charisma (Presence/Persuasion) roll per the guide.
+
+## 2c. Armour table — DEFINED ✅ (v0.40)
+
+**Done.** The armour/shield values (previously deferred) are now canon in `KD20_Rules.md`:
+- **None +0 · Light +1 · Medium +2 · Heavy +3 · Shield +1.** Tight on purpose — Armour Training (+1/+2) stacks, keeping the maxed heavy tank at **AC 20** (the band top; dex-20 extreme touches 21, absorbed by the soft cap).
+- **Dex always applies at every category** — KD20 never caps agility by armour (that's *why* the base values are small).
+- Validated vs hit-chance: a trained master holds AC 20 to ~47% passive; the pool lifts it over 50%. Strong-but-fair wall, never immune.
+- **Foundry:** armour is **equippable items** (category + bonus on the item); equipped category drives the AC-feat gates. Being added to the v0.39 branch now (see change-list §F).
 
 ## 2b. AC-boosting feats — AUTHORED ✅ (v0.39)
 
@@ -119,25 +127,43 @@ The save rename + coverage reshuffle touches the "kd20" system. Most of it is la
 
 ## CONSOLIDATED FOUNDRY VTT CHANGE-LIST (v0.36 → v0.39) — hand to Claude Code
 
-Everything the design docs changed since the Foundry system was last at parity. Grouped by risk.
+Everything the design docs changed since the Foundry system was last at parity.
 
-**A. Save rename + mental-coverage reshuffle (v0.36) — labels + two re-seeds.**
-- `module/config.mjs` → `SAVE_LABELS`: "Strength Save" … "Charisma Save" (player-facing strings). `SAVE_KEYS`/`SAVE_STATS` unchanged (each save still uses its own stat). If any key string encoded a flavour name (`withstand`, etc.), prefer keeping the key and changing only the label (low-risk) over migrating keys.
-- Coverage text (what each save resists) lives in descriptions/tooltips → update strings: Int = mind, Wis = perception, Cha = will (fear moved to Cha).
-- **Re-seed Warrior & Guardian gateway `saveProfile`** — their −3/+1 moved between stat columns (Warrior −3 wis→cha; Guardian +1 wis→cha). Scout/Adept/Face unchanged. Bump `CONTENT_VERSION`.
+**TWO GROUND TRUTHS that simplify this build:**
+1. **The new feats must COMPUTE** (not just exist as reference items) — Hardened Save changes a Save's computed total; the two AC feats change computed AC. Build them as real data-model contributions with working requirement checks, not display-only text.
+2. **The test world has been WIPED — no actors, no items survive.** So there is **NO migration / backfill needed.** Fresh seeds at a new `CONTENT_VERSION` are the whole job for profiles — `backfillSaveProfiles` can be skipped/retired. This removes the only real risk from the prior change-list.
+
+---
+
+**A. Save rename + mental-coverage reshuffle (v0.36) — labels + fresh seeds.**
+- `module/config.mjs` → `SAVE_LABELS`: "Strength Save" … "Charisma Save". `SAVE_KEYS`/`SAVE_STATS` unchanged (each save still uses its own stat). Keep the keys and change only the labels (simplest, and nothing stored needs migrating).
+- Coverage text (what each save resists) in descriptions/tooltips → update strings: **Int = mind** (telepathy/memory/confusion), **Wis = perception** (illusion/deception/sensing wrongness), **Cha = will** (domination/compulsion/**fear**/intimidation/crowd).
+- **Seed Warrior & Guardian `saveProfile` at the new values** (Warrior: Str+3 Con+3 Dex+1 Int0 Wis0 **Cha−3**; Guardian: Str+3 Con+3 **Dex−3** Int0 Wis0 Cha+1). Scout/Adept/Face unchanged. Fresh seed — no backfill. Bump `CONTENT_VERSION`.
 - No roll-engine change — `rollSave`, `resolveOutcome`, margins all stay.
 
-**B. Fitting Save (v0.36) — no code.** GM adjudication only. Optionally a tooltip/journal note.
+**B. Fitting Save (v0.36) — no code.** GM adjudication only. Optional tooltip/journal note.
 
-**C. Hardened Save feat (v0.37) — seed one feat.** A parameterized "Hardened Save" item (raises one Save one step; scaled cost 20/20/30/40; Major only on a gateway-Solid Save). Flat, always-on bonus to the chosen Save's computed total. The "requires a Strength Save feat" prereqs are satisfied by owning one on that stat.
+**C. Hardened Save feat (v0.37) — seed one COMPUTING feat.**
+- Parameterized "Hardened Save" item: carries **which Save (stat)** and **the step bought**. Its effect **adds a flat bonus to that Save's computed total** (the actor's Save = `1d20 + stat + gatewayProfileStep + Σ Hardened-Save steps`).
+- Validity the model should enforce or at least flag: steps go −3→0→+1→+3→+5 from the *current* value; **Major (+5) only on a Save whose gateway profile is Solid (+3)**. Scaled cost 20/20/30/40 (data field for reference; not enforced).
+- Prereq resolution: "requires a Strength Save feat" = the actor owns a Hardened Save item on that stat.
 
-**D. Capability roll-types (v0.38) — no code (or cosmetic).** Roll-types are GM-assigned stat-rolls; nothing to automate. Optionally expose the baseline guide as a journal/reference entry. Spellcasting stat is gateway-declared (Adept int) — if the sheet hardcodes a casting stat, make sure it reads from the gateway.
+**D. Capability roll-types (v0.38) — no compute (cosmetic).** Roll-types are GM-assigned stat-rolls; nothing to automate. Optionally expose the baseline guide as a journal entry. **Spellcasting stat is gateway-declared** — the sheet must read the casting stat **from the gateway** (Adept = int), not a hardcoded `int`, so faith/innate casters (wis/cha) work when added.
 
-**E. AC feats + soft cap (v0.39) — seed two feats; AC computed.**
-- Seed **Armour Training** (+1 AC from worn armour, max +2, requires armour > light) and **Unarmored Defense** (while light/no armour, AC = 10 + dex + gateway's themed stat).
-- If AC is a computed field, add the two feats' contributions with their requirement checks (armour category gate; the themed stat from the gateway). They're mutually exclusive by requirement.
-- The ~20 soft cap is a GM target, not an enforced clamp — don't hard-cap AC in code unless Keith wants a warning.
+**E. AC feats + soft cap (v0.39) — seed two COMPUTING feats.**
+- **Armour Training:** adds **+1 AC per owned purchase, capped at +2**, **only while worn armour category > light**. Computed contribution with the armour-category gate.
+- **Unarmored Defense:** **while armour category ≤ light**, **replace** the armour AC formula with **`10 + dex + themedStat`**, where `themedStat` is **named by the gateway** (Monk wis / Rogue·Swashbuckler cha / Barbarian con) — read it from the gateway, same pattern as the casting stat. Buy-once.
+- The two are **mutually exclusive by requirement** (armour vs. ≤ light) — the gates make them never both apply; no extra exclusion logic needed, but assert it if cheap.
+- **~20 AC soft cap is a GM target, NOT an enforced clamp** — do not hard-cap AC in code. (A non-blocking console/log *warning* if computed AC exceeds ~20 is fine if Keith wants a heads-up; default is nothing.)
 
-**General:** bump system version + `CONTENT_VERSION`; run `tools/verify.mjs`; a `backfillSaveProfiles`-style one-time migration if any stored gateway profiles need the Warrior/Guardian column move. Expect label/seed diffs, no engine diffs.
+**F. Equippable armour items (v0.40) — ADDED TO THIS BRANCH after A–E were tested.**
+- New **`armour` item type**: `category` (light/medium/heavy), `armourBonus` (int), `isShield` (bool), `equipped` (bool), description.
+- **AC reads equipped gear** (replaces the manual "Armour worn" dropdown as source of truth): `AC = 10 + dex + equipped-armour-bonus + equipped-shield-bonus + misc`. Dex always applies at every category. Fall back to "none" when nothing equipped.
+- **Equipped category now drives the AC-feat gates** — Armour Training needs medium/heavy equipped; Unarmored Defense needs light/none.
+- **Seed catalogue** (fresh seeds, bump CONTENT_VERSION): Padded/Leather (light +1), Chain Mail (medium +2), Plate (heavy +3), Shield (+1).
+- Sheet gets an equip/unequip spot; AC tooltip includes the armour + shield lines.
+- Values validated in band: maxed tank (dex+4, plate, shield, Armour Training) = AC 20; do not hard-cap.
 
-*Source: gap audit vs. the 34-feat catalogue (2026-10-03); updated through the v0.36–v0.39 design passes (2026-10-07/08).*
+**General:** bump system version + `CONTENT_VERSION`; run `tools/verify.mjs` (add armour + feat-gate-reads-equipped-category checks). Expect label/seed/compute diffs, no roll-engine diffs, **no migration.**
+
+*Source: gap audit vs. the 34-feat catalogue (2026-10-03); updated through the v0.36–v0.39 design passes (2026-10-07/08). Feats compute; test world wiped (no migration).*

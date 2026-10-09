@@ -34,6 +34,43 @@
     </p>
   </section>
 
+  {{!--
+    Core rules v0.37/v0.39: the few feats whose flat, always-on effect the
+    character sheet computes. Each owned copy is one purchase.
+  --}}
+  <section class="kd20-block">
+    <h2>Computed Effect</h2>
+    <div class="kd20-derived">
+      <div class="kd20-field">
+        <label for="mechanic-kind">Mechanic</label>
+        <select id="mechanic-kind" name="system.mechanic.kind" {{#unless editable}}disabled{{/unless}}>
+          {{selectOptions choices.featMechanics selected=system.mechanic.kind}}
+        </select>
+      </div>
+      {{#if (eq system.mechanic.kind "hardenedSave")}}
+      <div class="kd20-field">
+        <label for="mechanic-save">Save raised</label>
+        <select id="mechanic-save" name="system.mechanic.save" {{#unless editable}}disabled{{/unless}}>
+          {{selectOptions choices.saves selected=system.mechanic.save}}
+        </select>
+      </div>
+      {{/if}}
+    </div>
+    {{#if (eq system.mechanic.kind "hardenedSave")}}
+    <p class="kd20-hint">
+      Each copy raises the chosen Save one ladder step (−3 → 0 → +1 → +3 → +5). Major +5
+      only on a gateway-Solid Save; a −3 lifts only to 0. Cost by step: 20 / 20 / 30 / 40 XP.
+    </p>
+    {{else if (eq system.mechanic.kind "armourTraining")}}
+    <p class="kd20-hint">+1 AC per copy (max +2) while armour heavier than light is worn.</p>
+    {{else if (eq system.mechanic.kind "unarmoredDefense")}}
+    <p class="kd20-hint">
+      While light or no armour is worn, AC = 10 + dex + your gateway's themed stat + shield + misc.
+      The gateway names the stat.
+    </p>
+    {{/if}}
+  </section>
+
   <section class="kd20-block">
     <h2>Trigger</h2>
     <p class="kd20-hint">When this feat's die or effect applies. The GM and player decide in v1.</p>

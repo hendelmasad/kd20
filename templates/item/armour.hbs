@@ -1,0 +1,51 @@
+{{!-- Armour item sheet — core rules v0.39. Must render one top-level element. --}}
+<div class="kd20-sheet kd20-item-sheet">
+
+  <header class="kd20-header">
+    <img class="kd20-portrait small" src="{{document.img}}" alt="{{document.name}}"
+         data-action="editImage" data-edit="img">
+    <input class="kd20-name" type="text" name="name" value="{{document.name}}"
+           placeholder="Armour name" {{#unless editable}}disabled{{/unless}}>
+  </header>
+
+  <section class="kd20-block">
+    <h2>Armour</h2>
+    <div class="kd20-derived kd20-derived-4">
+      <div class="kd20-field kd20-check">
+        <label for="is-shield">Shield</label>
+        <input id="is-shield" type="checkbox" name="system.isShield"
+               {{checked system.isShield}} {{#unless editable}}disabled{{/unless}}>
+      </div>
+      {{#unless system.isShield}}
+      <div class="kd20-field">
+        <label for="category">Category</label>
+        <select id="category" name="system.category" {{#unless editable}}disabled{{/unless}}>
+          {{selectOptions choices.armourCategories selected=system.category}}
+        </select>
+      </div>
+      {{/unless}}
+      <div class="kd20-field">
+        <label for="armour-bonus">AC Bonus</label>
+        <input id="armour-bonus" type="number" step="1" min="0" name="system.armourBonus"
+               value="{{system.armourBonus}}" {{#unless editable}}disabled{{/unless}}>
+      </div>
+      <div class="kd20-field kd20-check">
+        <label for="equipped">Equipped</label>
+        <input id="equipped" type="checkbox" name="system.equipped"
+               {{checked system.equipped}} {{#unless editable}}disabled{{/unless}}>
+      </div>
+    </div>
+    <p class="kd20-hint">
+      While equipped, adds its bonus to AC; dex always applies on top. Body armour's category
+      gates the AC feats: Armour Training needs medium or heavy, Unarmored Defense needs light
+      or none. Starter values: light +1, medium +2, heavy +3, shield +1.
+    </p>
+  </section>
+
+  <section class="kd20-block">
+    <h2>Description</h2>
+    {{formInput systemFields.description value=system.description enriched=enriched.description
+                toggled=true compact=true disabled=disabled classes="content-sized"}}
+  </section>
+
+</div>

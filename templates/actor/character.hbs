@@ -43,7 +43,7 @@
 
       <div class="kd20-field">
         <label>Armour Class</label>
-        <span class="computed big" title="10 + dex + armour + shield + misc">{{system.ac}}</span>
+        <span class="computed big" title="{{acBreakdown}}">{{system.ac}}</span>
       </div>
 
       <div class="kd20-field">
@@ -64,29 +64,37 @@
       </div>
     </div>
 
-    {{!-- Manual AC contributions; equipment automation is out of scope for v1. --}}
+    {{!--
+      Core rules v0.39: armour and shield come from equipped Armour items (see the
+      Armour section below); the equipped armour's category gates the AC feats.
+      Misc is the one manual AC contribution.
+    --}}
     <div class="kd20-derived">
       <div class="kd20-field">
-        <label for="armour">Armour</label>
-        <input id="armour" type="number" step="1" name="system.defence.armour"
-               value="{{system.defence.armour}}" {{#unless editable}}disabled{{/unless}}>
+        <label>Armour equipped</label>
+        <span class="computed">
+          {{#if system.armour.body}}{{system.armour.body.name}} ({{armourCategory}}){{else}}None{{/if}}
+        </span>
       </div>
       <div class="kd20-field">
-        <label for="shield">Shield</label>
-        <input id="shield" type="number" step="1" name="system.defence.shield"
-               value="{{system.defence.shield}}" {{#unless editable}}disabled{{/unless}}>
+        <label>Shield equipped</label>
+        <span class="computed">{{#if system.armour.shield}}{{system.armour.shield.name}}{{else}}None{{/if}}</span>
       </div>
       <div class="kd20-field">
-        <label for="misc">Misc</label>
+        <label for="misc">Misc AC</label>
         <input id="misc" type="number" step="1" name="system.defence.misc"
                value="{{system.defence.misc}}" {{#unless editable}}disabled{{/unless}}>
       </div>
     </div>
+    {{#each armourWarnings as |warning|}}
+    <p class="kd20-warning">{{warning}}</p>
+    {{/each}}
   </section>
 
   {{!--
     Core rules v0.34: the six rolled Saves. Each shows its static part,
-    stat + gateway profile step; the d20 is added when rolled. AC stays static.
+    stat + gateway profile step + Hardened Save steps (v0.37); the d20 is added
+    when rolled. AC stays static. v0.36: named for their stat.
   --}}
   <section class="kd20-block">
     <h2>Saves</h2>
@@ -94,17 +102,24 @@
       {{#each saves as |save|}}
       <div class="kd20-stat kd20-save">
         <button type="button" class="kd20-stat-roll" data-action="rollSave"
-                data-save="{{save.key}}" title="Roll a {{save.label}} Save">
+                data-save="{{save.key}}" title="Roll a {{save.label}}">
           {{save.label}}
         </button>
         <span class="computed big" title="{{save.breakdown}}">
           {{numberFormat save.total decimals=0 sign=true}}
         </span>
-        <span class="kd20-save-stat">{{save.stat}}</span>
+        <span class="kd20-save-stat">{{save.stat}}{{#if save.hardened}} &middot; hardened{{/if}}</span>
       </div>
       {{/each}}
     </div>
-    <p class="kd20-hint">Save = 1d20 + stat + Gateway profile. Hover a total for its breakdown.</p>
+    <p class="kd20-hint">
+      Save = 1d20 + stat + Gateway profile + Hardened Save. Hover a total for its breakdown
+      and what it defends against. The GM may let a described defense roll a different
+      Save instead (the Fitting Save) — one Save, not best-of, and the fiction's consequences stay.
+    </p>
+    {{#each featWarnings as |warning|}}
+    <p class="kd20-warning">{{warning}}</p>
+    {{/each}}
   </section>
 
   {{!--
@@ -204,6 +219,8 @@
         <span class="kd20-item-name" data-action="itemEdit">{{item.name}}</span>
         <span class="kd20-item-detail">
           {{item.system.featType}}{{#if item.system.grantsSpecializationDie}} &middot; d6{{/if}}
+          {{#if item.system.mechanic.save}}{{#if (eq item.system.mechanic.kind "hardenedSave")}}
+            &middot; {{lookup ../saveLabels item.system.mechanic.save}}{{/if}}{{/if}}
         </span>
         {{#if ../editable}}
         <button type="button" class="kd20-item-del" data-action="itemDelete"
@@ -243,6 +260,42 @@
       </li>
       {{else}}
       <li class="kd20-empty">No Weapons. Drag some here, or press +.</li>
+      {{/each}}
+    </ul>
+  </section>
+
+  {{!--
+    Core rules v0.39: body armour and shields. Only equipped pieces count toward
+    AC; equipping one unequips any other piece in the same slot.
+  --}}
+  <section class="kd20-block">
+    <h2>
+      Armour
+      {{#if editable}}
+      <button type="button" class="kd20-add" data-action="itemCreate" data-item-type="armour"
+              title="Create a new Armour item">+</button>
+      {{/if}}
+    </h2>
+    <ul class="kd20-items">
+      {{#each armour as |row|}}
+      <li class="kd20-item draggable" data-item-id="{{row.item.id}}">
+        <img class="kd20-item-img" src="{{row.item.img}}" alt="{{row.item.name}}">
+        <span class="kd20-item-name" data-action="itemEdit">{{row.item.name}}</span>
+        <span class="kd20-item-detail">{{row.slot}} &middot; AC +{{row.item.system.armourBonus}}</span>
+        {{#if ../editable}}
+        <button type="button" class="kd20-item-roll{{#if row.item.system.equipped}} kd20-equipped{{/if}}"
+                data-action="toggleEquipped"
+                title="{{#if row.item.system.equipped}}Unequip{{else}}Equip{{/if}} {{row.item.name}}">
+          {{#if row.item.system.equipped}}Equipped{{else}}Equip{{/if}}
+        </button>
+        <button type="button" class="kd20-item-del" data-action="itemDelete"
+                title="Delete">&times;</button>
+        {{else}}
+        <span class="kd20-item-detail">{{#if row.item.system.equipped}}Equipped{{/if}}</span>
+        {{/if}}
+      </li>
+      {{else}}
+      <li class="kd20-empty">No Armour. Drag some here, or press +.</li>
       {{/each}}
     </ul>
   </section>

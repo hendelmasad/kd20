@@ -12,7 +12,7 @@
 const { HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 
-import { STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS } from "../config.mjs";
+import { STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS, SAVE_COVERAGE, ARMOUR_CATEGORIES } from "../config.mjs";
 import { rollCheck, rollSave, rollAttack, refreshActionDice, promptRollOptions, promptAttackOptions }
   from "../dice/kd20-roll.mjs";
 
@@ -32,6 +32,7 @@ export default class KD20CharacterSheet extends HandlebarsApplicationMixin(Actor
       rollStat: KD20CharacterSheet.#onRollStat,
       rollSave: KD20CharacterSheet.#onRollSave,
       rollAttack: KD20CharacterSheet.#onRollAttack,
+      toggleEquipped: KD20CharacterSheet.#onToggleEquipped,
       refreshActionDice: KD20CharacterSheet.#onRefreshActionDice
     }
   };
@@ -58,24 +59,61 @@ export default class KD20CharacterSheet extends HandlebarsApplicationMixin(Actor
       bonus: system.stats[key].bonus
     }));
 
-    // Core rules v0.34: the six Saves, with a hover breakdown of stat + profile.
+    // Core rules v0.34: the six Saves, with a hover breakdown of stat + profile
+    // (+ Hardened Save, v0.37) and what the Save defends against (v0.36).
     const profileSource = system.gatewayName ?? "Gateway";
     const signed = n => (n < 0 ? `−${-n}` : `+${n}`);
     context.saves = SAVE_KEYS.map(key => {
       const save = system.saves[key];
+      const terms = [`${save.stat} ${signed(save.statBonus)}`, `${profileSource} profile ${signed(save.profile)}`];
+      if ( save.hardened.applied ) terms.push(`Hardened Save ×${save.hardened.applied} ${signed(save.hardened.bonus)}`);
       return {
         key,
         label: SAVE_LABELS[key],
         stat: save.stat,
         total: save.total,
-        breakdown: `${save.stat} ${signed(save.statBonus)}, ${profileSource} profile ${signed(save.profile)}`
+        hardened: save.hardened.applied,
+        breakdown: `${terms.join(", ")}\n${SAVE_COVERAGE[key]}`
       };
     });
 
-    // Split the actor's owned items into the three KD20 categories.
+    // Feat rules the sheet could not apply, so the player knows why a number
+    // did not move. Core rules v0.37 (Hardened Save) and v0.39 (AC feats).
+    const warnings = [];
+    for ( const key of SAVE_KEYS ) {
+      const { wasted, cap } = system.saves[key].hardened;
+      if ( wasted ) warnings.push(`${SAVE_LABELS[key]}: ${wasted} Hardened Save purchase(s) beyond its `
+        + `${signed(cap)} cap raise nothing (Major +5 needs a gateway-Solid Save; a −3 lifts only to 0).`);
+    }
+    if ( system.unassignedHardenedSaves ) {
+      warnings.push(`${system.unassignedHardenedSaves} Hardened Save feat(s) have no Save chosen — `
+        + "open the feat and pick one.");
+    }
+    for ( const [label, feat] of [["Armour Training", system.acFeats.armourTraining],
+      ["Unarmored Defense", system.acFeats.unarmoredDefense]] ) {
+      if ( feat.reason ) warnings.push(`${label}: ${feat.reason}`);
+    }
+    context.featWarnings = warnings;
+
+    // Core rules v0.39: AC breakdown, and the equipped armour category that
+    // gates the AC feats. Only one body armour and one shield count.
+    context.acBreakdown = system.acParts.map(p => `${p.label} ${signed(p.value)}`).join(", ");
+    context.armourCategory = system.armour.body ? ARMOUR_CATEGORIES[system.armour.category] : "None";
+    context.armourWarnings = [];
+    if ( system.armour.extraBody ) context.armourWarnings.push("More than one body armour is equipped; "
+      + "only the highest bonus counts.");
+    if ( system.armour.extraShields ) context.armourWarnings.push("More than one shield is equipped; "
+      + "only the highest bonus counts.");
+    context.saveLabels = SAVE_LABELS;
+
+    // Split the actor's owned items into the four KD20 categories.
     context.gateways = this.actor.items.filter(i => i.type === "gateway");
     context.feats = this.actor.items.filter(i => i.type === "feat");
     context.weapons = this.actor.items.filter(i => i.type === "weapon");
+    context.armour = this.actor.items.filter(i => i.type === "armour").map(item => ({
+      item,
+      slot: item.system.isShield ? "Shield" : ARMOUR_CATEGORIES[item.system.category]
+    }));
 
     // Spec section 4a: a character normally has one Gateway. We do not enforce
     // that in v1, but we do warn if there are several, because only the first
@@ -156,7 +194,7 @@ export default class KD20CharacterSheet extends HandlebarsApplicationMixin(Actor
   static async #onRollSave(event, target) {
     const saveKey = target.dataset.save;
     if ( !SAVE_KEYS.includes(saveKey) ) return;
-    const options = await promptRollOptions(`${SAVE_LABELS[saveKey]} Save`, "Attacker's total / DC");
+    const options = await promptRollOptions(SAVE_LABELS[saveKey], "Attacker's total / DC");
     if ( !options ) return;
     await rollSave({ actor: this.actor, saveKey, ...options });
   }
@@ -174,6 +212,30 @@ export default class KD20CharacterSheet extends HandlebarsApplicationMixin(Actor
     const options = await promptAttackOptions(`${weapon.name} Attack`);
     if ( !options ) return;
     await rollAttack({ actor: this.actor, weapon, ...options });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Core rules v0.39: equip or unequip the clicked Armour item. Equipping body
+   * armour unequips any other body armour, and equipping a shield unequips any
+   * other shield, so exactly one of each can count toward AC.
+   * @this {KD20CharacterSheet}
+   */
+  static async #onToggleEquipped(event, target) {
+    const armour = this.#getItem(target);
+    if ( armour?.type !== "armour" ) return;
+    const equip = !armour.system.equipped;
+    const updates = [{ _id: armour.id, "system.equipped": equip }];
+    if ( equip ) {
+      for ( const other of this.actor.items ) {
+        if ( (other.type === "armour") && (other.id !== armour.id) && other.system.equipped
+          && (other.system.isShield === armour.system.isShield) ) {
+          updates.push({ _id: other.id, "system.equipped": false });
+        }
+      }
+    }
+    await this.actor.updateEmbeddedDocuments("Item", updates);
   }
 
   /* -------------------------------------------- */

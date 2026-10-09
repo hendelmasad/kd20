@@ -10,6 +10,7 @@ import KD20CharacterData from "./data/actor-character.mjs";
 import KD20GatewayData from "./data/item-gateway.mjs";
 import KD20FeatData from "./data/item-feat.mjs";
 import KD20WeaponData from "./data/item-weapon.mjs";
+import KD20ArmourData from "./data/item-armour.mjs";
 
 import KD20CharacterSheet from "./sheets/actor-sheet.mjs";
 import KD20ItemSheet from "./sheets/item-sheet.mjs";
@@ -17,7 +18,7 @@ import KD20ItemSheet from "./sheets/item-sheet.mjs";
 import { KD20Combat, KD20Combatant } from "./documents/combat.mjs";
 import { INITIATIVE_FORMULA } from "./combat/initiative.mjs";
 
-import { seedCompendiums, backfillSaveProfiles, CONTENT_VERSION } from "./seed-content.mjs";
+import { seedCompendiums, CONTENT_VERSION } from "./seed-content.mjs";
 import * as dice from "./dice/kd20-roll.mjs";
 
 Hooks.once("init", () => {
@@ -30,12 +31,12 @@ Hooks.once("init", () => {
     KD20GatewayData,
     KD20FeatData,
     KD20WeaponData,
+    KD20ArmourData,
     KD20CharacterSheet,
     KD20ItemSheet,
     KD20Combat,
     KD20Combatant,
     seedCompendiums,
-    backfillSaveProfiles,
     dice
   };
 
@@ -45,6 +46,7 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels.gateway = KD20GatewayData;
   CONFIG.Item.dataModels.feat = KD20FeatData;
   CONFIG.Item.dataModels.weapon = KD20WeaponData;
+  CONFIG.Item.dataModels.armour = KD20ArmourData;
 
   // Initiative: 1d20 + better of dex or wis, re-rolled every round. Without a
   // formula here, core rolls the literal text "undefined". KD20Combatant builds
@@ -62,7 +64,7 @@ Hooks.once("init", () => {
   });
 
   foundry.documents.collections.Items.registerSheet("kd20", KD20ItemSheet, {
-    types: ["gateway", "feat", "weapon"],
+    types: ["gateway", "feat", "weapon", "armour"],
     makeDefault: true,
     label: "KD20 Item Sheet"
   });
@@ -100,13 +102,11 @@ Hooks.on("renderChatMessageHTML", dice.onRenderChatCard);
 Hooks.once("ready", async () => {
   if ( !game.user.isGM ) return;
 
-  // Fill the (initially empty) compendium packs with the reference content from
-  // the design docs, once per world. Deleting an entry afterwards will not make
-  // it reappear; run game.kd20.seedCompendiums({force: true}) if you want it back.
+  // Fill the compendium packs with the reference content from the design docs,
+  // once per content version: new entries are added and existing ones refreshed
+  // to match. Deleting an entry afterwards will not make it reappear until the
+  // next version; run game.kd20.seedCompendiums() if you want it back.
   if ( game.settings.get("kd20", "seededContentVersion") === CONTENT_VERSION ) return;
-  await seedCompendiums();
-  // Content version 7 (core rules v0.34): existing gateways need their Save
-  // profile too. Only fills all-zero profiles, so hand edits are never lost.
-  await backfillSaveProfiles();
+  await seedCompendiums({ refresh: true });
   await game.settings.set("kd20", "seededContentVersion", CONTENT_VERSION);
 });

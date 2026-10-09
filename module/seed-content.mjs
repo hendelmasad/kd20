@@ -1,7 +1,7 @@
 /**
  * One-off compendium seeding.
  *
- * The three KD20 compendium packs are declared in system.json and created empty
+ * The four KD20 compendium packs are declared in system.json and created empty
  * by Foundry on first load. This helper fills them with the reference content
  * from the design docs so there is something real to drag onto a sheet.
  *
@@ -9,17 +9,26 @@
  * by hand from the console:   game.kd20.seedCompendiums()
  *
  * It is safe to run more than once — entries that already exist by name are
- * skipped rather than duplicated. Pass {force: true} to add them again anyway.
+ * skipped rather than duplicated. Pass {force: true} to add them again anyway,
+ * or {refresh: true} to overwrite existing entries with the content below.
+ *
+ * The packs live in the system folder, so they outlive any one world: a content
+ * change must refresh the entries already in them, not just add new ones.
  *
  * All content below is taken from the design docs (Implementation Spec section 8
  * and KD20_Feats.md), not invented.
  */
 
 /**
- * Bump this whenever the content below changes, to re-seed existing worlds with
- * the new entries. Existing entries are matched by name and left alone.
+ * Bump this whenever the content below changes. On the next load the GM's client
+ * adds any new entries and refreshes existing ones (matched by name) to match.
+ * Only the compendium packs are touched; world Items and Actors never are.
+ *
+ * 8: core rules v0.36-v0.39 — stat-name Saves (Warrior and Guardian profiles
+ * re-seeded), Hardened Save, Armour Training, Unarmored Defense.
+ * 9: equippable Armour items and the starter armour catalogue.
  */
-export const CONTENT_VERSION = "7";
+export const CONTENT_VERSION = "9";
 
 /** KD20_Feats.md, Adept "Spells and Trappings" — shared by the Bolt and Blast descriptions. */
 const TRAPPINGS_HTML = "<p><strong>The trapping suggests the rider.</strong> On a Decisive or "
@@ -48,8 +57,9 @@ export const PACK_CONTENT = {
       img: "icons/svg/sword.svg",
       system: {
         hpBonus: 6,
-        // KD20_Rules.md v0.34, Gateway Save Profiles.
-        saveProfile: { withstand: 3, fortitude: 3, reflexes: 1, composure: 0, resolve: -3, poise: 0 },
+        // KD20_Rules.md v0.36, Gateway Save Profiles (str, dex, con, int, wis, cha).
+        // v0.36 moved the -3 from the Wisdom Save to the Charisma Save.
+        saveProfile: { withstand: 3, reflexes: 1, fortitude: 3, composure: 0, resolve: 0, poise: -3 },
         costXp: 30,
         benefit: "<p>You are <strong>never unarmed</strong> — your body itself is a weapon "
           + "(unarmed strikes count as a weapon you are trained with, damage d4, and you may "
@@ -68,14 +78,14 @@ export const PACK_CONTENT = {
       img: "icons/svg/wingfoot.svg",
       system: {
         hpBonus: 4,
-        // KD20_Rules.md v0.34, Gateway Save Profiles.
-        saveProfile: { withstand: 1, fortitude: 0, reflexes: 3, composure: 0, resolve: 3, poise: -3 },
+        // KD20_Rules.md v0.36, Gateway Save Profiles (str, dex, con, int, wis, cha).
+        saveProfile: { withstand: 1, reflexes: 3, fortitude: 0, composure: 0, resolve: 3, poise: -3 },
         costXp: 30,
         benefit: "<p>You may <strong>attempt Stealth even while observed</strong>, so long as "
           + "there is <em>any</em> shadow, cover, or distraction to work with — a permission "
           + "others don't have.</p><p>In addition, <strong>once per turn, when you spend an "
-          + "Action Die to boost a Stealth or a field-Perception roll, treat that die as if you "
-          + "rolled at least a 4</strong>.</p>",
+          + "Action Die to boost a Stealth or Perception roll, treat that die as if you rolled at "
+          + "least a 4</strong>.</p>",
         description: "<p><em>You are at home in the shadows and the wilderness. You move where "
           + "others cannot, see what others miss, and are gone before anyone knew you were "
           + "there.</em></p>"
@@ -88,15 +98,16 @@ export const PACK_CONTENT = {
       img: "icons/svg/book.svg",
       system: {
         hpBonus: 2,
-        // KD20_Rules.md v0.34, Gateway Save Profiles.
-        saveProfile: { withstand: 0, fortitude: -3, reflexes: 0, composure: 3, resolve: 3, poise: 1 },
+        // KD20_Rules.md v0.36, Gateway Save Profiles (str, dex, con, int, wis, cha).
+        saveProfile: { withstand: 0, reflexes: 0, fortitude: -3, composure: 3, resolve: 3, poise: 1 },
         costXp: 30,
         benefit: "<p>You can <strong>work magic at all</strong> — the base permission that "
           + "spellcasting requires; without an arcane gateway a character cannot take spell-feats "
-          + "(they may still attempt found <em>rituals</em>, which are treasure, not feats). Your "
-          + "spells are cast on <strong>1d20 + int</strong>.</p><p>In addition, <strong>once per "
-          + "turn, when you spend an Action Die to boost a spell attack roll, treat that die as if "
-          + "you rolled at least a 4</strong>.</p>",
+          + "(they may still attempt found <em>rituals</em>, which are treasure, not feats). "
+          + "<strong>The Adept's casting stat is Intelligence</strong> — its Spellcasting roll is "
+          + "<strong>1d20 + int</strong> (Spellcasting is gateway-determined; the Adept learns magic "
+          + "by study).</p><p>In addition, <strong>once per turn, when you spend an Action Die to "
+          + "boost a Spellcasting roll, treat that die as if you rolled at least a 4</strong>.</p>",
         description: "<p><em>You have learned to reach past the ordinary and shape force by will "
           + "and study. Where others swing steel, you speak the world into doing what you want — a "
           + "bolt of ice, a burst of flame, a ward against harm.</em></p>"
@@ -110,14 +121,15 @@ export const PACK_CONTENT = {
       img: "icons/svg/holy-shield.svg",
       system: {
         hpBonus: 6,
-        // KD20_Rules.md v0.34, Gateway Save Profiles.
-        saveProfile: { withstand: 3, fortitude: 3, reflexes: -3, composure: 0, resolve: 1, poise: 0 },
+        // KD20_Rules.md v0.36, Gateway Save Profiles (str, dex, con, int, wis, cha).
+        // v0.36 moved the +1 from the Wisdom Save to the Charisma Save.
+        saveProfile: { withstand: 3, reflexes: -3, fortitude: 3, composure: 0, resolve: 0, poise: 1 },
         costXp: 30,
         benefit: "<p><strong>Interpose</strong> — once per round, when an ally within your reach "
           + "is hit by an attack, you may <strong>react</strong> (spend <strong>1 Action "
           + "Die</strong>) to take the hit in their place (the damage and any Follow-Up land on "
           + "you instead).</p><p>In addition, <strong>once per turn, when you spend an Action Die "
-          + "to boost a Withstand resist roll, treat that die as if you rolled at least a "
+          + "to boost a Strength Save roll, treat that die as if you rolled at least a "
           + "4</strong>.</p>",
         description: "<p><em>You put yourself between danger and the people who need protecting. "
           + "You hold the line when others break. You are the reason the party survives.</em></p>"
@@ -130,13 +142,14 @@ export const PACK_CONTENT = {
       img: "icons/svg/card-joker.svg",
       system: {
         hpBonus: 2,
-        // KD20_Rules.md v0.34, Gateway Save Profiles.
-        saveProfile: { withstand: 0, fortitude: -3, reflexes: 0, composure: 3, resolve: 1, poise: 3 },
+        // KD20_Rules.md v0.36, Gateway Save Profiles (str, dex, con, int, wis, cha).
+        saveProfile: { withstand: 0, reflexes: 0, fortitude: -3, composure: 3, resolve: 1, poise: 3 },
         costXp: 30,
         benefit: "<p>You always <strong>read the emotional state and immediate wants</strong> of "
           + "anyone you speak with — not their secrets, but their mood and motive right now (the "
           + "GM tells you).</p><p>In addition, <strong>once per turn, when you spend an Action Die "
-          + "to boost a social roll, treat that die as if you rolled at least a 4</strong>.</p>",
+          + "to boost a social roll (Persuasion, Presence or Deception — all Charisma), treat that "
+          + "die as if you rolled at least a 4</strong>.</p>",
         description: "<p><em>People are your instrument. You read them, move them, charm them, "
           + "deceive them, and inspire them — sometimes all at once. You are never the most "
           + "dangerous person in a fight. You are frequently the most dangerous person in the "
@@ -195,9 +208,9 @@ export const PACK_CONTENT = {
         featType: "cluster",
         costXp: 20,
         grantsSpecializationDie: true,
-        prerequisite: "Warrior; requires a Withstand resist feat",
-        trigger: "You are subjected to a physical effect you resist with Withstand.",
-        effect: "<p>Add a <strong>Specialization Die</strong> to the Withstand roll.</p>"
+        prerequisite: "Warrior; requires a Strength Save feat (any Hardened Save on Strength)",
+        trigger: "You are subjected to a physical effect you resist with your Strength Save.",
+        effect: "<p>Add a <strong>Specialization Die</strong> to the Strength Save.</p>"
           + "<p>On a <strong>Decisive</strong> resist, you may immediately make a "
           + "<strong>free contest</strong> (a Follow-Up) against the source of the effect.</p>",
         description: ""
@@ -242,7 +255,7 @@ export const PACK_CONTENT = {
         featType: "cluster",
         costXp: 20,
         grantsSpecializationDie: false,
-        prerequisite: "Warrior · CON 13; requires an Endurance/Withstand resist feat",
+        prerequisite: "Warrior · CON 13; requires a Strength Save feat (any Hardened Save on Strength)",
         trigger: "(Active — costs 1 Action Die) The moment you would be reduced to 0 HP "
           + "(defeated).",
         effect: "<p>Spend <strong>1 Action Die</strong> to instead remain standing at 1 HP with "
@@ -436,8 +449,8 @@ export const PACK_CONTENT = {
         grantsSpecializationDie: false,
         prerequisite: "Adept · INT 14; requires Bolt",
         trigger: "You cast it at an area (a burst ~3 units across, or a cone) within range.",
-        effect: "<p>Every actor in the area makes a <strong>Reflexes resist</strong> (1d20 + dex "
-          + "vs. your cast total). On a failure: <strong>d6 + int</strong> damage. On your "
+        effect: "<p>Every actor in the area makes a <strong>Dexterity Save</strong> (1d20 + dex + "
+          + "their gateway profile vs. your cast total). On a failure: <strong>d6 + int</strong> damage. On your "
           + "<strong>Decisive/Supreme</strong> cast, those who failed also suffer the trapping's "
           + "rider State (see below).</p><p>The Precision Die does not apply to area spells.</p>",
         description: "<p>Choose a trapping at purchase; may be retaken with a different "
@@ -458,7 +471,7 @@ export const PACK_CONTENT = {
           + "effect against you or an ally in reach.",
         effect: "<p><em>(Modifier)</em> Conjure a shield of force — impose a <strong>−3 "
           + "(Solid)</strong> hindrance on the attacker's roll, or grant <strong>+3</strong> to an "
-          + "ally's resist against the effect.</p>",
+          + "ally's Save against the effect.</p>",
         description: ""
       }
     },
@@ -507,9 +520,9 @@ export const PACK_CONTENT = {
         prerequisite: "Guardian",
         trigger: "(Active — costs 1 Action Die) An enemy that can see and hear you.",
         effect: "<p>Make a <strong>contest</strong> — your Presence/Persuasion vs. the target's "
-          + "Resolve. On a win, the enemy must direct its <strong>next action at you</strong> "
-          + "rather than your allies; on a <strong>Decisive</strong> win, it cannot ignore you for "
-          + "a second round.</p>",
+          + "<strong>Charisma Save</strong>. On a win, the enemy must direct its <strong>next "
+          + "action at you</strong> rather than your allies; on a <strong>Decisive</strong> win, it "
+          + "cannot ignore you for a second round.</p>",
         description: ""
       }
     },
@@ -521,7 +534,7 @@ export const PACK_CONTENT = {
         featType: "cluster",
         costXp: 20,
         grantsSpecializationDie: false,
-        prerequisite: "Guardian · CON 13; requires a Withstand resist feat",
+        prerequisite: "Guardian · CON 13; requires a Strength Save feat (any Hardened Save on Strength)",
         trigger: "An enemy tries to push, trip, knock down, or reposition you (a Universal "
           + "Maneuver against you).",
         effect: "<p><em>(Permission + Modifier)</em> You <strong>cannot be moved against your "
@@ -542,7 +555,7 @@ export const PACK_CONTENT = {
         trigger: "Interposing (your gateway benefit), and warning an ally of danger.",
         effect: "<p>You may <strong>interpose for allies within a few units</strong>, not just "
           + "adjacent ones.</p><p>Additionally (active — costs <strong>1 Action Die</strong>): "
-          + "call out a warning that grants one ally a <strong>free Reflexes resist</strong> "
+          + "call out a warning that grants one ally a <strong>free Dexterity Save</strong> "
           + "against an effect they'd otherwise have no chance to avoid.</p>",
         description: ""
       }
@@ -570,7 +583,8 @@ export const PACK_CONTENT = {
         featType: "cluster",
         costXp: 20,
         grantsSpecializationDie: false,
-        prerequisite: "Guardian · CON 14; requires Bulwark and a Withstand resist feat",
+        prerequisite: "Guardian · CON 14; requires Bulwark and a Strength Save feat (any Hardened Save "
+          + "on Strength)",
         trigger: "(Active — costs 1 Action Die) The moment you would be reduced to 0 HP "
           + "(defeated).",
         effect: "<p>Spend <strong>1 Action Die</strong> to instead drop to <strong>1 HP</strong> "
@@ -586,11 +600,11 @@ export const PACK_CONTENT = {
       system: {
         featType: "cluster",
         costXp: 20,
-        // The d6 goes on allies' resist rolls, not the Guardian's own.
+        // The d6 goes on allies' Save rolls, not the Guardian's own.
         grantsSpecializationDie: false,
         prerequisite: "Guardian; requires any three other Guardian feats",
         trigger: "Allies within your reach, while you are conscious and not defeated.",
-        effect: "<p>Allies within reach add a <strong>Specialization Die to their resist "
+        effect: "<p>Allies within reach add a <strong>Specialization Die to their Save "
           + "rolls</strong> — your steadying presence.</p>",
         description: ""
       }
@@ -670,12 +684,12 @@ export const PACK_CONTENT = {
         costXp: 20,
         // A Modifier-Ladder step on the target's roll, not a die.
         grantsSpecializationDie: false,
-        prerequisite: "Face · CHA 13; requires a Composure or Insight feat",
+        prerequisite: "Face · CHA 13; requires an Insight feat",
         trigger: "(Active — your Action) A target who can hear and understand you.",
         effect: "<p>Make a <strong>contest</strong> — your Persuasion/Presence vs. the target's "
-          + "Resolve/Composure. On a win, the target suffers <strong>−3</strong> on its next "
-          + "action (rattled); on a <strong>Decisive</strong> win, <strong>−5</strong> and it "
-          + "cannot simply ignore you.</p>",
+          + "<strong>Charisma Save</strong> (its composure and will). On a win, the target suffers "
+          + "<strong>−3</strong> on its next action (rattled); on a <strong>Decisive</strong> win, "
+          + "<strong>−5</strong> and it cannot simply ignore you.</p>",
         description: ""
       }
     },
@@ -728,6 +742,86 @@ export const PACK_CONTENT = {
           + "<p><em>Not automated in v1: the system still adds only one die.</em></p>",
         description: "<p>One Master Feat per character, ever. No retraining, no refund.</p>"
       }
+    },
+
+    // KD20_Feats.md, Defensive Feats (universal) — v0.37 and v0.39. These three
+    // are computed by the character sheet through `mechanic`, not just displayed.
+    {
+      name: "Hardened Save",
+      type: "feat",
+      img: "icons/svg/shield.svg",
+      system: {
+        featType: "resist",
+        // The price scales with the step bought (20/20/30/40); see the effect.
+        costXp: 20,
+        grantsSpecializationDie: false,
+        mechanic: { kind: "hardenedSave", save: "" },
+        prerequisite: "Universal; taken per Save and repeated to climb",
+        trigger: "Passive, always on — raises the chosen Save's standing bonus.",
+        effect: "<p>Raise <strong>one</strong> Save by <strong>one ladder step</strong> from its "
+          + "current value: <strong>−3 → 0</strong>, <strong>0 → +1</strong> (Minor), "
+          + "<strong>+1 → +3</strong> (Solid), <strong>+3 → +5</strong> (Major). The step is "
+          + "permanent and flat, added to your Save exactly like the gateway profile step.</p>"
+          + "<p><strong>The gate:</strong> Major (+5) only on a Save your gateway set to Solid "
+          + "(+3). A gateway −3 lifts only toward neutral (to 0) — every calling keeps a real "
+          + "weakness. A step is bought from the Save's current value, so 0 → +3 is two "
+          + "purchases.</p>"
+          + "<table><thead><tr><th>Step</th><th>From → To</th><th>Cost</th></tr></thead><tbody>"
+          + "<tr><td>Patch a hindrance</td><td>−3 → 0</td><td>20 XP</td></tr>"
+          + "<tr><td>Train a neutral Save</td><td>0 → +1</td><td>20 XP</td></tr>"
+          + "<tr><td>Spike toward strong</td><td>+1 → +3</td><td>30 XP</td></tr>"
+          + "<tr><td>Reach exceptional</td><td>+3 → +5</td><td>40 XP (gateway-Solid only)</td></tr>"
+          + "</tbody></table>",
+        description: "<p>Choose the Save on the feat sheet after adding it to a character; add "
+          + "one copy per step. Owning any Hardened Save on a Statistic satisfies a "
+          + "\"requires a [Statistic] Save feat\" prerequisite (Steel Discipline, Iron "
+          + "Resilience, Bulwark, Unbreakable).</p><p>Distinct from a Specialization Die on a "
+          + "Save (Steel Discipline, Iron Aegis): that is a conditional rider; this is flat, "
+          + "always-on height. Both can apply.</p>"
+      }
+    },
+    {
+      name: "Armour Training",
+      type: "feat",
+      img: "icons/svg/statue.svg",
+      system: {
+        featType: "cluster",
+        // Second purchase costs 40 XP.
+        costXp: 30,
+        grantsSpecializationDie: false,
+        mechanic: { kind: "armourTraining", save: "" },
+        prerequisite: "Universal (armour-wearing gateways — Warrior, Guardian); requires armour "
+          + "heavier than light actually worn; may be taken up to twice",
+        trigger: "Passive, always on while you wear armour heavier than light.",
+        effect: "<p>You add <strong>+1 AC</strong> from trained use of your worn armour. A "
+          + "<strong>second purchase</strong> (40 XP) adds another +1 (max <strong>+2</strong> "
+          + "total). The bonus applies only while the armour is worn.</p>",
+        description: "<p>The plate-knight route: the AC comes from the gear, the feat is the "
+          + "mastery of it. Mutually exclusive with Unarmored Defense by requirement. The "
+          + "~20 AC soft cap is a GM target, not a hard limit.</p>"
+      }
+    },
+    {
+      name: "Unarmored Defense",
+      type: "feat",
+      img: "icons/svg/wingfoot.svg",
+      system: {
+        featType: "cluster",
+        costXp: 30,
+        grantsSpecializationDie: false,
+        mechanic: { kind: "unarmoredDefense", save: "" },
+        prerequisite: "Gateway-themed (Monk, Rogue/Swashbuckler, Barbarian); requires light or "
+          + "no armour; buy-once",
+        trigger: "Passive, always on while you wear light or no armour (a shield is fine).",
+        effect: "<p>Your AC becomes <strong>10 + dex + your gateway's themed stat</strong> "
+          + "instead of the armour formula: Monk <strong>wis</strong>, Rogue/Swashbuckler "
+          + "<strong>cha</strong>, Barbarian <strong>con</strong>. The gateway fixes the stat; "
+          + "you don't choose it.</p>",
+        description: "<p>The dodgy-fighter route: the AC is in <em>you</em>. Self-limiting "
+          + "(~20 at the extreme), and mutually exclusive with Armour Training by requirement. "
+          + "A gateway names its stat on its own sheet; none of the five built gateways has "
+          + "one yet.</p>"
+      }
     }
   ],
 
@@ -749,6 +843,67 @@ export const PACK_CONTENT = {
           + "Dexterity — v1 stores one choice, so switch the stat above if you want the other.</p>"
       }
     }
+  ],
+
+  /* -------------------------------------------- */
+
+  // Core rules v0.39: the starter armour catalogue. Values are deliberately
+  // tight — Armour Training adds up to +2 on top, so the ceiling is about AC 20
+  // (dex +4, Plate, Shield, Armour Training x2), the ~20 soft cap.
+  "kd20.armour": [
+    {
+      name: "Padded / Leather",
+      type: "armour",
+      img: "icons/equipment/chest/breastplate-quilted-brown.webp",
+      system: {
+        category: "light",
+        armourBonus: 1,
+        isShield: false,
+        equipped: false,
+        description: "<p>Quilted cloth or boiled leather. Light: keeps Unarmored Defense "
+          + "available, but does not qualify for Armour Training.</p>"
+      }
+    },
+    {
+      name: "Chain Mail",
+      type: "armour",
+      img: "icons/equipment/chest/breastplate-metal-scaled-grey.webp",
+      system: {
+        category: "medium",
+        armourBonus: 2,
+        isShield: false,
+        equipped: false,
+        description: "<p>Interlocking rings over padding. Medium: qualifies for Armour "
+          + "Training; rules out Unarmored Defense.</p>"
+      }
+    },
+    {
+      name: "Plate",
+      type: "armour",
+      img: "icons/equipment/chest/breastplate-cuirass-steel-grey.webp",
+      system: {
+        category: "heavy",
+        armourBonus: 3,
+        isShield: false,
+        equipped: false,
+        description: "<p>Fitted steel plates. Heavy: qualifies for Armour Training; rules out "
+          + "Unarmored Defense. Dex still applies in full — KD20 armour never caps it.</p>"
+      }
+    },
+    {
+      name: "Shield",
+      type: "armour",
+      img: "icons/equipment/shield/heater-steel-boss-red.webp",
+      system: {
+        category: "light",
+        armourBonus: 1,
+        isShield: true,
+        equipped: false,
+        description: "<p>Adds its bonus on top of any armour, and is fine with Unarmored "
+          + "Defense. A large shield braced against an area effect may earn a Fitting Save "
+          + "(Strength Save instead of Dexterity) — GM's call.</p>"
+      }
+    }
   ]
 };
 
@@ -757,17 +912,20 @@ export const PACK_CONTENT = {
 /**
  * Populate the KD20 compendium packs with reference content.
  * @param {object} [options]
- * @param {boolean} [options.force=false]  Add entries even if a matching name already exists.
- * @returns {Promise<{created: number, skipped: number}>}
+ * @param {boolean} [options.force=false]    Add entries even if a matching name already exists.
+ * @param {boolean} [options.refresh=false]  Overwrite entries that already exist by name with the
+ *                                           content above (name, image and system data).
+ * @returns {Promise<{created: number, refreshed: number, skipped: number}>}
  */
-export async function seedCompendiums({ force = false } = {}) {
+export async function seedCompendiums({ force = false, refresh = false } = {}) {
   if ( !game.user.isGM ) {
     ui.notifications.error("KD20 | Only a gamemaster can seed the compendium packs.");
-    return { created: 0, skipped: 0 };
+    return { created: 0, refreshed: 0, skipped: 0 };
   }
 
   const Item = foundry.documents.Item.implementation;
   let created = 0;
+  let refreshed = 0;
   let skipped = 0;
 
   for ( const [packId, entries] of Object.entries(PACK_CONTENT) ) {
@@ -783,86 +941,30 @@ export async function seedCompendiums({ force = false } = {}) {
 
     try {
       const index = await pack.getIndex();
+      const byName = Object.fromEntries(entries.map(e => [e.name, e]));
       const existing = new Set(index.map(e => e.name));
       const toCreate = force ? entries : entries.filter(e => !existing.has(e.name));
 
-      skipped += entries.length - toCreate.length;
+      // Every existing copy of a seeded name is brought back in line with the seed.
+      const stale = (refresh && !force) ? index.filter(e => e.name in byName) : [];
+      const toRefresh = stale.map(e => ({ _id: e._id, img: byName[e.name].img, system: byName[e.name].system }));
+
+      if ( !refresh ) skipped += entries.length - toCreate.length;
       if ( toCreate.length ) {
         await Item.createDocuments(toCreate, { pack: packId });
         created += toCreate.length;
+      }
+      if ( toRefresh.length ) {
+        await Item.updateDocuments(toRefresh, { pack: packId });
+        refreshed += toRefresh.length;
       }
     } finally {
       if ( wasLocked ) await pack.configure({ locked: true });
     }
   }
 
-  const msg = `KD20 | Compendiums seeded: ${created} created, ${skipped} already present.`;
+  const msg = `KD20 | Compendiums seeded: ${created} created, ${refreshed} refreshed, ${skipped} already present.`;
   console.log(msg);
   ui.notifications.info(msg);
-  return { created, skipped };
-}
-
-/* -------------------------------------------- */
-
-/**
- * Core rules v0.34: give already-existing copies of the five seeded gateways
- * their Save profile. Seeding skips entries that exist by name, and copies
- * dragged onto characters are separate documents, so neither picks up new seed
- * values on their own.
- *
- * Fills in the compendium entries, world Items, and gateways owned by world
- * Actors — but ONLY where the name matches a seeded gateway and all six profile
- * steps are still 0. A profile anyone has edited by hand is never touched.
- *
- * Safe to run more than once:   game.kd20.backfillSaveProfiles()
- *
- * @returns {Promise<number>}  How many gateways were updated.
- */
-export async function backfillSaveProfiles() {
-  if ( !game.user.isGM ) return 0;
-
-  const profiles = Object.fromEntries(PACK_CONTENT["kd20.gateways"]
-    .map(e => [e.name, e.system.saveProfile]));
-  const needsProfile = item => (item.type === "gateway") && (item.name in profiles)
-    && Object.values(item.system.saveProfile ?? {}).every(v => v === 0);
-  const update = item => ({ _id: item.id, "system.saveProfile": profiles[item.name] });
-  const Item = foundry.documents.Item.implementation;
-  let updated = 0;
-
-  // The compendium. System packs are locked by default: unlock, write, re-lock.
-  const pack = game.packs.get("kd20.gateways");
-  if ( pack ) {
-    const targets = (await pack.getDocuments()).filter(needsProfile);
-    if ( targets.length ) {
-      const wasLocked = pack.locked;
-      if ( wasLocked ) await pack.configure({ locked: false });
-      try {
-        await Item.updateDocuments(targets.map(update), { pack: pack.collection });
-        updated += targets.length;
-      } finally {
-        if ( wasLocked ) await pack.configure({ locked: true });
-      }
-    }
-  }
-
-  // Gateways in the world Items sidebar.
-  const worldTargets = game.items.filter(needsProfile);
-  if ( worldTargets.length ) {
-    await Item.updateDocuments(worldTargets.map(update));
-    updated += worldTargets.length;
-  }
-
-  // Gateways owned by world Actors.
-  // TODO: unlinked tokens' synthetic actors on scenes are not covered.
-  for ( const actor of game.actors ) {
-    const targets = actor.items.filter(needsProfile);
-    if ( !targets.length ) continue;
-    await actor.updateEmbeddedDocuments("Item", targets.map(update));
-    updated += targets.length;
-  }
-
-  const msg = `KD20 | Save profiles filled in on ${updated} existing gateway(s).`;
-  console.log(msg);
-  if ( updated ) ui.notifications.info(msg);
-  return updated;
+  return { created, refreshed, skipped };
 }

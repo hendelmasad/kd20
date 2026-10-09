@@ -44,8 +44,10 @@ export const TIERS = {
  */
 export function computeTotal(state) {
   const actionDice = (state.actionDice ?? []).reduce((sum, face) => sum + face, 0);
-  // profileBonus exists only on Save rolls (v0.34); older cards lack it.
-  return state.d20 + state.statBonus + (state.profileBonus ?? 0) + (state.specDie ?? 0) + actionDice;
+  // profileBonus (v0.34) and hardenedBonus (v0.37) exist only on Save rolls;
+  // older cards lack them.
+  return state.d20 + state.statBonus + (state.profileBonus ?? 0) + (state.hardenedBonus ?? 0)
+    + (state.specDie ?? 0) + actionDice;
 }
 
 /**
@@ -272,13 +274,13 @@ export async function rollCheck({ actor, statKey, target = null, useSpecDie = fa
 /**
  * Roll one of the six Saves and post it to chat. Core rules v0.34.
  *
- * Exactly a stat check with one more term — the gateway profile step — so it
- * shares the chat card, the Action Dice button and the margin ladder. The target
+ * Exactly a stat check with two more terms — the gateway profile step and any
+ * Hardened Save steps (v0.37) — so it shares the chat card, the Action Dice button and the margin ladder. The target
  * is usually the attacker's total (a Save is a contest); a tie is a Success, so
  * the defense holds.
  *
  * TODO: active/passive contest automation (pull the attacker's total from their
- * card instead of typing it in); feat-based Save bonuses.
+ * card instead of typing it in).
  *
  * @param {object} options
  * @param {Actor} options.actor
@@ -304,13 +306,14 @@ export async function rollSave({ actor, saveKey, target = null, useSpecDie = fal
   const state = {
     version: 1,
     kind: "save",
-    label: `${SAVE_LABELS[saveKey]} Save`,
+    label: SAVE_LABELS[saveKey],
     actorUuid: actor.uuid,
     saveKey,
     statKey: save.stat,
     statBonus: save.statBonus,
     profileBonus: save.profile,
     profileLabel: actor.system.gatewayName ?? "Gateway",
+    hardenedBonus: save.hardened?.bonus ?? 0,
     d20: d20.total,
     specDie,
     actionDice: [],
@@ -531,6 +534,9 @@ export function buildCardContext(state, { isRepost = false } = {}) {
   }
   if ( state.profileBonus ) {
     parts.push({ label: `${state.profileLabel ?? "Gateway"} profile`, value: state.profileBonus });
+  }
+  if ( state.hardenedBonus ) {
+    parts.push({ label: "Hardened Save", value: state.hardenedBonus });
   }
   if ( state.specDie !== null ) {
     parts.push({ label: "Specialization d6", value: state.specDie, isDie: true });

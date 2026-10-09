@@ -313,6 +313,12 @@
   cursor: pointer;
 }
 
+/* An equipped Armour item's toggle reads as "on". */
+.kd20-item-roll.kd20-equipped {
+  font-weight: bold;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
 /* -------------------------------------------- */
 /*  Chat roll card                              */
 /* -------------------------------------------- */
