@@ -1,5 +1,5 @@
 # KD20 — Quick Reference
-**Version: v0.39 — 2026-10-08** *(companion to Core Rules v0.39)*
+**Version: v0.40 — 2026-10-08** *(companion to Core Rules v0.40)*
 
 *Rules as they currently stand. Facts only.*
 
@@ -141,7 +141,8 @@ Each round: **1 Move + 1 Action.**
 
 ## Actor Baseline (provisional)
 
-- **AC = 10 + dex + armour + shield + misc.** DEX always applies (any armour). Static band ~13–17, holds all campaign.
+- **AC = 10 + dex + armour + shield + misc.** DEX always applies (any armour — KD20 never caps agility). Static band ~13–17, holds all campaign.
+  - **Armour table:** None +0 · **Light +1** (leather) · **Medium +2** (chain) · **Heavy +3** (plate) · **Shield +1**. Tight on purpose — Armour Training (+1/+2) stacks, so the maxed heavy tank (dex+4, plate, shield, Armour Training) tops at **AC 20**. Equippable items; category gates the AC feats.
 - **HP = 10 + con + wis + gateway bonus** (gateway ~+2/+4/+6 by durability). Start ~13–20. HP feats (later) fold in another stat, once each, stat 16+.
 - **Magic items grant capabilities, not stat bonuses** (rare +1 max, always with a feature) — this keeps AC static.
 - *Numbers provisional — playtest the HP-to-damage ratio.*
@@ -290,4 +291,4 @@ Centered at **0 = human**. **Additive, upward only:** sizes **above** human add 
 
 ---
 
-*Companion to KD20 Core Rules v0.39. Provisional values flagged TBD.*
+*Companion to KD20 Core Rules v0.40. Provisional values flagged TBD.*

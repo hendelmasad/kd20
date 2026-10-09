@@ -2,7 +2,7 @@
   "id": "kd20",
   "title": "KD20",
   "description": "KD20 — a d20 tabletop roleplaying system. Every check is 1d20 + a stat bonus, with outcome tiers read from the margin against a target.",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14.368"
@@ -27,7 +27,8 @@
     "Item": {
       "gateway": {},
       "feat": {},
-      "weapon": {}
+      "weapon": {},
+      "armour": {}
     }
   },
   "packs": [
@@ -54,18 +55,26 @@
       "system": "kd20",
       "path": "packs/weapons",
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "armour",
+      "label": "KD20 Armour",
+      "type": "Item",
+      "system": "kd20",
+      "path": "packs/armour",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     }
   ],
   "packFolders": [
     {
       "name": "KD20",
       "sorting": "m",
-      "packs": ["gateways", "feats", "weapons"]
+      "packs": ["gateways", "feats", "weapons", "armour"]
     }
   ],
   "primaryTokenAttribute": "hp",
   "initiative": "1d20 + @initiative.bonus",
   "url": "https://github.com/hendelmasad/kd20",
   "manifest": "https://github.com/hendelmasad/kd20/releases/latest/download/system.json",
-  "download": "https://github.com/hendelmasad/kd20/releases/download/v0.7.0/kd20.zip"
+  "download": "https://github.com/hendelmasad/kd20/releases/download/v0.8.0/kd20.zip"
 }

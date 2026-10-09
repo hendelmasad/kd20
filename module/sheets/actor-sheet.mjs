@@ -12,7 +12,7 @@
 const { HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 
-import { STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS, SAVE_COVERAGE, ARMOUR_TYPES } from "../config.mjs";
+import { STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS, SAVE_COVERAGE, ARMOUR_CATEGORIES } from "../config.mjs";
 import { rollCheck, rollSave, rollAttack, refreshActionDice, promptRollOptions, promptAttackOptions }
   from "../dice/kd20-roll.mjs";
 
@@ -32,6 +32,7 @@ export default class KD20CharacterSheet extends HandlebarsApplicationMixin(Actor
       rollStat: KD20CharacterSheet.#onRollStat,
       rollSave: KD20CharacterSheet.#onRollSave,
       rollAttack: KD20CharacterSheet.#onRollAttack,
+      toggleEquipped: KD20CharacterSheet.#onToggleEquipped,
       refreshActionDice: KD20CharacterSheet.#onRefreshActionDice
     }
   };
@@ -94,15 +95,25 @@ export default class KD20CharacterSheet extends HandlebarsApplicationMixin(Actor
     }
     context.featWarnings = warnings;
 
-    // Core rules v0.39: AC breakdown and the armour category that gates the AC feats.
+    // Core rules v0.39: AC breakdown, and the equipped armour category that
+    // gates the AC feats. Only one body armour and one shield count.
     context.acBreakdown = system.acParts.map(p => `${p.label} ${signed(p.value)}`).join(", ");
-    context.armourTypes = ARMOUR_TYPES;
+    context.armourCategory = system.armour.body ? ARMOUR_CATEGORIES[system.armour.category] : "None";
+    context.armourWarnings = [];
+    if ( system.armour.extraBody ) context.armourWarnings.push("More than one body armour is equipped; "
+      + "only the highest bonus counts.");
+    if ( system.armour.extraShields ) context.armourWarnings.push("More than one shield is equipped; "
+      + "only the highest bonus counts.");
     context.saveLabels = SAVE_LABELS;
 
-    // Split the actor's owned items into the three KD20 categories.
+    // Split the actor's owned items into the four KD20 categories.
     context.gateways = this.actor.items.filter(i => i.type === "gateway");
     context.feats = this.actor.items.filter(i => i.type === "feat");
     context.weapons = this.actor.items.filter(i => i.type === "weapon");
+    context.armour = this.actor.items.filter(i => i.type === "armour").map(item => ({
+      item,
+      slot: item.system.isShield ? "Shield" : ARMOUR_CATEGORIES[item.system.category]
+    }));
 
     // Spec section 4a: a character normally has one Gateway. We do not enforce
     // that in v1, but we do warn if there are several, because only the first
@@ -201,6 +212,30 @@ export default class KD20CharacterSheet extends HandlebarsApplicationMixin(Actor
     const options = await promptAttackOptions(`${weapon.name} Attack`);
     if ( !options ) return;
     await rollAttack({ actor: this.actor, weapon, ...options });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Core rules v0.39: equip or unequip the clicked Armour item. Equipping body
+   * armour unequips any other body armour, and equipping a shield unequips any
+   * other shield, so exactly one of each can count toward AC.
+   * @this {KD20CharacterSheet}
+   */
+  static async #onToggleEquipped(event, target) {
+    const armour = this.#getItem(target);
+    if ( armour?.type !== "armour" ) return;
+    const equip = !armour.system.equipped;
+    const updates = [{ _id: armour.id, "system.equipped": equip }];
+    if ( equip ) {
+      for ( const other of this.actor.items ) {
+        if ( (other.type === "armour") && (other.id !== armour.id) && other.system.equipped
+          && (other.system.isShield === armour.system.isShield) ) {
+          updates.push({ _id: other.id, "system.equipped": false });
+        }
+      }
+    }
+    await this.actor.updateEmbeddedDocuments("Item", updates);
   }
 
   /* -------------------------------------------- */

@@ -102,12 +102,12 @@ export function hardenedSaveCap(profile) {
 }
 
 /**
- * Worn armour categories (core rules v0.39). The AC feats are gated on these:
- * Armour Training needs armour heavier than light, Unarmored Defense needs light
- * or none. The armour's AC value is still typed in separately.
+ * Armour item categories (core rules v0.39). The AC feats are gated on the
+ * category of the equipped (non-shield) armour: Armour Training needs medium or
+ * heavy, Unarmored Defense needs light or nothing equipped. A character with no
+ * armour equipped is category "none", which is never an item choice.
  */
-export const ARMOUR_TYPES = {
-  none: "None",
+export const ARMOUR_CATEGORIES = {
   light: "Light",
   medium: "Medium",
   heavy: "Heavy"

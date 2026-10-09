@@ -51,7 +51,8 @@ const models = {
   character: (await import("../module/data/actor-character.mjs")).default,
   gateway: (await import("../module/data/item-gateway.mjs")).default,
   feat: (await import("../module/data/item-feat.mjs")).default,
-  weapon: (await import("../module/data/item-weapon.mjs")).default
+  weapon: (await import("../module/data/item-weapon.mjs")).default,
+  armour: (await import("../module/data/item-armour.mjs")).default
 };
 
 console.log("=== Schemas build and expose the expected fields ===");
@@ -63,7 +64,8 @@ const EXPECTED = {
   feat: ["description", "featType", "trigger", "effect", "grantsSpecializationDie",
     "prerequisite", "costXp", "mechanic"],
   weapon: ["description", "damageDie", "precisionDie", "attackStat", "damageStat",
-    "reach", "properties"]
+    "reach", "properties"],
+  armour: ["description", "category", "armourBonus", "isShield", "equipped"]
 };
 
 const schemas = {};
@@ -104,6 +106,9 @@ checkDefault("gateway costXp (spec 4a: 30)", defaults.gateway.costXp, 30);
 checkDefault("feat costXp (spec 4b: 20)", defaults.feat.costXp, 20);
 checkDefault("weapon reach (spec 4c: 1)", defaults.weapon.reach, 1);
 checkDefault("weapon damageDie", defaults.weapon.damageDie, "d6");
+checkDefault("armour starts unequipped", defaults.armour.equipped, false);
+checkDefault("armour isShield", defaults.armour.isShield, false);
+checkDefault("character defence keeps only misc", Object.keys(defaults.character.defence).join(","), "misc");
 
 /* -------------------------------------------- */
 /*  Seeded compendium content validates         */
@@ -180,12 +185,14 @@ console.log("\n=== Spec 8: Bran the Warrior, through the real model ===");
     stats: { str: { score: 15 }, dex: { score: 13 }, con: { score: 14 },
       int: { score: 10 }, wis: { score: 12 }, cha: { score: 11 } },
     hp: { value: 19 },
-    defence: { armour: 2, shield: 0, misc: 0 }
+    defence: { misc: 0 }
   }, { parent: null });
 
-  // prepareDerivedData reads this.parent.items; emulate an owned Warrior gateway.
+  // prepareDerivedData reads this.parent.items; emulate an owned Warrior gateway
+  // and Bran's armour +2 as equipped Chain Mail (core rules v0.39: AC reads gear).
   Object.defineProperty(bran, "parent", {
-    value: { items: [{ type: "gateway", system: { hpBonus: 6 } }] },
+    value: { items: [{ type: "gateway", system: { hpBonus: 6 } },
+      { type: "armour", name: "Chain Mail", system: { category: "medium", armourBonus: 2, isShield: false, equipped: true } }] },
     configurable: true
   });
   bran.prepareDerivedData();
@@ -671,7 +678,7 @@ const badText = html => ["NaN", "undefined", "null"].filter(s => html.includes(s
 const warriorProfile = { withstand: 3, reflexes: 1, fortitude: 3, composure: 0, resolve: 0, poise: -3 };
 
 /** Build and prepare a character the way Foundry would, with the given owned items. */
-const makeCharacter = (items, parent = { items }, defence = { armour: 2, shield: 0, misc: 0 }) => {
+const makeCharacter = (items, parent = { items }, defence = { misc: 0 }) => {
   const m = new models.character({
     stats: { str: { score: 15 }, dex: { score: 13 }, con: { score: 14 },
       int: { score: 10 }, wis: { score: 12 }, cha: { score: 11 } },
@@ -694,7 +701,7 @@ console.log("\n=== A Character with no Gateway derives every stat ===");
   // HP max = 10 + con 2 + wis 1 + 0.
   check("no gateway: HP max = 13", noGateway.hp.max === 13, `got ${noGateway.hp.max}`);
   check("no gateway: current HP clamped to the new max", noGateway.hp.value === 13, `got ${noGateway.hp.value}`);
-  check("no gateway: AC unaffected (13)", noGateway.ac === 13, `got ${noGateway.ac}`);
+  check("no gateway, no armour: AC = 10 + dex 1 = 11", noGateway.ac === 11, `got ${noGateway.ac}`);
   check("no gateway: initiative bonus unaffected (+1)", noGateway.initiative.bonus === 1,
     `got ${noGateway.initiative.bonus}`);
 
@@ -724,7 +731,7 @@ console.log("\n=== Saves: stat bonus + gateway profile step ===");
       JSON.stringify(s));
   }
   check("Warrior: gatewayName recorded", warrior.gatewayName === "Warrior", `got ${warrior.gatewayName}`);
-  check("Warrior: AC unaffected by profile (13)", warrior.ac === 13, `got ${warrior.ac}`);
+  check("Warrior: AC unaffected by profile (11)", warrior.ac === 11, `got ${warrior.ac}`);
 
   const none = makeCharacter([]);
   check("no gateway: every Save is just its stat bonus",
@@ -795,70 +802,144 @@ console.log("\n=== Hardened Save: each copy climbs one ladder step, gated by the
 }
 
 /* -------------------------------------------- */
+/*  Armour items drive AC (core rules v0.39)    */
+/* -------------------------------------------- */
+
+/** An Armour item as the character model sees it. */
+const armourItem = (name, category, armourBonus, { isShield = false, equipped = true } = {}) =>
+  ({ type: "armour", name, system: { category, armourBonus, isShield, equipped, description: "" } });
+const leather = o => armourItem("Padded / Leather", "light", 1, o);
+const chain = o => armourItem("Chain Mail", "medium", 2, o);
+const plate = o => armourItem("Plate", "heavy", 3, o);
+const shieldItem = o => armourItem("Shield", "light", 1, { isShield: true, ...o });
+
+/** Build a character with these items (and optional stat scores); check its AC breakdown adds up. */
+const acOf = (items, defence = { misc: 0 }, stats = null) => {
+  const c = makeCharacter(items, undefined, defence);
+  if ( stats ) {
+    for ( const [k, score] of Object.entries(stats) ) c.stats[k].score = score;
+    c.prepareDerivedData();
+  }
+  const sum = c.acParts.reduce((t, p) => t + p.value, 0);
+  if ( sum !== c.ac ) fail(`AC breakdown ${JSON.stringify(c.acParts)} sums to ${sum}, not ${c.ac}`);
+  return c;
+};
+
+console.log("\n=== Armour items: AC reads equipped armour and shield ===");
+{
+  // Test stats: dex +1.
+  let c = acOf([]);
+  check("nothing owned: AC 11, category none", c.ac === 11 && c.armour.category === "none", JSON.stringify(c.armour));
+  c = acOf([plate({ equipped: false }), shieldItem({ equipped: false })]);
+  check("owned but unequipped armour and shield add nothing (11, category none)",
+    c.ac === 11 && c.armour.category === "none", JSON.stringify(c.armour));
+  c = acOf([leather()]);
+  check("Padded / Leather equipped: 10 + 1 + 1 = 12, category light", c.ac === 12 && c.armour.category === "light");
+  c = acOf([chain()]);
+  check("Chain Mail equipped: 10 + 1 + 2 = 13, category medium", c.ac === 13 && c.armour.category === "medium");
+  c = acOf([plate()]);
+  check("Plate equipped: 10 + 1 + 3 = 14, category heavy", c.ac === 14 && c.armour.category === "heavy");
+  c = acOf([plate(), shieldItem()], { misc: 1 });
+  check("Plate + Shield + misc 1: 10 + 1 + 3 + 1 + 1 = 16", c.ac === 16, `got ${c.ac}`);
+  c = acOf([shieldItem()]);
+  check("a shield alone adds its bonus but sets no category (12, none)",
+    c.ac === 12 && c.armour.category === "none" && c.armour.body === null, JSON.stringify(c.armour));
+  c = acOf([shieldItem({ equipped: false }), chain()]);
+  check("unequipped shield beside equipped Chain Mail: shield ignored (13)", c.ac === 13);
+
+  c = acOf([plate(), shieldItem()]);
+  check("breakdown names the equipped armour and shield",
+    c.acParts.some(p => p.label === "Plate (Heavy)" && p.value === 3)
+    && c.acParts.some(p => p.label === "Shield" && p.value === 1), JSON.stringify(c.acParts));
+  check("breakdown has no armour line when nothing is equipped",
+    acOf([]).acParts.every(p => ["Base", "Dexterity", "Misc"].includes(p.label)), JSON.stringify(acOf([]).acParts));
+
+  // Two body armours (or two shields) equipped: only the best counts, flagged.
+  c = acOf([leather(), plate()]);
+  check("two body armours equipped: the higher (Plate) counts, category heavy, flagged",
+    c.ac === 14 && c.armour.category === "heavy" && c.armour.extraBody === 1, JSON.stringify(c.armour));
+  c = acOf([shieldItem(), armourItem("Tower Shield", "light", 2, { isShield: true })]);
+  check("two shields equipped: the higher counts, flagged", c.ac === 13 && c.armour.extraShields === 1);
+
+  // Dex always applies, whatever the category: dex 18 (+4) in Plate.
+  c = acOf([plate()], { misc: 0 }, { dex: 18 });
+  check("dex +4 applies in full under heavy armour (10 + 4 + 3 = 17)", c.ac === 17, `got ${c.ac}`);
+
+  // Non-armour items never count, even if they look equipped.
+  c = acOf([{ type: "weapon", name: "Odd", system: { armourBonus: 5, equipped: true } }]);
+  check("only Armour items count toward AC", c.ac === 11);
+}
+
+/* -------------------------------------------- */
 /*  AC feats (core rules v0.39)                 */
 /* -------------------------------------------- */
 
-console.log("\n=== AC feats: Armour Training and Unarmored Defense change computed AC ===");
+console.log("\n=== AC feats: gated on the category of the EQUIPPED armour ===");
 {
   // Test stats: dex +1, con +2, wis +1.
   const at = { type: "feat", name: "Armour Training", system: { mechanic: { kind: "armourTraining", save: "" } } };
   const ud = { type: "feat", name: "Unarmored Defense", system: { mechanic: { kind: "unarmoredDefense", save: "" } } };
   const warrior = { type: "gateway", name: "Warrior", system: { hpBonus: 6, saveProfile: warriorProfile } };
   const barbarian = { type: "gateway", name: "Barbarian", system: { hpBonus: 6, unarmoredStat: "con" } };
-  const ac = (items, defence) => {
-    const c = makeCharacter(items, undefined, { armour: 0, armourType: "none", shield: 0, misc: 0, ...defence });
-    const sum = c.acParts.reduce((t, p) => t + p.value, 0);
-    if ( sum !== c.ac ) fail(`AC breakdown ${JSON.stringify(c.acParts)} sums to ${sum}, not ${c.ac}`);
-    return c;
-  };
 
-  check("no feats: 10 + dex 1 + armour 4 + shield 1 = 16",
-    ac([warrior], { armour: 4, armourType: "medium", shield: 1 }).ac === 16);
-
-  let c = ac([warrior, at], { armour: 4, armourType: "medium" });
-  check("Armour Training x1 in medium armour: 10 + 1 + 4 + 1 = 16", c.ac === 16, `got ${c.ac}`);
-  c = ac([warrior, at, at], { armour: 6, armourType: "heavy" });
-  check("Armour Training x2 in heavy armour: 10 + 1 + 6 + 2 = 19", c.ac === 19, `got ${c.ac}`);
-  c = ac([warrior, at, at, at], { armour: 6, armourType: "heavy" });
-  check("Armour Training x3: still +2 (max), flagged", c.ac === 19 && Boolean(c.acFeats.armourTraining.reason),
+  let c = acOf([warrior, at, chain()]);
+  check("Armour Training x1 in Chain Mail (medium): 10 + 1 + 2 + 1 = 14", c.ac === 14, `got ${c.ac}`);
+  c = acOf([warrior, at, at, plate()]);
+  check("Armour Training x2 in Plate (heavy): 10 + 1 + 3 + 2 = 16", c.ac === 16, `got ${c.ac}`);
+  check("breakdown lists Armour Training", c.acParts.some(p => p.label === "Armour Training" && p.value === 2));
+  c = acOf([warrior, at, at, at, plate()]);
+  check("Armour Training x3: still +2 (max), flagged", c.ac === 16 && Boolean(c.acFeats.armourTraining.reason),
     JSON.stringify(c.acFeats));
-  c = ac([warrior, at], { armour: 1, armourType: "light" });
+  c = acOf([warrior, at, leather()]);
   check("Armour Training in light armour: no bonus, flagged (12)",
     c.ac === 12 && c.acFeats.armourTraining.bonus === 0 && Boolean(c.acFeats.armourTraining.reason), JSON.stringify(c.acFeats));
-  c = ac([warrior, at], { armourType: "none" });
-  check("Armour Training with no armour: no bonus (11)", c.ac === 11, `got ${c.ac}`);
+  c = acOf([warrior, at]);
+  check("Armour Training with nothing equipped: no bonus (11)", c.ac === 11, `got ${c.ac}`);
+  c = acOf([warrior, at, plate({ equipped: false })]);
+  check("Armour Training with Plate owned but UNEQUIPPED: no bonus (11) — gear is the source of truth",
+    c.ac === 11 && c.acFeats.armourTraining.bonus === 0, `got ${c.ac}`);
+  c = acOf([warrior, at, shieldItem()]);
+  check("a shield alone does not qualify Armour Training (12)", c.ac === 12 && c.acFeats.armourTraining.bonus === 0);
 
-  c = ac([barbarian, ud], { armourType: "none", shield: 1 });
-  check("Unarmored Defense (Barbarian con), no armour: 10 + dex 1 + con 2 + shield 1 = 14",
+  c = acOf([barbarian, ud, shieldItem()]);
+  check("Unarmored Defense (Barbarian con), no body armour + Shield: 10 + 1 + 2 + 1 = 14",
     c.ac === 14 && c.acFeats.unarmoredDefense.active, `got ${c.ac}`);
-  c = ac([barbarian, ud], { armour: 1, armourType: "light" });
-  check("Unarmored Defense in light armour replaces the armour term (13, not 12)", c.ac === 13, `got ${c.ac}`);
-  c = ac([barbarian, ud], { armour: 4, armourType: "medium" });
-  check("Unarmored Defense in medium armour: inactive, normal AC (15), flagged",
-    c.ac === 15 && !c.acFeats.unarmoredDefense.active && Boolean(c.acFeats.unarmoredDefense.reason), JSON.stringify(c.acFeats));
-  c = ac([warrior, ud], { armourType: "none" });
+  c = acOf([barbarian, ud, leather()]);
+  check("Unarmored Defense in Padded / Leather replaces the armour term (13, not 12)",
+    c.ac === 13 && c.acParts.some(p => /replaced by Unarmored Defense/.test(p.label) && p.value === 0),
+    JSON.stringify(c.acParts));
+  c = acOf([barbarian, ud, chain()]);
+  check("Unarmored Defense in Chain Mail: inactive, normal AC (13), flagged",
+    c.ac === 13 && !c.acFeats.unarmoredDefense.active && Boolean(c.acFeats.unarmoredDefense.reason), JSON.stringify(c.acFeats));
+  c = acOf([barbarian, ud, plate({ equipped: false })]);
+  check("Unarmored Defense with Plate owned but UNEQUIPPED: active (13)",
+    c.ac === 13 && c.acFeats.unarmoredDefense.active, JSON.stringify(c.acFeats));
+  c = acOf([warrior, ud]);
   check("Unarmored Defense under a gateway with no themed stat: inactive, flagged (11)",
     c.ac === 11 && Boolean(c.acFeats.unarmoredDefense.reason), JSON.stringify(c.acFeats));
-  c = ac([ud], { armourType: "none" });
+  c = acOf([ud]);
   check("Unarmored Defense with no gateway at all: inactive (11)", c.ac === 11 && !c.acFeats.unarmoredDefense.active);
   const monk = { type: "gateway", name: "Monk", system: { unarmoredStat: "wis" } };
-  check("the gateway names the stat: Monk wis gives 10 + 1 + 1 = 12",
-    ac([monk, ud], { armourType: "none" }).ac === 12);
+  check("the gateway names the stat: Monk wis gives 10 + 1 + 1 = 12", acOf([monk, ud]).ac === 12);
 
-  // Mutually exclusive by requirement: whatever is worn, at most one applies.
-  for ( const armourType of ["none", "light", "medium", "heavy"] ) {
-    c = ac([barbarian, at, ud], { armour: 3, armourType });
+  // Mutually exclusive by requirement: whatever is equipped, at most one applies.
+  const worn = { none: [], light: [leather()], medium: [chain()], heavy: [plate()] };
+  const want = { none: 13, light: 13, medium: 10 + 1 + 2 + 1, heavy: 10 + 1 + 3 + 1 };
+  for ( const [category, gear] of Object.entries(worn) ) {
+    c = acOf([barbarian, at, ud, ...gear]);
     const both = (c.acFeats.armourTraining.bonus > 0) && c.acFeats.unarmoredDefense.active;
-    const expected = ["medium", "heavy"].includes(armourType) ? 10 + 1 + 3 + 1 : 10 + 1 + 2;
-    check(`both feats owned, ${armourType} armour: exactly one applies (AC ${expected})`,
-      !both && c.ac === expected, `got ${c.ac} ${JSON.stringify(c.acFeats)}`);
+    check(`both feats owned, ${category} equipped: exactly one applies (AC ${want[category]})`,
+      !both && c.ac === want[category] && c.armour.category === category, `got ${c.ac} ${JSON.stringify(c.acFeats)}`);
   }
 
-  check("no AC hard cap: misc 10 on top of a maxed build still counts (29)",
-    ac([warrior, at, at], { armour: 6, armourType: "heavy", misc: 10 }).ac === 29);
+  // The design ceiling: dex +4, Plate, Shield, Armour Training x2 = 20; dex 20
+  // (+5) reaches 21. The ~20 soft cap is the GM's, so nothing clamps it.
+  c = acOf([warrior, at, at, plate(), shieldItem()], { misc: 0 }, { dex: 18 });
+  check("ceiling build (dex +4, Plate, Shield, Armour Training x2) = AC 20", c.ac === 20, `got ${c.ac}`);
+  c = acOf([warrior, at, at, plate(), shieldItem()], { misc: 0 }, { dex: 20 });
+  check("dex 20 extreme = AC 21, not hard-capped", c.ac === 21, `got ${c.ac}`);
   check("AC feats leave the Saves alone",
-    Object.values(ac([warrior, at, at], { armour: 6, armourType: "heavy" }).saves)
-      .every(x => x.hardened.bonus === 0));
+    Object.values(acOf([warrior, at, at, plate()]).saves).every(x => x.hardened.bonus === 0));
 }
 
 /* -------------------------------------------- */
@@ -885,8 +966,20 @@ console.log("\n=== Seeded content: the computed feats, and no retired Save names
       .map(([k, v]) => `${e.name}.${k}: "${v.match(retired)[0]}"`));
   check("no retired Save flavour name in any seeded text", leaks.length === 0, leaks.join("; "));
 
+  // Core rules v0.39: the starter armour catalogue, values deliberately tight.
+  const armour = Object.fromEntries((PACK_CONTENT["kd20.armour"] ?? []).map(e => [e.name, e.system]));
+  const spec = { "Padded / Leather": ["light", 1, false], "Chain Mail": ["medium", 2, false],
+    "Plate": ["heavy", 3, false], "Shield": [null, 1, true] };
+  for ( const [name, [category, bonus, isShield]] of Object.entries(spec) ) {
+    const a = armour[name];
+    check(`armour seed ${name}: ${isShield ? "shield" : category} +${bonus}, unequipped`,
+      Boolean(a) && (a.armourBonus === bonus) && (a.isShield === isShield) && (isShield || a.category === category)
+      && (a.equipped === false), JSON.stringify(a));
+  }
+  check("armour pack has exactly the four starter pieces", Object.keys(armour).length === 4, Object.keys(armour).join(", "));
+
   const { CONTENT_VERSION } = await import("../module/seed-content.mjs");
-  check("CONTENT_VERSION bumped to 8", CONTENT_VERSION === "8", `got ${CONTENT_VERSION}`);
+  check("CONTENT_VERSION bumped to 9", CONTENT_VERSION === "9", `got ${CONTENT_VERSION}`);
 }
 
 /* -------------------------------------------- */

@@ -1,6 +1,6 @@
 {
   "TYPES.Actor.character": "Character",
-  "TYPES.HINTS.Actor.character": "A player character with six Statistics, an Action Dice pool, a Gateway, Feats and Weapons.",
+  "TYPES.HINTS.Actor.character": "A player character with six Statistics, an Action Dice pool, a Gateway, Feats, Weapons and Armour.",
 
   "TYPES.Item.gateway": "Gateway",
   "TYPES.HINTS.Item.gateway": "A calling, profession or culture. Contributes an HP bonus, a Save profile and an always-on benefit.",
@@ -8,6 +8,8 @@
   "TYPES.HINTS.Item.feat": "A trained capability. May grant a Specialization Die (one d6) when its trigger applies.",
   "TYPES.Item.weapon": "Weapon",
   "TYPES.HINTS.Item.weapon": "A weapon with a damage die, a precision die, reach and the Statistics it uses.",
+  "TYPES.Item.armour": "Armour",
+  "TYPES.HINTS.Item.armour": "Body armour or a shield. While equipped, adds its AC bonus; body armour's category gates the AC feats.",
 
   "KD20.Character.FIELDS.stats.label": "Statistics",
   "KD20.Character.FIELDS.stats.str.score.label": "Strength",
@@ -17,9 +19,6 @@
   "KD20.Character.FIELDS.stats.wis.score.label": "Wisdom",
   "KD20.Character.FIELDS.stats.cha.score.label": "Charisma",
   "KD20.Character.FIELDS.hp.value.label": "Hit Points",
-  "KD20.Character.FIELDS.defence.armour.label": "Armour",
-  "KD20.Character.FIELDS.defence.armourType.label": "Armour Worn",
-  "KD20.Character.FIELDS.defence.shield.label": "Shield",
   "KD20.Character.FIELDS.defence.misc.label": "Miscellaneous",
   "KD20.Character.FIELDS.actionDice.value.label": "Action Dice",
   "KD20.Character.FIELDS.actionDice.refresh.label": "Action Dice Refresh",
@@ -57,6 +56,12 @@
   "KD20.Weapon.FIELDS.reach.label": "Reach",
   "KD20.Weapon.FIELDS.properties.label": "Properties",
   "KD20.Weapon.FIELDS.description.label": "Description",
+
+  "KD20.Armour.FIELDS.category.label": "Category",
+  "KD20.Armour.FIELDS.armourBonus.label": "AC Bonus",
+  "KD20.Armour.FIELDS.isShield.label": "Shield",
+  "KD20.Armour.FIELDS.equipped.label": "Equipped",
+  "KD20.Armour.FIELDS.description.label": "Description",
 
   "KD20.Settings.showTargetAc.name": "Show target AC to players",
   "KD20.Settings.showTargetAc.hint": "When on, attack cards show players the targeted token's AC and the margin. When off, players see only the outcome tier; the GM always sees everything."

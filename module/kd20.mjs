@@ -10,6 +10,7 @@ import KD20CharacterData from "./data/actor-character.mjs";
 import KD20GatewayData from "./data/item-gateway.mjs";
 import KD20FeatData from "./data/item-feat.mjs";
 import KD20WeaponData from "./data/item-weapon.mjs";
+import KD20ArmourData from "./data/item-armour.mjs";
 
 import KD20CharacterSheet from "./sheets/actor-sheet.mjs";
 import KD20ItemSheet from "./sheets/item-sheet.mjs";
@@ -30,6 +31,7 @@ Hooks.once("init", () => {
     KD20GatewayData,
     KD20FeatData,
     KD20WeaponData,
+    KD20ArmourData,
     KD20CharacterSheet,
     KD20ItemSheet,
     KD20Combat,
@@ -44,6 +46,7 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels.gateway = KD20GatewayData;
   CONFIG.Item.dataModels.feat = KD20FeatData;
   CONFIG.Item.dataModels.weapon = KD20WeaponData;
+  CONFIG.Item.dataModels.armour = KD20ArmourData;
 
   // Initiative: 1d20 + better of dex or wis, re-rolled every round. Without a
   // formula here, core rolls the literal text "undefined". KD20Combatant builds
@@ -61,7 +64,7 @@ Hooks.once("init", () => {
   });
 
   foundry.documents.collections.Items.registerSheet("kd20", KD20ItemSheet, {
-    types: ["gateway", "feat", "weapon"],
+    types: ["gateway", "feat", "weapon", "armour"],
     makeDefault: true,
     label: "KD20 Item Sheet"
   });

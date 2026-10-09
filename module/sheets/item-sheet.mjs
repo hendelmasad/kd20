@@ -1,15 +1,15 @@
 /**
  * The KD20 Item sheet.
  *
- * One class serves all three item types. The template is chosen at render time
- * from the item's own type, so Gateway, Feat and Weapon each get their own
- * layout without needing three separate sheet classes.
+ * One class serves all four item types. The template is chosen at render time
+ * from the item's own type, so Gateway, Feat, Weapon and Armour each get their
+ * own layout without needing separate sheet classes.
  */
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
-import { FEAT_TYPES, FEAT_MECHANICS, DIE_CHOICES, STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS, SAVE_STATS }
+import { FEAT_TYPES, FEAT_MECHANICS, ARMOUR_CATEGORIES, DIE_CHOICES, STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS, SAVE_STATS }
   from "../config.mjs";
 
 export default class KD20ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
@@ -49,6 +49,7 @@ export default class KD20ItemSheet extends HandlebarsApplicationMixin(ItemSheetV
       stats: Object.fromEntries(STAT_KEYS.map(k => [k, STAT_LABELS[k]])),
       statsWithNone: { "": "(none)", ...Object.fromEntries(STAT_KEYS.map(k => [k, STAT_LABELS[k]])) },
       featMechanics: FEAT_MECHANICS,
+      armourCategories: ARMOUR_CATEGORIES,
       saves: { "": "(choose a Save)", ...SAVE_LABELS }
     };
 

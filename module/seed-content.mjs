@@ -1,7 +1,7 @@
 /**
  * One-off compendium seeding.
  *
- * The three KD20 compendium packs are declared in system.json and created empty
+ * The four KD20 compendium packs are declared in system.json and created empty
  * by Foundry on first load. This helper fills them with the reference content
  * from the design docs so there is something real to drag onto a sheet.
  *
@@ -26,8 +26,9 @@
  *
  * 8: core rules v0.36-v0.39 — stat-name Saves (Warrior and Guardian profiles
  * re-seeded), Hardened Save, Armour Training, Unarmored Defense.
+ * 9: equippable Armour items and the starter armour catalogue.
  */
-export const CONTENT_VERSION = "8";
+export const CONTENT_VERSION = "9";
 
 /** KD20_Feats.md, Adept "Spells and Trappings" — shared by the Bolt and Blast descriptions. */
 const TRAPPINGS_HTML = "<p><strong>The trapping suggests the rider.</strong> On a Decisive or "
@@ -840,6 +841,67 @@ export const PACK_CONTENT = {
         properties: "Parry; Finesse (Strength or Dexterity)",
         description: "<p>A short, straight blade. Being finesse, it may use Strength or "
           + "Dexterity — v1 stores one choice, so switch the stat above if you want the other.</p>"
+      }
+    }
+  ],
+
+  /* -------------------------------------------- */
+
+  // Core rules v0.39: the starter armour catalogue. Values are deliberately
+  // tight — Armour Training adds up to +2 on top, so the ceiling is about AC 20
+  // (dex +4, Plate, Shield, Armour Training x2), the ~20 soft cap.
+  "kd20.armour": [
+    {
+      name: "Padded / Leather",
+      type: "armour",
+      img: "icons/equipment/chest/breastplate-quilted-brown.webp",
+      system: {
+        category: "light",
+        armourBonus: 1,
+        isShield: false,
+        equipped: false,
+        description: "<p>Quilted cloth or boiled leather. Light: keeps Unarmored Defense "
+          + "available, but does not qualify for Armour Training.</p>"
+      }
+    },
+    {
+      name: "Chain Mail",
+      type: "armour",
+      img: "icons/equipment/chest/breastplate-metal-scaled-grey.webp",
+      system: {
+        category: "medium",
+        armourBonus: 2,
+        isShield: false,
+        equipped: false,
+        description: "<p>Interlocking rings over padding. Medium: qualifies for Armour "
+          + "Training; rules out Unarmored Defense.</p>"
+      }
+    },
+    {
+      name: "Plate",
+      type: "armour",
+      img: "icons/equipment/chest/breastplate-cuirass-steel-grey.webp",
+      system: {
+        category: "heavy",
+        armourBonus: 3,
+        isShield: false,
+        equipped: false,
+        description: "<p>Fitted steel plates. Heavy: qualifies for Armour Training; rules out "
+          + "Unarmored Defense. Dex still applies in full — KD20 armour never caps it.</p>"
+      }
+    },
+    {
+      name: "Shield",
+      type: "armour",
+      img: "icons/equipment/shield/heater-steel-boss-red.webp",
+      system: {
+        category: "light",
+        armourBonus: 1,
+        isShield: true,
+        equipped: false,
+        description: "<p>Adds its bonus on top of any armour, and is fine with Unarmored "
+          + "Defense. A large shield braced against an area effect may earn a Fitting Save "
+          + "(Strength Save instead of Dexterity) — GM's call.</p>"
       }
     }
   ]
