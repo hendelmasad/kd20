@@ -1,0 +1,47 @@
+name: Release KD20 System
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Set version + URLs in system.json
+        run: |
+          node -e '
+            const fs = require("fs");
+            const s = JSON.parse(fs.readFileSync("system.json", "utf8"));
+            s.version  = process.env.VERSION;
+            s.manifest = `https://github.com/${process.env.REPO}/releases/latest/download/system.json`;
+            s.download = `https://github.com/${process.env.REPO}/releases/download/${process.env.TAG}/kd20.zip`;
+            fs.writeFileSync("system.json", JSON.stringify(s, null, 2) + "\n");
+          '
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+
+      - name: Build kd20.zip
+        run: |
+          zip -r kd20.zip . -x ".git/*" ".github/*" "docs/*" "tools/*" "*.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: KD20 ${{ github.ref_name }}
+          files: |
+            system.json
+            kd20.zip
