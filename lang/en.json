@@ -7,7 +7,7 @@
   "TYPES.Item.feat": "Feat",
   "TYPES.HINTS.Item.feat": "A trained capability. May grant a Specialization Die (one d6) when its trigger applies.",
   "TYPES.Item.weapon": "Weapon",
-  "TYPES.HINTS.Item.weapon": "A weapon with a damage die, a precision die, reach and the Statistics it uses.",
+  "TYPES.HINTS.Item.weapon": "A weapon with damage dice, a precision die, reach and the Statistics it uses.",
   "TYPES.Item.armour": "Armour",
   "TYPES.HINTS.Item.armour": "Body armour or a shield. While equipped, adds its AC bonus; body armour's category gates the AC feats.",
 
@@ -48,8 +48,11 @@
   "KD20.Feat.FIELDS.mechanic.kind.label": "Computed Mechanic",
   "KD20.Feat.FIELDS.mechanic.save.label": "Save Raised",
   "KD20.Feat.FIELDS.description.label": "Description",
+  "KD20.Feat.FIELDS.deity.label": "Deity",
+  "KD20.Feat.FIELDS.vow.label": "Vow",
+  "KD20.Feat.FIELDS.dormant.label": "Dormant",
 
-  "KD20.Weapon.FIELDS.damageDie.label": "Damage Die",
+  "KD20.Weapon.FIELDS.damageDie.label": "Damage Dice",
   "KD20.Weapon.FIELDS.precisionDie.label": "Precision Die",
   "KD20.Weapon.FIELDS.attackStat.label": "Attack Statistic",
   "KD20.Weapon.FIELDS.damageStat.label": "Damage Statistic",

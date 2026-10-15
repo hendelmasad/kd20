@@ -46,6 +46,14 @@ export default class KD20FeatData extends foundry.abstract.TypeDataModel {
         required: true, nullable: false, integer: true, initial: 20, min: 0
       }),
 
+      // Devotion feats (KD20_Feats.md "Devotion Feats"): a god-granted feat is
+      // marked by its deity and Vow. Blank deity = an ordinary feat. `dormant`
+      // is the Breach Ladder's "lapse" state — the GM flips it; nothing here
+      // automates the ladder, and a dormant feat is only shown as inactive.
+      deity: new fields.StringField({ required: true, blank: true, initial: "" }),
+      vow: new fields.StringField({ required: true, blank: true, initial: "" }),
+      dormant: new fields.BooleanField({ required: true, initial: false }),
+
       // Core rules v0.37/v0.39: the few feats the character sheet computes.
       // Blank `kind` = descriptive only. Each owned copy is one purchase:
       // Hardened Save raises `save` one ladder step; Armour Training adds +1 AC

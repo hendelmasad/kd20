@@ -3,8 +3,12 @@
  *
  * Every check has the same shape:
  *
- *   total = 1d20 + stat bonus + [one Specialization Die (d6), if a feat applies]
+ *   total = 1d20 + stat bonus + [one Specialization Die, if a feat applies]
+ *                             + [a situational GM modifier, if any]
  *                             + [any Action Dice (Nd6) spent]
+ *
+ * The Specialization Die is a d6; d8/d10/d12 are Convergence (v0.44 playtest).
+ * Whatever its size it is ONE die, stored as its numeric result.
  *
  * The outcome tier comes from the MARGIN against a target, never from the d20
  * face. No die face is special: there is no natural-20 auto-success and, as of
@@ -20,7 +24,7 @@
  * original d20 is never re-rolled.
  */
 
-import { STAT_LABELS, SAVE_LABELS } from "../config.mjs";
+import { STAT_LABELS, SAVE_LABELS, damageFormula } from "../config.mjs";
 
 /** The flag namespace used on our chat messages. */
 export const FLAG_SCOPE = "kd20";
@@ -45,9 +49,9 @@ export const TIERS = {
 export function computeTotal(state) {
   const actionDice = (state.actionDice ?? []).reduce((sum, face) => sum + face, 0);
   // profileBonus (v0.34) and hardenedBonus (v0.37) exist only on Save rolls;
-  // older cards lack them.
+  // modifier (v0.9.0) is the GM's situational ±. Older cards lack them.
   return state.d20 + state.statBonus + (state.profileBonus ?? 0) + (state.hardenedBonus ?? 0)
-    + (state.specDie ?? 0) + actionDice;
+    + (state.specDie ?? 0) + (state.modifier ?? 0) + actionDice;
 }
 
 /**
@@ -230,15 +234,43 @@ async function rollDie(formula) {
   return { roll, total: roll.total };
 }
 
+/** Specialization Die sizes: d6, or d8/d10/d12 for Convergence (v0.44 playtest). */
+export const SPEC_DIE_SIZES = ["d6", "d8", "d10", "d12"];
+
+/**
+ * Roll the Specialization Die, if one was picked. One die only, whatever its size.
+ * @param {string} specDieSize   "" for none, else one of SPEC_DIE_SIZES.
+ * @param {Roll[]} rolls         Accumulator for rolls to attach to the message.
+ * @returns {Promise<number|null>}  The face, or null for no die.
+ */
+async function rollSpecDie(specDieSize, rolls) {
+  if ( !specDieSize ) return null;
+  if ( !SPEC_DIE_SIZES.includes(specDieSize) ) throw new Error(`KD20 | Unknown Specialization Die "${specDieSize}"`);
+  const die = await rollDie(`1${specDieSize}`);
+  rolls.push(die.roll);
+  return die.total;
+}
+
+/**
+ * Read the GM modifier typed into a dialog. Blank or non-numeric means 0.
+ * @param {*} input
+ * @returns {number}
+ */
+export function parseModifier(input) {
+  const n = Math.round(Number(String(input ?? "").trim() || 0));
+  return Number.isFinite(n) ? n : 0;
+}
+
 /**
  * Roll a basic stat check and post it to chat. Spec section 1.
  * @param {object} options
  * @param {Actor} options.actor
  * @param {string} options.statKey            One of str/dex/con/int/wis/cha.
  * @param {number|null} options.target         The DC, or null for no target.
- * @param {boolean} options.useSpecDie          Add one Specialization Die (d6).
+ * @param {string} [options.specDieSize]      "" for none, or d6/d8/d10/d12.
+ * @param {number} [options.modifier]         A situational GM ±, added to the total.
  */
-export async function rollCheck({ actor, statKey, target = null, useSpecDie = false }) {
+export async function rollCheck({ actor, statKey, target = null, specDieSize = "", modifier = 0 }) {
   if ( !requireKD20Data(actor) ) return;
   const statBonus = actor.system.stats[statKey].bonus;
   const rolls = [];
@@ -246,12 +278,7 @@ export async function rollCheck({ actor, statKey, target = null, useSpecDie = fa
   const d20 = await rollDie("1d20");
   rolls.push(d20.roll);
 
-  let specDie = null;
-  if ( useSpecDie ) {
-    const d6 = await rollDie("1d6");
-    rolls.push(d6.roll);
-    specDie = d6.total;
-  }
+  const specDie = await rollSpecDie(specDieSize, rolls);
 
   const state = {
     version: 1,
@@ -262,6 +289,8 @@ export async function rollCheck({ actor, statKey, target = null, useSpecDie = fa
     statBonus,
     d20: d20.total,
     specDie,
+    specDieSize: specDieSize || null,
+    modifier,
     actionDice: [],
     target,
     damage: null,
@@ -286,9 +315,10 @@ export async function rollCheck({ actor, statKey, target = null, useSpecDie = fa
  * @param {Actor} options.actor
  * @param {string} options.saveKey            One of SAVE_KEYS.
  * @param {number|null} options.target         The attacker's total or DC, or null.
- * @param {boolean} options.useSpecDie          Add one Specialization Die (d6).
+ * @param {string} [options.specDieSize]      "" for none, or d6/d8/d10/d12.
+ * @param {number} [options.modifier]         A situational GM ±, added to the total.
  */
-export async function rollSave({ actor, saveKey, target = null, useSpecDie = false }) {
+export async function rollSave({ actor, saveKey, target = null, specDieSize = "", modifier = 0 }) {
   if ( !requireKD20Data(actor) ) return;
   const save = actor.system.saves[saveKey];
   const rolls = [];
@@ -296,12 +326,7 @@ export async function rollSave({ actor, saveKey, target = null, useSpecDie = fal
   const d20 = await rollDie("1d20");
   rolls.push(d20.roll);
 
-  let specDie = null;
-  if ( useSpecDie ) {
-    const d6 = await rollDie("1d6");
-    rolls.push(d6.roll);
-    specDie = d6.total;
-  }
+  const specDie = await rollSpecDie(specDieSize, rolls);
 
   const state = {
     version: 1,
@@ -316,6 +341,8 @@ export async function rollSave({ actor, saveKey, target = null, useSpecDie = fal
     hardenedBonus: save.hardened?.bonus ?? 0,
     d20: d20.total,
     specDie,
+    specDieSize: specDieSize || null,
+    modifier,
     actionDice: [],
     target,
     damage: null,
@@ -331,13 +358,14 @@ export async function rollSave({ actor, saveKey, target = null, useSpecDie = fal
  * @param {Actor} options.actor
  * @param {Item} options.weapon
  * @param {number|null} options.target          The target's AC.
- * @param {boolean} options.useSpecDie
+ * @param {string} [options.specDieSize]       "" for none, or d6/d8/d10/d12.
+ * @param {number} [options.modifier]          A situational GM ±, added to the total.
  * @param {string|null} [options.targetName]     The single targeted token's name.
  * @param {boolean} [options.targetFromToken]    The AC came from a token, so it is
  *                                               secret if the setting hides it.
  * @param {object[]} [options.targets]           Two or more targets, from describeTargets().
  */
-export async function rollAttack({ actor, weapon, target = null, useSpecDie = false,
+export async function rollAttack({ actor, weapon, target = null, specDieSize = "", modifier = 0,
   targetName = null, targetFromToken = false, targets = [] }) {
   if ( !requireKD20Data(actor) ) return;
   const statKey = weapon.system.attackStat;
@@ -347,12 +375,7 @@ export async function rollAttack({ actor, weapon, target = null, useSpecDie = fa
   const d20 = await rollDie("1d20");
   rolls.push(d20.roll);
 
-  let specDie = null;
-  if ( useSpecDie ) {
-    const d6 = await rollDie("1d6");
-    rolls.push(d6.roll);
-    specDie = d6.total;
-  }
+  const specDie = await rollSpecDie(specDieSize, rolls);
 
   const state = {
     version: 1,
@@ -364,6 +387,8 @@ export async function rollAttack({ actor, weapon, target = null, useSpecDie = fa
     statBonus,
     d20: d20.total,
     specDie,
+    specDieSize: specDieSize || null,
+    modifier,
     actionDice: [],
     target,
     targetName,
@@ -411,9 +436,11 @@ function requireKD20Data(actor) {
 async function ensureDamage(state, outcome, rolls) {
   if ( (state.kind !== "attack") || !state.damage || !outcome.isHit ) return;
 
-  // Base damage, rolled the first time the attack lands.
+  // Base damage, rolled the first time the attack lands. The stat bonus is added
+  // on the card, on top of the dice.
   if ( state.damage.dieResult === null ) {
-    const dmg = await rollDie(`1${state.damage.die}`);
+    // A dice expression ("2d8", "1d10+1d6"); a bare "d6" still rolls 1d6.
+    const dmg = await rollDie(damageFormula(state.damage.die));
     rolls.push(dmg.roll);
     state.damage.dieResult = dmg.total;
   }
@@ -539,7 +566,11 @@ export function buildCardContext(state, { isRepost = false } = {}) {
     parts.push({ label: "Hardened Save", value: state.hardenedBonus });
   }
   if ( state.specDie !== null ) {
-    parts.push({ label: "Specialization d6", value: state.specDie, isDie: true });
+    // Cards from before v0.9.0 store no size; theirs was always a d6.
+    parts.push({ label: `Specialization ${state.specDieSize || "d6"}`, value: state.specDie, isDie: true });
+  }
+  if ( state.modifier ) {
+    parts.push({ label: "Modifier", value: state.modifier });
   }
   for ( const face of state.actionDice ) {
     parts.push({ label: "Action d6", value: face, isDie: true });
@@ -705,10 +736,10 @@ async function promptActionDiceCount(pool) {
 /* -------------------------------------------- */
 
 /**
- * Ask for a DC and whether a Specialization Die applies.
+ * Ask for a DC, the Specialization Die size (if any) and a GM modifier.
  * @param {string} title
  * @param {string} targetLabel   "DC" for checks, "Target AC" for attacks.
- * @returns {Promise<{target: number|null, useSpecDie: boolean}|null>}
+ * @returns {Promise<{target: number|null, specDieSize: string, modifier: number}|null>}
  */
 export async function promptRollOptions(title, targetLabel = "DC") {
   const result = await promptDialog(title, `
@@ -717,7 +748,7 @@ export async function promptRollOptions(title, targetLabel = "DC") {
         <input id="kd20-target" type="number" name="target" step="1" placeholder="leave blank for none" autofocus>
       </div>`);
   if ( !result ) return null;
-  return { target: parseTarget(result.target), useSpecDie: Boolean(result.useSpecDie) };
+  return { target: parseTarget(result.target), ...readDialogOptions(result) };
 }
 
 /**
@@ -775,13 +806,26 @@ export async function promptAttackOptions(title, tokens = game.user.targets) {
   if ( !result ) return null;
   return {
     ...resolveAttackTarget({ targets, input: result.target, revealAc }),
-    useSpecDie: Boolean(result.useSpecDie)
+    ...readDialogOptions(result)
+  };
+}
+
+/**
+ * Read the Specialization Die size and GM modifier from a submitted roll dialog.
+ * @param {object} result
+ * @returns {{specDieSize: string, modifier: number}}
+ */
+export function readDialogOptions(result) {
+  const size = String(result?.specDieSize ?? "");
+  return {
+    specDieSize: SPEC_DIE_SIZES.includes(size) ? size : "",
+    modifier: parseModifier(result?.modifier)
   };
 }
 
 /**
  * The shared roll dialog: a caller-supplied target section, then the
- * Specialization Die box and the DC guide.
+ * Specialization Die size, the GM modifier and the DC guide.
  * @param {string} title
  * @param {string} targetHtml
  * @returns {Promise<object|null>}
@@ -792,13 +836,20 @@ async function promptDialog(title, targetHtml) {
     window: { title },
     content: `${targetHtml}
       <div class="form-group">
-        <label for="kd20-spec">Apply a Specialization Die (d6)</label>
-        <input id="kd20-spec" type="checkbox" name="useSpecDie">
+        <label for="kd20-spec">Specialization Die</label>
+        <select id="kd20-spec" name="specDieSize">
+          <option value="" selected>None</option>
+          ${SPEC_DIE_SIZES.map(size => `<option value="${size}">${size}</option>`).join("")}
+        </select>
       </div>
       <p class="notes">
-        Tick the box only if one of your feats applies. At most one Specialization
-        Die is ever added to a roll.
+        Pick a die size only if a feat fires. d8/d10/d12 = Convergence (v0.44 playtest).
+        One die only.
       </p>
+      <div class="form-group">
+        <label for="kd20-modifier">Modifier (situational ±, e.g. ±1/3/5 or in between)</label>
+        <input id="kd20-modifier" type="number" name="modifier" value="0" step="1">
+      </div>
       <p class="notes">DC guide: Easy 10 · Moderate 13 · Hard 16 · Formidable 20.</p>`,
     ok: { label: "Roll" }
   });

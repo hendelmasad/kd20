@@ -214,10 +214,13 @@
     </h2>
     <ul class="kd20-items">
       {{#each feats as |item|}}
-      <li class="kd20-item draggable" data-item-id="{{item.id}}">
+      <li class="kd20-item draggable{{#if item.system.dormant}} kd20-dormant{{/if}}" data-item-id="{{item.id}}"
+          {{#if item.system.dormant}}title="Dormant — faith broken; inactive until atonement"{{/if}}>
         <img class="kd20-item-img" src="{{item.img}}" alt="{{item.name}}">
         <span class="kd20-item-name" data-action="itemEdit">{{item.name}}</span>
         <span class="kd20-item-detail">
+          {{#if item.system.deity}}Devotion ({{item.system.deity}}) &middot; {{/if}}
+          {{#if item.system.dormant}}dormant &middot; {{/if}}
           {{item.system.featType}}{{#if item.system.grantsSpecializationDie}} &middot; d6{{/if}}
           {{#if item.system.mechanic.save}}{{#if (eq item.system.mechanic.kind "hardenedSave")}}
             &middot; {{lookup ../saveLabels item.system.mechanic.save}}{{/if}}{{/if}}

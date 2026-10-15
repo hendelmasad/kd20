@@ -5,7 +5,7 @@
  * those rolls will use.
  */
 
-import { STAT_KEYS, STAT_LABELS, DIE_CHOICES } from "../config.mjs";
+import { STAT_KEYS, STAT_LABELS, DIE_CHOICES, isValidDamageDice, largestDamageDie } from "../config.mjs";
 
 const fields = foundry.data.fields;
 
@@ -26,12 +26,20 @@ export default class KD20WeaponData extends foundry.abstract.TypeDataModel {
     return {
       description: new fields.HTMLField({ required: true, blank: true, initial: "" }),
 
+      // v0.9.0: a full dice expression ("d6", "2d8", "1d10+1d6"), not just one
+      // die. Older single-die values ("d6") are already valid and roll as 1d6.
       damageDie: new fields.StringField({
-        required: true, blank: false, initial: "d6", choices: DIE_CHOICES
+        required: true, blank: false, initial: "d6",
+        validate: value => {
+          if ( !isValidDamageDice(value) ) {
+            throw new Error(`"${value}" is not a damage dice expression (e.g. d6, 2d8, 1d10+1d6)`);
+          }
+        }
       }),
 
-      // The bonus die added on a Decisive or Supreme hit. Left blank, it
-      // defaults to matching the damage die (resolved in prepareDerivedData).
+      // The bonus die added on a Decisive or Supreme hit — always ONE die. Left
+      // blank, it defaults to the largest die in the damage expression
+      // (resolved in prepareDerivedData).
       precisionDie: new fields.StringField({
         required: true, blank: true, initial: "", choices: { "": "(same as damage die)", ...DIE_CHOICES }
       }),
@@ -53,8 +61,9 @@ export default class KD20WeaponData extends foundry.abstract.TypeDataModel {
   /* -------------------------------------------- */
 
   prepareDerivedData() {
-    // Spec section 4c: precision die defaults to equal the damage die.
+    // Spec section 4c: precision die defaults to equal the damage die. With a
+    // multi-die expression it is the largest die in it ("2d8" -> d8).
     // `effectivePrecisionDie` is what rolls should actually use.
-    this.effectivePrecisionDie = this.precisionDie || this.damageDie;
+    this.effectivePrecisionDie = this.precisionDie || largestDamageDie(this.damageDie) || "d6";
   }
 }

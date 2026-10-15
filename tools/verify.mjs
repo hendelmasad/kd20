@@ -62,7 +62,7 @@ const EXPECTED = {
   character: ["stats", "hp", "defence", "actionDice", "xp", "conditions", "biography"],
   gateway: ["description", "hpBonus", "saveProfile", "unarmoredStat", "benefit", "costXp"],
   feat: ["description", "featType", "trigger", "effect", "grantsSpecializationDie",
-    "prerequisite", "costXp", "mechanic"],
+    "prerequisite", "costXp", "mechanic", "deity", "vow", "dormant"],
   weapon: ["description", "damageDie", "precisionDie", "attackStat", "damageStat",
     "reach", "properties"],
   armour: ["description", "category", "armourBonus", "isShield", "equipped"]
@@ -105,7 +105,7 @@ checkDefault("character actionDice.refresh", defaults.character.actionDice.refre
 checkDefault("gateway costXp (spec 4a: 30)", defaults.gateway.costXp, 30);
 checkDefault("feat costXp (spec 4b: 20)", defaults.feat.costXp, 20);
 checkDefault("weapon reach (spec 4c: 1)", defaults.weapon.reach, 1);
-checkDefault("weapon damageDie", defaults.weapon.damageDie, "d6");
+checkDefault("weapon damageDie (legacy single die still the default)", defaults.weapon.damageDie, "d6");
 checkDefault("armour starts unequipped", defaults.armour.equipped, false);
 checkDefault("armour isShield", defaults.armour.isShield, false);
 checkDefault("character defence keeps only misc", Object.keys(defaults.character.defence).join(","), "misc");
@@ -1210,6 +1210,324 @@ console.log("\n=== Targets: 'Show target AC to players' hides the AC and margin 
   check("multi player view hides each AC and margin",
     !multiPlayer.includes("AC 7") && !multiPlayer.includes("AC 29") && !multiPlayer.includes("margin"));
   check("multi player view keeps each tier", multiPlayer.includes("Success") && multiPlayer.includes("Fail"));
+}
+
+/* -------------------------------------------- */
+/*  End-to-end rolls against stubbed Foundry    */
+/* -------------------------------------------- */
+
+/**
+ * Just enough of Roll, ChatMessage and friends to run the real roll functions.
+ * Every die rolls a scripted face (default: its maximum), and each formula
+ * handed to Roll is recorded, so the tests can assert exactly what was rolled.
+ */
+const harness = {
+  formulas: [],
+  faces: [],          // queue of forced faces, consumed one per die rolled
+  posted: [],
+  warnings: [],
+  reset() { this.formulas = []; this.faces = []; this.posted = []; this.warnings = []; }
+};
+globalThis.Roll = class {
+  constructor(formula) { this.formula = formula; }
+  async evaluate() {
+    harness.formulas.push(this.formula);
+    this.dice = [];
+    let total = 0;
+    for ( const [, sign, term] of this.formula.matchAll(/([+-]?)([^+-]+)/g) ) {
+      const m = term.match(/^(\d+)d(\d+)$/);
+      let value;
+      if ( m ) {
+        const results = Array.from({ length: Number(m[1]) },
+          () => ({ result: harness.faces.length ? harness.faces.shift() : Number(m[2]) }));
+        this.dice.push({ results });
+        value = results.reduce((s, r) => s + r.result, 0);
+      } else if ( /^\d+$/.test(term) ) value = Number(term);
+      else throw new Error(`stub Roll cannot parse "${this.formula}"`);
+      total += sign === "-" ? -value : value;
+    }
+    this.total = total;
+    return this;
+  }
+};
+globalThis.ui = { notifications: { warn: m => harness.warnings.push(m), info: () => {}, error: m => harness.warnings.push(m) } };
+foundry.utils.deepClone ??= o => structuredClone(o);
+foundry.applications = { handlebars: { renderTemplate: async (path, ctx) => compile("../templates/chat/roll-card.hbs")(ctx) } };
+foundry.documents = { ChatMessage: { implementation: {
+  getSpeaker: () => ({}),
+  create: async data => { harness.posted.push(data); return data; }
+} } };
+
+/** A KD20-shaped actor: str +2, dex +1, 3 Action Dice. */
+const stubActor = () => {
+  const stat = bonus => ({ bonus });
+  const actor = {
+    uuid: "Actor.stub", name: "Stub", isOwner: true,
+    system: {
+      stats: { str: stat(2), dex: stat(1), con: stat(0), int: stat(0), wis: stat(0), cha: stat(0) },
+      actionDice: { value: 3, refresh: 3 },
+      saves: { withstand: { stat: "str", statBonus: 2, profile: 3, hardened: { bonus: 0 } } },
+      gatewayName: "Warrior"
+    },
+    async update(diff) { this.system.actionDice.value = diff["system.actionDice.value"]; }
+  };
+  return actor;
+};
+
+/** A weapon item whose system data went through the real model. */
+const stubWeapon = (name, data) => {
+  const system = new models.weapon(data, { parent: null });
+  system.prepareDerivedData();
+  return { name, uuid: `Item.${name}`, system };
+};
+
+const lastState = () => harness.posted.at(-1).flags.kd20.state;
+const lastHtml = () => harness.posted.at(-1).content;
+
+console.log("\n=== v0.9.0 A: damage dice expressions ===");
+{
+  const cfg = await import("../module/config.mjs");
+  for ( const ok of ["d6", "1d6", "2d8", "1d10+1d6", "3d6", "2d8+4", "1d12-1", " 2D8 + 1d6 ", "d100"] ) {
+    check(`"${ok}" is a valid damage expression`, cfg.isValidDamageDice(ok));
+  }
+  for ( const bad of ["", "6", "d", "2d", "d1", "0d6", "2d8+", "+2d8", "2d8*2", "1d6+abc", "2x8", "101d6", "d6d6", "2d8 4"] ) {
+    check(`"${bad}" is rejected`, !cfg.isValidDamageDice(bad));
+  }
+  check("formula: bare d6 -> 1d6 (unchanged behaviour)", cfg.damageFormula("d6") === "1d6");
+  check("formula: 2d8 stays 2d8", cfg.damageFormula("2d8") === "2d8");
+  check("formula: d10+d6 -> 1d10+1d6", cfg.damageFormula("d10+d6") === "1d10+1d6", cfg.damageFormula("d10+d6"));
+  check("formula: whitespace/case normalised", cfg.damageFormula(" 2D8 + 1d6 ") === "2d8+1d6");
+  check("largest die: 1d10+1d6 -> d10", cfg.largestDamageDie("1d10+1d6") === "d10");
+
+  // The schema accepts old and new values and refuses junk.
+  const field = schemas.weapon.fields.damageDie;
+  check("schema accepts a legacy single die (d6)", !field.validate("d6"));
+  check("schema accepts 2d8", !field.validate("2d8"));
+  const err = field.validate("2d8*banana");
+  check("schema rejects a bad expression with a clear message",
+    Boolean(err) && /not a damage dice expression/.test(err.message ?? String(err)), String(err?.message ?? err));
+
+  // Precision die defaults.
+  check("precision default for 2d8 is d8", stubWeapon("A", { damageDie: "2d8" }).system.effectivePrecisionDie === "d8");
+  check("precision default for 1d10+1d6 is d10",
+    stubWeapon("B", { damageDie: "1d10+1d6" }).system.effectivePrecisionDie === "d10");
+  check("explicit precision still wins",
+    stubWeapon("C", { damageDie: "2d8", precisionDie: "d4" }).system.effectivePrecisionDie === "d4");
+
+  // End to end: a legacy d6 weapon rolls exactly 1d20, then 1d6, as before.
+  harness.reset();
+  const actor = stubActor();
+  harness.faces = [15, 4];      // d20 15 + str 2 = 17 vs AC 13 -> Success; damage d6 shows 4
+  await roll.rollAttack({ actor, weapon: stubWeapon("Short Sword", { damageDie: "d6" }), target: 13 });
+  check("legacy d6 weapon: Roll formulas are exactly 1d20, 1d6", harness.formulas.join(",") === "1d20,1d6",
+    harness.formulas.join(","));
+  check("legacy d6 weapon: damage 4 + str 2 = 6",
+    /Damage total<\/th>\s*<td>6</.test(lastHtml()), lastHtml().match(/Damage total[\s\S]{0,40}/)?.[0]);
+
+  // A 2d8 weapon rolls 2d8, plus the stat on top.
+  harness.reset();
+  harness.faces = [15, 3, 5];   // d20 15; 2d8 shows 3 + 5 = 8
+  await roll.rollAttack({ actor, weapon: stubWeapon("Gorge", { damageDie: "2d8" }), target: 13 });
+  check("2d8 weapon: Roll formulas are 1d20, 2d8", harness.formulas.join(",") === "1d20,2d8", harness.formulas.join(","));
+  check("2d8 weapon: card shows the 2d8 row and total 8 + str 2 = 10",
+    lastHtml().includes("<th>2d8</th>") && /Damage total<\/th>\s*<td>10</.test(lastHtml()));
+  check("2d8 weapon card renders with no NaN/undefined/null", badText(lastHtml()).length === 0, badText(lastHtml()).join(","));
+
+  // A Decisive hit with a multi-die weapon adds ONE precision die of the largest size.
+  harness.reset();
+  harness.faces = [20, 1, 1, 6];   // 20 + 2 = 22 vs AC 10 -> Decisive
+  await roll.rollAttack({ actor, weapon: stubWeapon("Maul", { damageDie: "1d10+1d6" }), target: 10 });
+  check("1d10+1d6 Decisive: formulas 1d20, 1d10+1d6, 1d10 (one precision die)",
+    harness.formulas.join(",") === "1d20,1d10+1d6,1d10", harness.formulas.join(","));
+}
+
+console.log("\n=== v0.9.0 B: Devotion feats (deity, vow, dormant) ===");
+{
+  check("feat defaults: deity blank, vow blank, not dormant",
+    defaults.feat.deity === "" && defaults.feat.vow === "" && defaults.feat.dormant === false);
+  const featErr = schemas.feat.validate({ ...defaults.feat, deity: "Kael", vow: "marked by Kael", dormant: true });
+  check("a Devotion feat validates", !featErr, String(featErr));
+
+  // Stubs for the Foundry form helpers the item sheets use.
+  for ( const [name, fn] of Object.entries({
+    selectOptions: () => "",
+    formInput: () => "",
+    checked: v => (v ? "checked" : "")
+  }) ) if ( !Handlebars.helpers[name] ) Handlebars.registerHelper(name, fn);
+
+  const featSheet = compile("../templates/item/feat.hbs");
+  const render = system => featSheet({
+    document: { name: "Smite", img: "x.svg" }, editable: true, enriched: {}, systemFields: {}, choices: {},
+    system: { ...defaults.feat, ...system }
+  });
+  const rootClass = html => html.match(/<div class="(kd20-sheet kd20-item-sheet[^"]*)"/)?.[1];
+
+  const ordinary = render({});
+  check("ordinary feat: not greyed, no dormant banner",
+    rootClass(ordinary) === "kd20-sheet kd20-item-sheet" && !ordinary.includes("kd20-dormant-banner"), rootClass(ordinary));
+  check("ordinary feat: Devotion fields present but empty",
+    /name="system.deity" value=""/.test(ordinary) && /name="system.vow" value=""/.test(ordinary));
+
+  const devoted = render({ deity: "Kael", vow: "marked by Kael, exclusive worship" });
+  check("Devotion feat shows its deity and vow",
+    devoted.includes('value="Kael"') && devoted.includes('value="marked by Kael, exclusive worship"'));
+  check("faithful Devotion feat is not greyed", !rootClass(devoted).includes("kd20-dormant"));
+
+  const lapsed = render({ deity: "Kael", vow: "marked by Kael", dormant: true });
+  check("dormant feat: sheet greyed and banner shown",
+    rootClass(lapsed).includes("kd20-dormant") && lapsed.includes("kd20-dormant-banner"));
+  check("dormant feat: the toggle renders checked", /name="system.dormant"\s*checked/.test(lapsed));
+  check("feat sheet renders with no NaN/undefined/null", badText(lapsed).length === 0, badText(lapsed).join(","));
+
+  // The character sheet's feat list greys a dormant feat too.
+  const sheetSrc = fs.readFileSync(new URL("../templates/actor/character.hbs", import.meta.url), "utf8");
+  const listSrc = sheetSrc.match(/\{\{#each feats as \|item\|\}\}[\s\S]*?\{\{\/each\}\}/)[0];
+  const list = Handlebars.compile(listSrc)({ editable: true, saveLabels: {}, feats: [
+    { id: "a", name: "Weapon Master", img: "x", system: { ...defaults.feat } },
+    { id: "b", name: "Smite", img: "x", system: { ...defaults.feat, deity: "Kael", dormant: true } }
+  ] });
+  const rows = list.split("<li").slice(1);
+  check("character sheet: ordinary feat row unchanged (not greyed, no Devotion tag)",
+    !rows[0].includes("kd20-dormant") && !rows[0].includes("Devotion"));
+  check("character sheet: dormant Devotion feat row greyed and tagged",
+    rows[1].includes("kd20-dormant") && rows[1].includes("Devotion (Kael)") && rows[1].includes("dormant"));
+}
+
+console.log("\n=== v0.9.0 C: Specialization Die size + GM modifier ===");
+{
+  const actor = stubActor();
+  const cardFor = state => compile("../templates/chat/roll-card.hbs")(roll.buildCardContext(state));
+  /** The state exactly as v0.8.0 stored it: no specDieSize, no modifier. */
+  const asV080 = state => { const s = { ...state }; delete s.specDieSize; delete s.modifier; return s; };
+
+  // SAFETY NET: None + 0 must be identical to today, for every roll kind.
+  for ( const [kind, run] of [
+    ["check", () => roll.rollCheck({ actor, statKey: "str", target: 13, specDieSize: "", modifier: 0 })],
+    ["save", () => roll.rollSave({ actor, saveKey: "withstand", target: 13, specDieSize: "", modifier: 0 })],
+    ["attack", () => roll.rollAttack({ actor, weapon: stubWeapon("Sword", { damageDie: "d6" }), target: 13 })]
+  ] ) {
+    harness.reset();
+    harness.faces = [11, 4];
+    await run();
+    const state = lastState();
+    check(`${kind}, None + 0: only ${kind === "attack" ? "1d20, 1d6 (damage)" : "1d20"} rolled`,
+      harness.formulas.join(",") === (kind === "attack" ? "1d20,1d6" : "1d20"), harness.formulas.join(","));
+    check(`${kind}, None + 0: specDie null, modifier 0`, state.specDie === null && state.modifier === 0);
+    check(`${kind}, None + 0: total unchanged (${roll.computeTotal(asV080(state))})`,
+      roll.computeTotal(state) === roll.computeTotal(asV080(state)));
+    check(`${kind}, None + 0: card HTML byte-identical to the v0.8.0 card`,
+      lastHtml() === cardFor(asV080(state)));
+    check(`${kind}, None + 0: no Specialization or Modifier row`,
+      !lastHtml().includes("Specialization") && !lastHtml().includes("Modifier"));
+  }
+
+  // Defaults: calling with no options at all is also None + 0.
+  harness.reset();
+  harness.faces = [11];
+  await roll.rollCheck({ actor, statKey: "str", target: 13 });
+  check("omitted options default to no spec die, modifier 0",
+    harness.formulas.join(",") === "1d20" && lastState().specDie === null && lastState().modifier === 0);
+
+  // Old cards (v0.8.0 states with a spec die) still label it d6.
+  const oldCard = roll.buildCardContext({ kind: "check", label: "x", statKey: "str", statBonus: 2, d20: 10,
+    specDie: 4, actionDice: [], target: null });
+  check("a pre-v0.9.0 card with a spec die still reads 'Specialization d6'",
+    oldCard.parts.some(p => p.label === "Specialization d6" && p.value === 4));
+
+  // Each size rolls ONE die of that size, and the card says so.
+  for ( const size of ["d6", "d8", "d10", "d12"] ) {
+    harness.reset();
+    harness.faces = [10, 5];
+    await roll.rollCheck({ actor, statKey: "str", target: 13, specDieSize: size });
+    check(`${size} pick: rolls 1d20 then 1${size}, card label 'Specialization ${size}', total 10+2+5 = 17`,
+      harness.formulas.join(",") === `1d20,1${size}`
+      && lastHtml().includes(`<th>Specialization ${size}</th>`)
+      && lastState().specDieSize === size && roll.computeTotal(lastState()) === 17,
+      `${harness.formulas.join(",")} total ${roll.computeTotal(lastState())}`);
+  }
+  harness.reset();
+  harness.faces = [10, 7];
+  await roll.rollAttack({ actor, weapon: stubWeapon("Sword", { damageDie: "d6" }), specDieSize: "d8", target: null });
+  check("attack with d8 spec die rolls 1d8", harness.formulas.join(",") === "1d20,1d8", harness.formulas.join(","));
+  harness.reset();
+  harness.faces = [10, 7];
+  await roll.rollSave({ actor, saveKey: "withstand", specDieSize: "d10", target: null });
+  check("save with d10 spec die rolls 1d10", harness.formulas.join(",") === "1d20,1d10", harness.formulas.join(","));
+
+  // GM modifier.
+  harness.reset();
+  harness.faces = [10];
+  await roll.rollCheck({ actor, statKey: "str", target: 13, modifier: 3 });
+  check("+3 modifier: total 10 + 2 + 3 = 15", roll.computeTotal(lastState()) === 15);
+  check("+3 modifier: shown on the card as a +3 Modifier row (not a die)",
+    /<th>Modifier<\/th>\s*<td>\s*\+3\s*<\/td>/.test(lastHtml()), lastHtml().match(/Modifier[\s\S]{0,60}/)?.[0]);
+  check("+3 modifier: card total reads 15", /Total<\/th>\s*<td>15</.test(lastHtml()));
+  const minus = roll.buildCardContext({ ...lastState(), modifier: -5 });
+  check("-5 modifier: row reads -5 and total drops to 7",
+    minus.parts.some(p => p.label === "Modifier" && p.value === -5 && !p.isDie) && minus.total === 7);
+  check("+3 modifier can turn a Fail into a Success (12 vs 13 -> 15 vs 13)",
+    roll.buildCardContext({ ...lastState(), modifier: 0 }).tier.key === "fail" && lastState() && roll.buildCardContext(lastState()).tier.key === "success");
+
+  // Dialog parsing.
+  const r = roll.readDialogOptions;
+  check("dialog: None -> no die, blank modifier -> 0",
+    JSON.stringify(r({ specDieSize: "", modifier: "" })) === JSON.stringify({ specDieSize: "", modifier: 0 }));
+  check("dialog: d12 and -3 pass through", r({ specDieSize: "d12", modifier: -3 }).specDieSize === "d12"
+    && r({ specDieSize: "d12", modifier: -3 }).modifier === -3);
+  check("dialog: unknown size -> none; junk modifier -> 0; 2.6 -> 3",
+    r({ specDieSize: "d20" }).specDieSize === "" && r({ modifier: "abc" }).modifier === 0 && r({ modifier: 2.6 }).modifier === 3);
+
+  // The real prompts, with DialogV2 stubbed to "submit" a chosen form.
+  let dialogHtml = "";
+  let submit = {};
+  foundry.applications.api = { DialogV2: { input: async ({ content }) => { dialogHtml = content; return submit; } } };
+  game.user = { isGM: true };
+  submit = { target: "14", specDieSize: "d8", modifier: 3 };
+  const checkOpts = await roll.promptRollOptions("Strength Check");
+  check("promptRollOptions returns target, specDieSize and modifier (no useSpecDie)",
+    JSON.stringify(checkOpts) === JSON.stringify({ target: 14, specDieSize: "d8", modifier: 3 }), JSON.stringify(checkOpts));
+  check("dialog: a specDieSize select with None/d6/d8/d10/d12, None selected, no checkbox",
+    /<select[^>]*name="specDieSize"/.test(dialogHtml) && !dialogHtml.includes("useSpecDie")
+    && ["", "d6", "d8", "d10", "d12"].every(v => dialogHtml.includes(`<option value="${v}"`))
+    && /<option value="" selected>None<\/option>/.test(dialogHtml));
+  check("dialog: Convergence note and modifier field present",
+    dialogHtml.includes("d8/d10/d12 = Convergence (v0.44 playtest)")
+    && /<input[^>]*type="number" name="modifier" value="0"/.test(dialogHtml)
+    && dialogHtml.includes("Modifier (situational ±, e.g. ±1/3/5 or in between)"));
+  submit = { target: "", specDieSize: "", modifier: 0 };
+  const atkOpts = await roll.promptAttackOptions("Sword Attack", []);
+  check("promptAttackOptions returns specDieSize and modifier alongside the target fields",
+    atkOpts.specDieSize === "" && atkOpts.modifier === 0 && atkOpts.target === null && !("useSpecDie" in atkOpts),
+    JSON.stringify(atkOpts));
+
+  // Spend Action Dice on a d8 + modifier card: the button logic is size-agnostic.
+  harness.reset();
+  harness.faces = [10, 6];     // d20 10, d8 6; + str 2 + mod 3 = 21 vs AC 25 -> Fail
+  const weapon = stubWeapon("Sword", { damageDie: "2d8" });
+  await roll.rollAttack({ actor, weapon, target: 25, specDieSize: "d8", modifier: 3 });
+  const first = harness.posted.at(-1);
+  check("d8 + mod card: Fail at 21 vs 25, no damage yet", roll.computeTotal(lastState()) === 21
+    && lastState().damage.dieResult === null);
+  const flags = { ...first.flags.kd20 };
+  const message = { getFlag: (s, k) => flags[k], setFlag: async (s, k, v) => { flags[k] = v; } };
+  globalThis.fromUuid = async () => actor;
+  actor.system.actionDice.value = 3;
+  harness.formulas = [];
+  harness.faces = [5, 4, 2, 3];  // 2 Action Dice 5 + 4 -> 30 vs 25 Success; 2d8 damage 2 + 3
+  await roll.spendActionDice(message, 2);
+  const spent = lastState();
+  check("spend 2 Action Dice: 1 more card, pool 3 -> 1, old card superseded",
+    harness.posted.length === 2 && actor.system.actionDice.value === 1 && flags.superseded === true);
+  check("spend keeps the d8 spec die and the modifier: total 10+2+6+3+5+4 = 30",
+    roll.computeTotal(spent) === 30 && spent.specDie === 6 && spent.specDieSize === "d8" && spent.modifier === 3);
+  check("re-posted card: Specialization d8 and Modifier rows, Success, 2d8 damage 5 + str 2 = 7",
+    lastHtml().includes("Specialization d8") && /<th>Modifier<\/th>/.test(lastHtml())
+    && lastHtml().includes("re-posted") && /Damage total<\/th>\s*<td>7</.test(lastHtml()),
+    harness.formulas.join(","));
+  check("spend rolled only 2d6 then the 2d8 damage (no re-roll of d20/spec die)",
+    harness.formulas.join(",") === "2d6,2d8", harness.formulas.join(","));
+  check("re-posted card renders with no NaN/undefined/null", badText(lastHtml()).length === 0, badText(lastHtml()).join(","));
+  check("no warnings raised during any roll", harness.warnings.length === 0, harness.warnings.join(" | "));
 }
 
 /* -------------------------------------------- */
