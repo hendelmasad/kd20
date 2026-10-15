@@ -1,6 +1,6 @@
 # KD20 — Design Session TODO
 
-**Version: v0.8 — 2026-10-08** *(against Core Rules v0.40 — all defense work resolved, PLUS the armour table now defined (Light +1 / Medium +2 / Heavy +3 / Shield +1, equippable items) and folded into the Foundry v0.39 branch. The v0.36–v0.39 Foundry work is built + tested; armour items being added to the same branch now.)*
+**Version: v0.14 — 2026-10-14** *(against Core Rules v0.44 / Feats v0.44 — all defense work resolved AND SHIPPED to Foundry (system 0.8.0, merged to main): saves rename, Hardened Save, AC feats, Fitting Save, capability roll-types, armour table + equippable armour items — all tested live. Recent design (docs-only, Foundry deferred to the active-feats pass): Devotion feats (§2e, Vow + Breach Ladder, god Kael + Smite); Interpose brace (§2f, d6+con, con-once, found vs. Grush); HP feats + "rarely-sell-height" reword (§2g); **🧪 die-step Convergence + reborn Master Feat (§2h, PLAYTEST — supersedes the §2d Modifier version: one die stepping d6→d8→d10→d12, Master Feat now a step not a 2nd d6, re-priced 30, confirm at the table).** Distance now measured in **units ("un")**, 1 un ≈ 2m (v0.43). Next big design piece: the active-feats architecture (§5). A small Foundry polish backlog is tracked below §2c.)*
 
 The playable Foundry system and the five-gateway catalogue (Warrior, Scout, Adept, Guardian, Face — 34 feats) are built. Populating the catalogue surfaced a set of **referenced-but-undefined terms** and some **rules gaps** the gateways lean on. This doc is the roadmap for the next focused *design* session. Most items interlock, so they should be tackled together, not piecemeal.
 
@@ -47,7 +47,113 @@ The defense model is settled, **playtest-blessed**, and the save naming is now f
 - **None +0 · Light +1 · Medium +2 · Heavy +3 · Shield +1.** Tight on purpose — Armour Training (+1/+2) stacks, keeping the maxed heavy tank at **AC 20** (the band top; dex-20 extreme touches 21, absorbed by the soft cap).
 - **Dex always applies at every category** — KD20 never caps agility by armour (that's *why* the base values are small).
 - Validated vs hit-chance: a trained master holds AC 20 to ~47% passive; the pool lifts it over 50%. Strong-but-fair wall, never immune.
-- **Foundry:** armour is **equippable items** (category + bonus on the item); equipped category drives the AC-feat gates. Being added to the v0.39 branch now (see change-list §F).
+- **Foundry: SHIPPED ✅** — armour is **equippable items** (category + bonus on the item); equipped category drives the AC-feat gates. Merged to main in the v0.36→v0.40 overhaul (system 0.8.0). Tested live: Chain Mail (+2) + Shield (+1), dex+2 → AC 15; feat gates read equipped category; two independent slots (body / shield).
+
+## 2d. Convergence — multiple feats on one roll — RESOLVED ✅ (v0.41) → ♻️ SUPERSEDED by die-step model (v0.44, §2h)
+
+> **⚠️ The v0.41 Modifier-ladder version below is HISTORY.** As of v0.44 (§2h) Convergence **steps the Specialization Die up** (d6→d8→d10→d12) instead of granting a ±1/±3/±5 Modifier. Kept here for the reasoning trail. Read §2h for current.
+
+**The gap:** the one-die rule says only one Specialization Die is ever added. But sometimes two feats fire for *genuinely different reasons* on one roll — the canonical case is a Guardian/Warrior's **Retribution** (fury of avenging an interposed hit) + **Weapon Master** (trained with this blade) on one swing. Players felt the "a spec die is a spec die, no further gain" explanation fall flat — it punishes breadth, which is backwards.
+
+**Decision — Convergence rides the Modifier Ladder, one named rung per additional converging feat:**
+- **2 feats → +1 (Minor) · 3 feats → +3 (Solid) · 4+ feats → +5 (Major) — CAP.**
+- **Still one die.** Convergence adds a flat ladder Modifier *on top of* the single Spec Die; it never adds a second die.
+- **GM counts honestly** — only feats whose triggers *independently* fire for their own reason; GM confirms. Rare by nature (3 is unusual, 4 is once-a-campaign), which is why it can climb the ladder safely.
+- **Master Feat stays separate** — its second d6 is the one sanctioned stacked *die* (depth); convergence is the ladder reward for *breadth*. They never combine on one roll.
+- **Why this shape:** reuses the established ladder (±1/±3/±5) rather than inventing a die-floor special case; rewards the exact thing KD20 is built to reward (breadth paying off); max flat +5 stays under a Master Feat's whole extra d6, so mastery (depth) still out-values alignment (breadth). Considered + rejected: flat +1 (too small to feel), floor-of-4 on the die (new special rule for reading a d6), count-up by raw integer (+1/+2/+3 — fine, but the named rungs are cleaner and more legible).
+- **Docs:** canon in `KD20_Rules.md` → *One Die Applies* → "Convergence — When Feats Legitimately Stack"; one-liner in `KD20_Quick_Reference.md`.
+- **Foundry: NOT YET.** Needs a convergence Modifier option in the roll flow / Contest Resolver (a "+N convergence" picker the GM sets, or a toggle per converging feat). Low priority until the active-feats architecture (§5) exists, since that's where multi-feat rolls get surfaced. For now it's a table ruling + sheet-noted modifier.
+
+## 2e. Devotion feats — religion & granted divine powers — RESOLVED ✅ (Feats v0.40)
+
+**The design:** religion is **not a class and not a gateway**. Worship is open to all; *power* is bestowed on a rare few **marked by destiny**. Devotion feats are a **cross-cutting layer in the shared library** — any gateway can carry them (a vengeance paladin = Warrior + Smite; a cleric = Guardian/Face/Adept + divine feats). The god is a thread *across* the gateway system, not another gateway in it.
+
+**The one new mechanic — the Vow (a new prerequisite kind):**
+- Every other prereq is permanent once met; the **Vow is standing and *revocable*** — the first prereq you can *lose* after meeting it. Named as a formal fourth gate in "How to Read a Feat."
+- A Vow demands some/all of: **the Mark** (GM-bestowed, rare — the true gate), **exclusive worship** ("no other gods"), **the god's tenets**, and sometimes **a sacrifice** (one-time or maintained).
+
+**Marked by destiny = the scarcity gate.** Not for the asking; GM-bestowed via a catalyst, exactly like a second gateway's. Keep marked PCs uncommon; named NPCs can carry divine feats to mark them as a god's champion/scourge. Scarcity is the balance valve — the feats needn't be individually weak, just rare.
+
+**The Breach Ladder (consequence scales with offense):**
+- **Lapse** (stumble, weakness, unavoidable) → **dormant until atonement** (the default; XP suspended, never wasted).
+- **Betrayal** (knowingly against tenets, or worshipping a rival) → **lost until re-earned** (Mark stripped; needs a new Transformative Moment).
+- **The god's own cardinal virtues / unforgivable crimes set where any breach lands** — per-deity flavour, not a generic rule. Signature tension: a war-god's devotee falls for showing *mercy to a marked foe*; a mercy-god's devotee falls for the opposite. Same feat, opposite souls.
+- XP never refunded (standing rule); atonement restores a dormant feat free, betrayal must be re-earned in fiction.
+
+**Divinity rides trigger + trapping, never flat height.** Smite = Weapon Master with a holier trigger (only vs. your *named vengeance*) + god-themed Follow-Up riders; it sells no standing bonus and obeys the ladder exactly. The nova ("Wrath of the Unbroken Blade") adds damage *only* via an Action-Die cost (pool is the limiter) — a new **option**, not a bigger number. This keeps the no-height principle intact inside the divine layer.
+
+**Worked god shipped:** **Kael, the Unbroken Blade** (war & vengeance) — full portfolio, cardinal virtues, unforgivable crimes, Vow, and three feats (Smite 25 XP · Wrath 30 XP · Relentless 20 XP). Doubles as the GM's "how to write a god" template (portfolio + virtues + crimes + 2–4 feats).
+
+**Docs:** canon in `KD20_Feats.md` (new "DEVOTION FEATS" section after Face; Vow named in "How to Read a Feat"). Feats doc → **v0.40**.
+
+**Deferred:** divine **healing / condition-removal** (Lay on Hands, Mercy's Shield, Sanctuary, Absolution) waits on the **Recovery / Conditions** system (§4) — Devotion feats in waiting, not a separate track. Pure GM-narration divine feats port verbatim when a god wants them.
+
+**Foundry: NOT YET.** A Devotion feat is just a feat to Foundry *except* for the Vow's revocable state. Minimum future support: a **feat flag/field** marking it as Devotion (god name + vow text), and a simple **active/dormant toggle** on the character (GM flips it on breach, so dormant feats visibly stop applying). The Mark and tenets stay GM-narrative. Low priority — parks against the active-feats pass (§5) and the eventual feat-tree/gateway browser, where feat metadata gets surfaced anyway.
+
+## 2f. Interpose brace — Guardian survivability — RESOLVED ✅ (Feats v0.41)
+
+**The playtest gap (found running Grush):** a Guardian who Interposes takes the hit with **no AC check and no Save** (Interpose fires *after* the ally "is hit" — the AC roll already happened vs. the ally). Against a boss (Grush's maul ~16, up to 25), two interposes drop a ~19-HP Guardian. The party's designated tank melted *faster* than the squishy it protected, and nothing in the gateway made tanking survivable — Interpose dumped raw damage on the Guardian's **−3 Dexterity Save** (their profile's soft spot), bypassing the con/endurance the role is built on. GM confirmed he was running it correctly — it was a design gap, not a table error.
+
+**The fix (Keith's, folded into the existing ability, no new feat, no new cost):** the Action Die you *already* spend to Interpose now **braces the blow**. Reduce the damage you take by **that die's roll + your Constitution bonus**. May pour in **extra Action Dice to brace harder** (each adds a d6), but **con applies once** (two dice = `2d6 + con`, not con twice) — keeps a deep pool from trivializing it.
+- **Why it's right:** costs nothing new (the die was always Interpose's price — now it *does* something on the receiving end); routes survivability through **con** (the stat a Guardian actually invests in: profile Str +3 / Con +3 / Dex −3), so the tank's toughness finally shows on the act of tanking; it's a spent-resource reduction (`d6 + con`), *not* flat permanent height, so it doesn't breach the no-defensive-height-outside-sanctioned-feats line. Self-scales: a 25 boss-hit still hurts through the brace; a 4-damage goblin hit is shrugged off.
+- **Math check:** con +3 Guardian vs. Grush's ~16 maul → takes ~16 − (3.5 + 3) ≈ **9–10**. Still a real hit, no longer a death sentence. Grush stays scary *without* a nerf.
+
+**Docs:** amended the Guardian gateway **Interpose** benefit in `KD20_Feats.md` (the one canonical spot — Core Rules & Quick Reference describe the gateway pattern generically, don't name Interpose, so no edit there). Feats → **v0.41**.
+
+**Parked (not built):** "spend extra dice to brace harder" is in the benefit, but a dedicated **Guardian feat** that rewards heroic bracing (e.g. the brace die floors at 4, or a Decisive brace lets you counter) is a good future cluster feat — noted, not written.
+
+**Foundry: NOT YET.** Interpose isn't automated (it's a narrated reaction), so no code needed now. When threats/active-feats land and damage gets applied in-VTT, the brace is a `-(Nd6 + con)` on the applied damage — trivial to fold into a future "apply interposed hit" helper.
+
+## 2g. HP feats + "rarely sell height" reword — RESOLVED ✅ (v0.42)
+
+**Trigger:** Keith asked whether HP feats existed. They were a *decided-but-unwritten* concept (named in Core Rules + Translation Guide as the replacement for MYD20's HP-by-gateway) but never authored as feats. Writing them surfaced that they're flat defensive height, which tripped the "Feats NEVER sell height" principle — which already had 2 (→3) sanctioned exceptions, so "never" was the wrong word.
+
+**Principle reword (Keith's call):** "Feats **never** sell height" → "Feats **rarely** sell height — **and never on offense**." Intent was always *modesty/restraint, not prohibition*. Two tiers now, cleanly:
+- **Offensive height = absolute no** (the DC/margin treadmill; forbidden, no exceptions — this line does NOT bend).
+- **Defensive height = rare, sanctioned, bounded** — the named club: **Save** height (Hardened Save), **AC** height (Armour Training / Unarmored Defense), and now **HP** height (HP feats). An exception must be defensive, bounded, costed above a cluster feat, and named in Design Principles to exist.
+
+**HP feats authored** (Feats doc → Defensive Feats, the 3rd sanctioned exception):
+- Fold one **additional** stat's *living* bonus (tracks the stat) into HP. One per stat, **buy-once**, **stat 16+** gate (ties durability to catalyst-gated stat growth → earns in slowly), **30 XP** each (defensive-height price).
+- **con & wis are already in base HP** (`10 + con + wis + gateway`), so the feats cover the other four: **Dogged** (+str), **Rolls With It** (+dex — riding the hit, not dodging it; dodging is AC/dex already), **Unflappable** (+int), **NOT IN THE FACE!** (+cha).
+- **Bulwark name-clash resolved:** Core Rules had called the +con HP feat "Bulwark," but that name is taken by the Guardian can't-be-moved cluster feat (which Unbreakable requires — do NOT rename it). Moot anyway: con is in base HP so there's no +con HP feat. Core Rules HP line corrected to the 4-feat (str/dex/int/cha) model.
+
+**Docs:** Core Rules → v0.42 (HP-feat line corrected), Feats → v0.42 (principle reword + 4 HP feats). TODO → v0.13.
+
+**Foundry:** no new work — HP feats are flat living modifiers to HP. When built, they're the same pattern as other defensive-height feats (a feat item that adds a stat bonus to the HP formula); folds into the eventual feat-structure / active-feats pass, not a standalone job.
+
+## 2h. Die-step Convergence + reborn Master Feat — 🧪 PLAYTEST (v0.44)
+
+**Written as PLAYTEST, not firm canon** — confirm at the table (next session is the first time anyone rolls a stepped die) before locking. Supersedes the v0.41 Modifier-ladder Convergence (§2d).
+
+**Origin:** Keith floated retiring the Master Feat (nobody had bought one; two-feat convergence was happening regularly and players were deliberately stacking overlapping feats). Pushed back — Convergence rewards *breadth*, the Master Feat rewards *depth*, and depth reaches **solo (single-feat) rolls** that convergence structurally can't (the lone lockpicker/loremaster). Deleting it would gut the specialist's apex + the niche-protection social work. Synthesis (Keith's): don't delete it — **unify it onto one die-step ladder.**
+
+**The unified model — one die, sized by steps:**
+- **One Specialization Die per roll, stepping d6 → d8 → d10 → d12 (cap).** Baseline feat = d6; each *additional* source of excellence = +1 step.
+- **A "source of excellence" = a step, from either of two places, counted identically:** (a) each additional **converging feat** (independent trigger), (b) a **Master Feat** on the firing trigger. A mastered feat that *also* converges just adds its step, to the shared d12 cap.
+- **Balance-safe by construction:** d8 = d6+1 exactly; d10/d12 sit *below* d6+3/d6+5 (gentler than the v0.41 modifier). One-feat roll unchanged → **no AC/DC retune.** Kills the last stacking exception (no second die anywhere) — which was the real thing the "retire it" proposal wanted gone.
+- **Two separate ladders, crisp jobs:** the **Specialization Die ladder** (d6→d12) = the character's *trained excellence* (feats + mastery). The **Modifier Ladder** (±1/±3/±5) = *situational* help/harm (GM assessment, States, Follow-Up riders) — **unchanged.** A full roll: `1d20 + stat + [one Spec Die, stepped] ± [situational Modifiers]`.
+
+**Master Feat — reborn, kept:**
+- Still **once-ever, permanent, no refund** (the niche-protection + identity-capstone work is the whole point; Keith confirmed keep).
+- **Effect: steps the die up one size** (d6→d8) on the narrowed trigger, instead of a 2nd d6.
+- **Re-priced 40 → 30 XP** — a one-step bump (~+1 avg) is a smaller gift than the old 2nd d6 (~+3.5), so 40 was overpriced. (Probable reason nobody bought it: old version was a scary, expensive, weird 2d6 outlier.) 30 = gateway/AC-feat band.
+- It is the **depth lane** and the only depth on *solo* rolls.
+
+**Also in v0.44 — authoring discipline (these two are firmer, not just playtest):**
+- **Overlap = the Venn test** (replaces "minimize overlap"): partial overlap is the goal (each feat keeps a solo zone); **merge** identical circles; **forbid** nested circles (a narrow feat wholly inside a broad one); **embrace** complementary overlap within a gateway. The old rule was guarding against tiers — buy-once already does that.
+- **Independence test** (the GM's convergence count): a feat counts as a step only if its trigger fires for its *own* reason; a trigger that fired only because another did is dependent, doesn't count.
+
+**Open question (parked):** the freed 40-XP slot — under "keep the Master Feat," moot (nothing freed; Master now 30). The 40 peg stays documented as the top-of-economy band (Deep Well 40/60, Hardened Save top rung 40) so future expensive feats have a home; a gap at 40 is fine, an *undefined* ceiling isn't.
+
+**Docs:** Core Rules → v0.44 (Convergence block rewritten to die-step; Master Feat refs in structure/glossary/costs; overlap parenthetical). Feats → v0.44 (Master Feat block, cost peg, Design Principles #3 Venn test + #4 independence test). Quick Reference → v0.44 (convergence + growth + costs + Three-Kinds-of-Die Spec Die line). All PLAYTEST-flagged (🧪).
+
+**Foundry: NOT YET** — now a die-SIZE pick (d6/d8/d10/d12) rather than a +N modifier; folds into the active-feats / contest-macro work. Simpler than the old modifier picker, actually.
+
+## Foundry Polish Backlog (small, non-blocking — pick up any time)
+
+Minor UX / cleanup items found during testing. None affect correctness.
+- **Hide the `isShield` toggle on body-armour items.** Right now the Shield checkbox shows on every armour item, so a player can accidentally flip a body armour (e.g. Chain Mail) into a shield — which reclassifies it and empties the armour slot (hit this in v0.40 testing; no data bug, just a confusing trap). Fix: make `isShield` a fixed property set at creation (seeds already set it right), and **hide/disable the toggle on items whose category is set** (body armour). Shields are their own seeded item. Low effort, removes the main sharp edge of the equip UI.
+- *(add further polish items here as they surface)*
 
 ## 2b. AC-boosting feats — AUTHORED ✅ (v0.39)
 

@@ -1,5 +1,5 @@
 # KD20 — Quick Reference
-**Version: v0.40 — 2026-10-08** *(companion to Core Rules v0.40)*
+**Version: v0.44 — 2026-10-14** *(companion to Core Rules v0.44; 🧪 PLAYTEST: die-step Convergence + Master Feat)*
 
 *Rules as they currently stand. Facts only.*
 
@@ -49,10 +49,11 @@ Everything that makes you better is a **d6 under a condition**. Three tiers:
 3. **Gradient (Action Dice):** spend to push *this* roll — "how hard am I trying right now."
 
 - **One die applies.** Even if several feats fit, only **one** Specialization Die is added — more feats = broader *coverage*, never a bigger bonus. When several fit, **the chosen feat sets the fiction** (sneak vs. bribe vs. seduce = same die, different scene).
-- **Growth is breadth** — feats are **buy-once**, no tiers. Sole exception: the **Master Feat** — once, permanent, narrow one held feat further for a **second d6** there (the only stack). No retraining. Protects your niche.
+- **Convergence** 🧪 *(PLAYTEST v0.44).* When feats fire for *genuinely different reasons* on one roll (e.g. Retribution + Weapon Master on one swing), still **one die — it steps up a size** per extra source: **1 = d6 · 2 = d8 · 3 = d10 · 4+ = d12 (CAP)**. GM confirms the triggers are independent (a trigger that fired only because another did doesn't count). *(This is the Specialization Die ladder — trained excellence. The Modifier Ladder ±1/±3/±5 is separate, for situational help/harm, unchanged.)*
+- **Growth is breadth; depth climbs the same ladder.** Feats are **buy-once**, no tiers. The one depth mechanism: the **Master Feat** 🧪 *(v0.44)* — once, permanent, narrow one held feat to a sharper trigger; that trigger **steps the die up one size** (d6→d8, counts as a Convergence step; no second die). No retraining. Protects your niche — and it's the only depth on *solo* (single-feat) rolls, where nothing converges.
 - **Defense splits two ways** — **AC is static** (attacker rolls vs. it), the **six Saves are rolled** by the defender (see Defenses below). Feats raise a Save a ladder step or add a Spec Die on defence.
 - **The Gateway IS the profession** — callings, trades, cultures are one thing: a gateway (identity) opening a menu of narrow d6 cluster feats.
-- **Costs (provisional, sim-validated):** cluster feat **20** · gateway **30** · Master Feat **40**. The cluster feat is the economy's peg.
+- **Costs (provisional, sim-validated):** cluster feat **20** · gateway **30** · Master Feat **30** *(🧪 v0.44, was 40)*. The cluster feat is the economy's peg.
 
 ## Capability Roll-Types — Named Stat-Rolls (no skill list)
 
@@ -133,11 +134,11 @@ Shove, trip, grapple, disarm, throw sand, etc. are **universal** — any actor m
 
 Each round: **1 Move + 1 Action.**
 
-- **Move:** 6 grid units (2 m each = 12 m). **Splittable** around your Action (move–act–move).
-- **Trade Action → extra Move** (12 units, no Action). Not the reverse.
-- **Distance is concrete** (metres/grid; metres ≈ yards, use either); convert to narrative if the table prefers.
+- **Move:** 6 **un**. **Splittable** around your Action (move–act–move).
+- **Trade Action → extra Move** (12 un, no Action). Not the reverse.
+- **Distance is measured in units ("un")** — every range, reach and radius is a number of un; 1 un = 1 grid square, **≈ 2 m** (a conversion note, not a working number). Scale-agnostic, Savage-Worlds style. In Foundry: Grid Distance **1**, Grid Units **"un"**.
 - **Reaction:** spend **1 Action Die** to act off-turn. Doesn't touch your own Move/Action. Must **flow from the trigger** (a fleeing foe → a swing, not an unrelated act). Uncapped, but **one trigger = one reaction**.
-- **Zone of Control** = your weapon's reach (default **1 unit** all directions). **Leaving** an enemy's ZoC lets them react (character spends an Action Die; threat uses a stat-block ability). Moving *within* it doesn't provoke.
+- **Zone of Control** = your weapon's reach (default **1 un** all directions). **Leaving** an enemy's ZoC lets them react (character spends an Action Die; threat uses a stat-block ability). Moving *within* it doesn't provoke.
 
 ## Actor Baseline (provisional)
 
@@ -246,7 +247,7 @@ A spendable pool that adds dice to rolls — the one exception to KD20's flat-mo
 
 - **Action Die** — pool resource; **d6**; spent to boost rolls / buy reactions; refreshes each session.
 - **Precision Die** — combat reward on a Decisive/Supreme **hit**; rolled into damage; **size = weapon's** (default = damage die; some differ, e.g. dagger d6 damage / d12 Precision). Not pooled.
-- **Specialization Die** — conditional **d6** from a specialization feat; appears when the feat's narrow trigger fires. Not pooled, not spent. *(feat system, later)*
+- **Specialization Die** — conditional die from a specialization feat; appears when the feat's narrow trigger fires. **Baseline d6**, but **steps up** (d8/d10/d12) when extra sources of excellence apply — Convergence or a Master Feat 🧪 *(v0.44)*. Still only **one** die per roll. Not pooled, not spent. *(feat system, later)*
 
 ---
 

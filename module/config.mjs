@@ -27,6 +27,64 @@ export const DIE_CHOICES = {
   d12: "d12"
 };
 
+/* -------------------------------------------- */
+/*  Damage dice expressions (v0.9.0)            */
+/* -------------------------------------------- */
+
+/**
+ * A weapon's damage is a dice expression: dice terms ("2d8", or a bare "d6"
+ * meaning one die) and flat numbers, joined by + or -. E.g. "d6", "2d8",
+ * "1d10+1d6", "3d6+2". The damage stat bonus is added on top when rolled.
+ */
+const DAMAGE_TERM = String.raw`(?:\d*d\d+|\d+)`;
+const DAMAGE_DICE_PATTERN = new RegExp(`^${DAMAGE_TERM}(?:[+-]${DAMAGE_TERM})*$`);
+
+/**
+ * Lower-case and drop the spaces around + and -: " 2D8 + 1d6 " -> "2d8+1d6".
+ * Other spaces are kept, so "2d8 4" stays invalid rather than becoming "2d84".
+ */
+export function normalizeDamageDice(input) {
+  return String(input ?? "").trim().toLowerCase().replace(/\s*([+-])\s*/g, "$1");
+}
+
+/**
+ * Is this a damage expression KD20 can roll? Needs at least one die; dice
+ * counts 1-100, faces 2-100.
+ * @param {string} input
+ * @returns {boolean}
+ */
+export function isValidDamageDice(input) {
+  const expr = normalizeDamageDice(input);
+  if ( !DAMAGE_DICE_PATTERN.test(expr) ) return false;
+  const dice = [...expr.matchAll(/(\d*)d(\d+)/g)];
+  if ( !dice.length ) return false;
+  return dice.every(([, count, faces]) => {
+    const n = count === "" ? 1 : Number(count);
+    return (n >= 1) && (n <= 100) && (Number(faces) >= 2) && (Number(faces) <= 100);
+  });
+}
+
+/**
+ * The Foundry Roll formula for a damage expression. A bare die gets an explicit
+ * count, so a stored "d6" still rolls exactly "1d6".
+ * @param {string} input
+ * @returns {string}
+ */
+export function damageFormula(input) {
+  return normalizeDamageDice(input).replace(/(^|[+-])d/g, "$11d");
+}
+
+/**
+ * The largest single die in a damage expression ("1d10+1d6" -> "d10"). Used as
+ * the Precision Die when none is set, since the Precision Die is always ONE die.
+ * @param {string} input
+ * @returns {string|null}
+ */
+export function largestDamageDie(input) {
+  const faces = [...normalizeDamageDice(input).matchAll(/\d*d(\d+)/g)].map(m => Number(m[1]));
+  return faces.length ? `d${Math.max(...faces)}` : null;
+}
+
 /** Spec section 4b: feat categories. v1 only stores these. */
 export const FEAT_TYPES = {
   cluster: "Cluster",

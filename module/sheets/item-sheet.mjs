@@ -9,8 +9,8 @@
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
-import { FEAT_TYPES, FEAT_MECHANICS, ARMOUR_CATEGORIES, DIE_CHOICES, STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS, SAVE_STATS }
-  from "../config.mjs";
+import { FEAT_TYPES, FEAT_MECHANICS, ARMOUR_CATEGORIES, DIE_CHOICES, STAT_KEYS, STAT_LABELS, SAVE_KEYS, SAVE_LABELS, SAVE_STATS,
+  isValidDamageDice, normalizeDamageDice } from "../config.mjs";
 
 export default class KD20ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
@@ -76,5 +76,28 @@ export default class KD20ItemSheet extends HandlebarsApplicationMixin(ItemSheetV
     }
 
     return context;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Check a weapon's damage expression before saving. A bad one is dropped with
+   * a clear warning (the rest of the form still saves) and the field reverts.
+   */
+  _processFormData(event, form, formData) {
+    const data = super._processFormData(event, form, formData);
+    const raw = data.system?.damageDie;
+    if ( (this.document.type !== "weapon") || (raw === undefined) ) return data;
+
+    const expr = normalizeDamageDice(raw);
+    if ( isValidDamageDice(expr) ) {
+      data.system.damageDie = expr;
+    } else {
+      ui.notifications.warn(`KD20 | "${raw}" is not a valid damage dice expression. `
+        + "Use dice and numbers joined by + or -, e.g. d6, 2d8, 1d10+1d6. The damage was not changed.");
+      delete data.system.damageDie;
+      this.render();
+    }
+    return data;
   }
 }

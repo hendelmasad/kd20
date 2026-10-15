@@ -12,10 +12,9 @@
     <h2>Dice</h2>
     <div class="kd20-derived">
       <div class="kd20-field">
-        <label for="damage-die">Damage Die</label>
-        <select id="damage-die" name="system.damageDie" {{#unless editable}}disabled{{/unless}}>
-          {{selectOptions choices.dice selected=system.damageDie}}
-        </select>
+        <label for="damage-die">Damage Dice</label>
+        <input id="damage-die" type="text" name="system.damageDie" value="{{system.damageDie}}"
+               placeholder="e.g. d6, 2d8, 1d10+1d6" {{#unless editable}}disabled{{/unless}}>
       </div>
       <div class="kd20-field">
         <label for="precision-die">Precision Die</label>
@@ -28,6 +27,11 @@
         <span class="computed" title="What rolls will actually use">{{system.effectivePrecisionDie}}</span>
       </div>
     </div>
+    <p class="kd20-hint">
+      Damage is any dice expression — <em>d6</em>, <em>2d8</em>, <em>1d10+1d6</em> — with the
+      damage stat added on top. Left on "same as damage die", the Precision Die is the
+      largest die in the expression.
+    </p>
     <p class="kd20-hint">
       The Precision Die is added on a Decisive <em>or</em> Supreme hit — always a single
       die. Supreme does not double it; it grants a Follow-Up instead.

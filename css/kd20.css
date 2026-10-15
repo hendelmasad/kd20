@@ -271,6 +271,27 @@
   color: #8b0000;
 }
 
+/* Devotion feats: a dormant feat (faith broken) is shown greyed out. On its own
+   sheet the Devotion section stays clear so the GM can find the toggle. */
+.kd20-item.kd20-dormant,
+.kd20-item-sheet.kd20-dormant .kd20-header,
+.kd20-item-sheet.kd20-dormant .kd20-block:not(.kd20-devotion) {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.kd20-item.kd20-dormant .kd20-item-name {
+  text-decoration: line-through;
+}
+
+.kd20-dormant-banner {
+  margin: 0 0 0.4rem;
+  padding: 0.3rem 0.45rem;
+  font-size: 0.75rem;
+  border-left: 3px solid #666;
+  background: rgba(0, 0, 0, 0.08);
+}
+
 .kd20-empty {
   padding: 0.3rem;
   font-size: 0.75rem;

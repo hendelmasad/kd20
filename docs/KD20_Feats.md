@@ -1,5 +1,5 @@
 # KD20 — Feats & Gateways
-**Version: v0.39 — 2026-10-07** *(companion to Core Rules v0.39)*
+**Version: v0.44 — 2026-10-14** *(companion to Core Rules v0.44; 🧪 PLAYTEST: die-step Master Feat, 30 XP)*
 
 *The capability content layer. Cluster feats are the narrow d6-on-trigger capabilities of the KD20 Capabilities system; a **gateway** is an identity (calling, profession, culture) that opens a curated menu of them. Feats are authored **once** in the Feat Library and referenced by every gateway that offers them — so overlapping gateways share one feat rather than duplicating it.*
 
@@ -18,8 +18,8 @@ Every feat is written in the same five-part shape:
 > **Effect:** what happens, always in KD20's own vocabulary — a **Specialization Die** (a d6) on a roll; a **State** (Modifier or Permission lever); a **Follow-Up**; a Modifier-Ladder value; or an Action-Die-fuelled reaction.
 
 **Reading conventions:**
-- **Prerequisite** is a gateway plus, where relevant, a Statistic minimum (e.g. *Warrior · STR 14*) and/or a prior cluster feat. KD20 gates on gateway + stat + prior feats, never on a "skill rank" (there are none).
-- **Cost** uses the standard economy pegs: **cluster feat 20 · Master Feat 40** (gateway feats themselves cost **30**, listed with the gateway). All provisional, simulation-supported.
+- **Prerequisite** is a gateway plus, where relevant, a Statistic minimum (e.g. *Warrior · STR 14*) and/or a prior cluster feat. KD20 gates on gateway + stat + prior feats, never on a "skill rank" (there are none). **One feat category adds a fourth gate — the *Vow*** (a standing, revocable fictional commitment); it is the one prerequisite you can *lose* after meeting it. See **Devotion Feats** below.
+- **Cost** uses the standard economy pegs: **cluster feat 20 · Master Feat 30** (🧪 *PLAYTEST v0.44*, was 40; gateway feats themselves cost **30**, listed with the gateway). All provisional, simulation-supported.
 - **One die applies.** If several of a character's feats could fire on one roll, only **one** Specialization Die is added; the player picks which, and the chosen feat sets the fiction (see core rules).
 - **Active powers cost an Action Die.** Where a feat grants an *activated* effect that would otherwise need a "once per scene" limiter, KD20 instead charges **1 Action Die** to use it — the pool is the limiter, consistent with the reaction economy. Passive and always-on feats cost nothing to use.
 
@@ -29,9 +29,14 @@ Every feat is written in the same five-part shape:
 
 Two guardrails govern every feat in this document. A candidate feat that fails them is redesigned or dropped — this is what keeps the library honest and consistent across a hundred-plus feats.
 
-**1. Feats never sell height.** KD20's advancement runs in four separate lanes (see Core Rules — *Where Bonuses Come From*): **height** (a higher permanent ceiling) comes *only* from raising a Statistic; **breadth** comes from feats; **focus** comes from spending Action Dice; **consistency** comes from the floor pattern. Feats live in the *breadth* lane exclusively. If a player wants a flat, permanent power increase, the answer is "raise your stat" — not "buy a feat." A feat that simply increases an existing bonus is height in disguise and does not belong, **even as a buy-once feat** (buying a bigger number once is still buying a bigger number).
+**1. Feats rarely sell height — and never on offense.** KD20's advancement runs in four separate lanes (see Core Rules — *Where Bonuses Come From*): **height** (a higher permanent ceiling) comes *chiefly* from raising a Statistic; **breadth** comes from feats; **focus** comes from spending Action Dice; **consistency** comes from the floor pattern. Feats live in the *breadth* lane by default. If a player wants a flat, permanent *offensive* increase — a bigger attack, a bigger number pushing against DCs — the answer is "raise your stat," never "buy a feat." **Offensive height is an absolute no:** a feat that simply makes your rolls-against-a-target bigger is the DC/margin treadmill the whole system is built to avoid, and it is forbidden with no exceptions, **even as a buy-once feat** (buying a bigger offensive number once is still buying the treadmill).
 
-> **The sanctioned exceptions — defensive height only.** A feat *may* buy permanent, flat height on a **defense** — a **Save** (the **Hardened Save** feat) or **AC** (the **Armour Training** / **Unarmored Defense** feats), all below. This is deliberate and allowed for two reasons the offensive case lacks: (a) defensive height never drives the margin/DC treadmill that the no-height rule exists to prevent (you get harder to hit; you don't get a bigger number pushing *against* DCs); and (b) every such feat is **bounded** — Saves by the gateway profile (Major only on a gateway-Solid Save), AC by being **buy-once/capped and gated on a fiction requirement** (armour worn, or armour absent) plus the **~20 AC soft cap**. Defensive height is costed above a cluster feat, named as an exception, and bounded; **nothing else in the library may sell a flat bonus** — offense is always breadth (a new trigger/option), never a bigger number.
+> **The restraint is modesty, not prohibition — and it bends only for defense.** A feat *may* buy permanent, flat height on a **defense**, and a small, named set of them does. These are deliberate, sanctioned, and bounded — *rare by design*, not loopholes. The reasons the offensive case lacks: (a) defensive height never drives the margin/DC treadmill (you get harder to hurt; you don't get a bigger number pushing *against* DCs); and (b) every such feat is **bounded and costed above a cluster feat**. The sanctioned defensive-height feats, all below:
+> - **Save height** — the **Hardened Save** feat (bounded by the gateway profile; Major only on a gateway-Solid Save).
+> - **AC height** — **Armour Training** / **Unarmored Defense** (buy-once/capped, gated on a fiction requirement — armour worn, or armour absent — plus the **~20 AC soft cap**).
+> - **HP height** — the **HP feats** (one per stat, buy-once each, gated at **stat 16+**; the 16+ gate ties durability to stat growth, which is itself catalyst-gated, so HP earns in slowly).
+>
+> That list is the *whole* of it. The temperament is restraint: an exception must be **defensive, bounded, costed above a cluster feat, and named here** before it exists. **Offense is always breadth** (a new trigger/option), never a bigger number — that line does not bend.
 
 **2. A legitimate cluster feat adds one of four things — never just a bigger bonus:**
 - **A new trigger** — a circumstance where you're now exceptional that you weren't before (*Weapon Master*: your rapier attacks now get a die; *Ambush*: attacking from concealment now gets a die).
@@ -41,15 +46,24 @@ Two guardrails govern every feat in this document. A candidate feat that fails t
 
 The test for any proposed feat: *does it give a new thing to do or a new circumstance to excel in — or does it just make a number bigger?* Only the former is a feat.
 
+**3. Design overlap deliberately — the Venn test.** 🧪 *(v0.44 — replaces the old "minimize overlap" rule.)* Convergence (Core Rules) *rewards* feats whose triggers sometimes coincide, so overlap is no longer something to stamp out — it's something to *shape*. Picture each feat's trigger as a circle:
+- **Partial overlap is the goal.** Two feats should share *some* ground but each keep a **solo zone** — a circumstance where only it fires. That solo zone is what makes it worth owning on its own; the shared ground is what makes Convergence occasionally pay off. Complementary overlap *within a gateway* is a feature — it lets a player build a genuine niche whose pieces reinforce each other.
+- **Merge identical circles.** If two feats fire in exactly the same circumstances, they aren't two feats — collapse them into one.
+- **Forbid nested circles.** A narrow feat entirely *inside* a broader one (it never fires when the broad one doesn't) is a trap: it can never be a true independent source for Convergence, and it's a worse buy than the broad feat. Don't author it.
+
+The old "minimize overlap" rule was really guarding against **tiers** (HP Boost I/II — buying the same thing twice for a bigger number); **buy-once** already forbids that, so the authoring rule is free to *embrace* complementary overlap instead.
+
+**4. The independence test (for the GM's convergence count).** When feats converge on a roll, each only counts as a step if its trigger **genuinely fires for its own reason**. If one feat's trigger fired *only because* another feat's did — a dependent, not an independent, source — it does not add a step. This is the gate that keeps Convergence honest: breadth that *happens* to align, never a chain a player engineered.
+
 ---
 
 Available to any character, once, permanently.
 
-> **Master Feat** — *any one cluster feat you already own* · **40** XP 
+> **Master Feat** — *any one cluster feat you already own* · **30** XP · 🧪 *PLAYTEST (v0.44)* 
 > **Trigger:** a *narrower* signature circumstance you carve out of the chosen feat's trigger (e.g. from *Weapon Master (Rapier)* → "the first exchange against a single foe"; from *Ghost Step* → "moving through a space you have scouted beforehand"). 
-> **Effect:** that narrowed trigger gains a **second Specialization Die** — the only place two dice stack. 
+> **Effect:** on that narrowed trigger, your Specialization Die **steps up one size** on the shared ladder — **d6 → d8** (and higher if Convergence also applies, since mastery counts as one step; see Core Rules → *Convergence*). It is a step on the same die ladder as everything else, never a second die. 
 
-One Master Feat per character, ever. **No retraining, no refund.** Mastery is a lifelong pursuit; its permanence also protects player niches (a claimed specialty stays claimed, and the party diversifies rather than converging). Choose wisely.
+One Master Feat per character, ever. **No retraining, no refund.** Mastery is a lifelong pursuit; its permanence also protects player niches (a claimed specialty stays claimed, and the party diversifies rather than converging). It is the depth lane — the only way to get *sharper* at a single thing (convergence rewards *breadth*, many feats aligning; mastery rewards *depth*, one feat narrowed), and it reaches rolls convergence cannot: a lone specialist's single-feat rolls, where nothing converges. Choose wisely. *(🧪 **PLAYTEST v0.44:** reborn as a die-step rather than a second d6, re-priced 40 → 30 to match the smaller gift — confirm in play before locking.)*
 
 *(General principle, applies to the Master Feat and every purchase: **XP is never refunded** for a lost, broken, or abandoned purchase. XP buys what you had and used, not a cancelable reservation — see Core Rules.)*
 
@@ -101,6 +115,35 @@ AC is deliberately **not** in the gateway Save profile (see Core Rules → *Defe
 > - **Barbarian → con** (raw toughness and battle-instinct turning hits aside)
 >
 > The gateway fixes the stat (like Spellcasting's casting stat — not player-chosen). **Self-limiting:** `10 + dex + stat` with both stats high lands around **~20** at the extreme — the same band-top an agile-armoured veteran reaches, by a different route — so no separate cap is needed beyond the ~20 soft cap. The **light/no-armour requirement is what makes this the true opposite of Armour Training**: you cannot wear plate *and* claim your reflexes are your armour, so the two never combine. *(The dodgy-fighter fantasy: the slippery rogue, the untouchable monk, the whirling barbarian. dex is the universal backbone of not-being-hit; the themed stat is the flavour of how.)*
+
+#### HP Feats — Folding a Second Stat Into Your Buffer
+
+HP is `10 + con + wis + gateway bonus` (Core Rules → *Defenses*) — **con and wis** are the two stats that natively absorb punishment. An **HP feat** lets a character fold **one additional stat's bonus into their HP** — the fiction being that *this* part of you, too, is now part of what keeps you in the fight. These are the **third sanctioned place a feat buys flat defensive height** (see Design Principles), bounded the same way the others are: **one feat per stat, each buy-once, each gated at stat 16+.**
+
+**The shape (shared by all HP feats):**
+- **The bonus is *living*** — it adds the chosen stat's *current* bonus to HP and tracks it. Raise the stat later and your HP follows; the feat never goes stale.
+- **Stat 16+ gate.** You may only take an HP feat for a stat you have at **16 or higher**. Since raising a stat is catalyst-gated and slow (Core Rules — *Raising a Statistic*), durability growth is tied to genuine stat growth — HP earns in across a campaign, never front-loaded.
+- **Buy-once each, one per stat.** You cannot stack the same stat twice; breadth across stats, never height on one. Realistically a character takes one or two over a career.
+- **Cost: 30 XP** (above a cluster feat, the defensive-height price, matching Armour Training / Unarmored Defense). A permanent, living buffer bump earns its premium.
+- **con and wis are already in base HP** — an HP feat for con or wis would double-count, so **the feats cover the other four stats** (str, dex, int, cha). Each names its fiction.
+
+> **Dogged** — *universal; requires **STR 16+**; buy-once* · **30** XP \
+> **Trigger:** passive, always on. \
+> **Effect:** add your **Strength** bonus (living) to your HP. *(Raw physical mass and the sheer refusal of a strong body to stop — you soak what would fell a smaller frame.)*
+
+> **Rolls With It** — *universal; requires **DEX 16+**; buy-once* · **30** XP \
+> **Trigger:** passive, always on. \
+> **Effect:** add your **Dexterity** bonus (living) to your HP. *(Not dodging the hit — DEX already buys AC — but riding it: turning a clean blow into a glancing one, going with the force instead of against it.)*
+
+> **Unflappable** — *universal; requires **INT 16+**; buy-once* · **30** XP \
+> **Trigger:** passive, always on. \
+> **Effect:** add your **Intelligence** bonus (living) to your HP. *(Cold tactical read of the fight — you are never caught flat, you see the blow's shape coming and spend nothing you don't have to. Attrition managed by a clear head.)*
+
+> **NOT IN THE FACE!** — *universal; requires **CHA 16+**; buy-once* · **30** XP \
+> **Trigger:** passive, always on. \
+> **Effect:** add your **Charisma** bonus (living) to your HP. *(Sheer force of personality refusing to go down — bravado, spite, the audience in your head, the simple conviction that someone this important does not die here. You stay up on will alone.)*
+
+*(Naming note: Core Rules names the +con HP feat "Bulwark," but **Bulwark is already taken** by the Guardian cluster feat (the can't-be-moved feat, which Unbreakable requires). con and wis need no HP feat anyway — they're in base HP — so the collision is moot: there is no con HP feat to name. If a campaign ever wants con or wis folded in *twice* for a specific build, that's a bespoke GM call, not a library feat. The four feats above cover the stats that aren't already banked in HP.)*
 
 **Gateway themes** (the scope of *Singular Path*'s dice; a short written descriptor anchors adjudication so "what's thematic?" isn't re-argued each time):
 - **Warrior:** martial force, weapons, physical endurance, battlefield presence.
@@ -298,7 +341,7 @@ The first magic gateway, and it validated that **magic needs almost no new machi
 *You put yourself between danger and the people who need protecting. You hold the line when others break. You are the reason the party survives.*
 
 > **Guardian (gateway feat)** — *Transformative Moment: a moment that made protecting others your purpose* · **30** XP 
-> **Benefit (always on):** **Interpose** — once per round, when an ally within your reach is hit by an attack, you may **react** (spend **1 Action Die**) to take the hit in their place (the damage and any Follow-Up land on you instead). In addition, once per turn, when you spend an Action Die to boost a **Strength Save** roll, treat that die as if you rolled at least a **4**. *(Gateway-benefit pattern: a signature act — interposing — plus the boost-floor on the calling's signature roll, enduring physical force. The interpose is a reaction, reusing the reaction economy; MYD20's "advantage on physical resist" is folded into the boost-floor.)* 
+> **Benefit (always on):** **Interpose** — once per round, when an ally within your reach is hit by an attack, you may **react** (spend **1 Action Die**) to take the hit in their place. You **brace** against the blow: **reduce the damage you take by that Action Die's roll + your Constitution bonus** (the Follow-Up, if any, still lands on you). You may pour in **additional Action Dice to brace harder** — each adds its own d6 to the reduction — but **the Constitution bonus applies once**, however many dice you spend (so two dice = `2d6 + con`, not `2d6 + con twice`). In addition, once per turn, when you spend an Action Die to boost a **Strength Save** roll, treat that die as if you rolled at least a **4**. *(Gateway-benefit pattern: a signature act — interposing — plus the boost-floor on the calling's signature roll, enduring physical force. The interpose is a reaction, reusing the reaction economy; MYD20's "advantage on physical resist" is folded into the boost-floor. The brace routes the Guardian's survivability through the stat they actually invest in — **con**, endurance — so the act of tanking shows the tank's toughness, rather than dumping raw damage on their weak Dexterity Save. The die you already spent to Interpose now does work on the blow; con-once keeps a deep pool from making the brace unexploitable.)* 
 > **Gateway HP bonus:** +6 (hardy — Guardians are built to absorb what's meant for others). 
 > **Save profile:** Strength Save +3, Constitution Save +3, Charisma Save +1, Intelligence Save 0, Wisdom Save 0, **Dexterity Save −3** (an immovable bulwark — resolute of will, but cannot dodge). *(AC is separate — a Guardian's armour training would be an AC cluster feat.)*
 
@@ -388,4 +431,97 @@ Two more gateways, confirming the idioms hold across defensive and social play:
 
 ---
 
-*KD20 Feats — working draft. Gateways complete: **Warrior** (combat, + Adrenaline Rush), **Scout** (exploration/permission), **Adept** (magic — spells-as-feats + trappings), **Guardian** (defensive/reaction economy), **Face** (social — generic social-operator, with Merchant/Noble/Con Artist as cultural flavours). Save vocabulary = stat-name Saves (v0.36). **Hardened Save** (the universal save-raising feat, scaled cost, the sanctioned defensive-height exception) added v0.37. Feat wording aligned to the **Capability Roll-Types** vocabulary v0.38. **AC feats authored v0.39** — Armour Training (+1/+2, armour-gated) and Unarmored Defense (10+dex+themed stat, light/no-armour-gated, gateway names the stat: Monk wis / Rogue-Swashbuckler cha / Barbarian con). Next gateways to build: **Monk, Rogue, Swashbuckler, Barbarian** (the homes of Unarmored Defense). Deferred: the active-feats architecture; the Ritual framework. Companion to Core Rules v0.39.*
+# DEVOTION FEATS — The Granted Powers of the Faithful
+
+*Religion in KD20 is not a class and not a gateway. The gods are real, worship is open to anyone, and ordinary faith needs no rules. But a rare few are **marked by destiny** — chosen, called, or forged by trial — and to them a god grants **powers**. These are the Devotion feats: granted abilities any gateway can carry, gated not by what you bought but by what you have **vowed**.*
+
+A vengeance paladin is not a new class. She is a **Warrior** (her martial identity, her Save profile, her weapon feats) who is **also marked by a war-god** and carries the Devotion feat **Smite**. A battle-cleric might be a **Guardian** or a **Face** who is marked, and carries divine feats instead of (or alongside) a gateway's cluster. The god is a thread running *across* the gateway system, not another gateway in it.
+
+## The Vow — A New Kind of Prerequisite
+
+Every other prerequisite in KD20 is permanent once met: you have STR 13, you own Weapon Master, and nothing takes those back. The **Vow is different — it is a *standing commitment* the character must keep, and it can be broken.** It is the first prerequisite in the game you can *lose after meeting it.*
+
+A Devotion feat's prerequisite line names its Vow alongside the usual gates. A Vow typically demands some or all of:
+
+- **The Mark** — you have been *chosen* (see below). This is not bought; the god (the GM) bestows it. It is the true gate, and it is **rare**.
+- **Exclusive worship** — "no other gods." You venerate this deity alone; dividing your devotion severs it.
+- **The tenets** — you live by the god's code. Each deity names what its faithful must *do* and must *never do*.
+- **Sacrifice** *(some feats only)* — a cost beyond the vow: an offering, a tithe, a self-denial, sometimes maintained continuously (the power works only while the sacrifice holds).
+
+The GM confirms a Vow is intact the same way they adjudicate any fiction. A Vow is not paperwork — it is a *lived relationship with a god*, and the table plays it out.
+
+## Marked by Destiny — The Scarcity Gate
+
+Devotion feats are **not available for the asking.** Worship is universal; *power* is bestowed. A character gains the Mark only when the god reaches out — a vision, a vow sworn on a battlefield, a trial survived, a sacrifice accepted. This is **GM-gated exactly like a second gateway's catalyst** (Core Rules — Multiple Gateways): the story opens the door, then the XP buys the feat.
+
+**Keep it rare.** PCs who are marked should be uncommon and *special*; named NPCs may carry Devotion feats to mark them as a god's champion or scourge. A party of five all bearing divine power cheapens the mark for everyone. The scarcity is the point — a marked character is *chosen*, and that should feel like it.
+
+## The Breach Ladder — When Faith Lapses
+
+Because a Vow is live, breaking it has consequences — and the consequence **scales with the offense**. This is the mechanic that makes "no other gods" a *threat* and not just backstory.
+
+| Offense | Consequence |
+|---|---|
+| **Lapse** — a stumble, a weakness, an unavoidable circumstance | **Dormant until atonement.** The Devotion feats stop functioning; a rite, a penance, or a return to the fold restores them. *The default — most breaches land here.* The spent XP is never wasted, only suspended. |
+| **Betrayal** — knowingly acting against the god's tenets, or worshipping a rival | **Lost until re-earned.** The Mark is stripped; only a new Transformative Moment (a true reconversion) restores the feats. This is the hard case that gives the Vow its teeth. |
+
+**The god's own law sets the severity.** Each deity names its **cardinal virtues** (what the faithful must uphold) and its **unforgivable crimes** (what strips the Mark outright). The GM rules by *that god's* code, not a generic one — a war-god may forgive cowardice once but never mercy shown to a marked enemy; an oath-god may strip a devotee for a single broken word. This is where two faiths with the *same feat* become different characters: they are distinguished not by what they can do, but by **what they must never do.** That tension is the roleplay.
+
+*(**XP is never refunded** for lost Devotion feats — the standing rule holds, as with a forfeited Singular Path. The XP bought the power you wielded while faithful, not a cancelable reservation. Atonement restores a dormant feat at no cost; a betrayed feat must be re-earned through the fiction, then it simply works again.)*
+
+## Writing a God (for the GM)
+
+A deity that grants feats needs only four things, and then it is playable:
+
+1. **Portfolio & theme** — what the god is *of* (war, mercy, the hunt, the grave, oaths).
+2. **Cardinal virtues** — what the faithful must uphold (sets what keeps the Mark).
+3. **Unforgivable crimes** — what strips the Mark outright (sets where a breach lands on the ladder — betrayal vs. lapse).
+4. **A granted-feat menu** — 2–4 Devotion feats drawn from the shared library or written for this god, each with its Vow prerequisite.
+
+The worked example below is a complete god you can run as-is or copy as a template.
+
+---
+
+## Worked God: Kael, the Unbroken Blade *(war & vengeance)*
+
+*Kael is the god of righteous war and the debt of blood — the patron of those who take an oath of vengeance and carry it to the end. Kael does not reward killing; Kael rewards the **finishing of what was started.** A blow struck in cold duty, an enemy marked and run down, a vow of retribution kept though it cost everything — these are Kael's sacraments. Kael's faithful are grim, relentless, and feared, for a marked foe of a Kaelite does not get to walk away.*
+
+**Portfolio & theme:** righteous war, vengeance, the kept oath, the finished fight.
+
+**Cardinal virtues** (uphold these or lapse toward dormancy):
+- **Finish what you begin.** A fight you enter, you end; an oath of vengeance sworn, you pursue.
+- **Strike the deserving, spare the helpless.** Kael's war is against those who stand to fight, not the fallen or the fleeing innocent.
+- **No mercy to the marked.** Once you name a foe your vengeance, you do not relent for pity or payment.
+
+**Unforgivable crimes** (these *strip the Mark* — betrayal, lost until re-earned):
+- **Worshipping another god** (the exclusive-worship vow).
+- **Abandoning a sworn vengeance** out of fear or for profit — the one sin Kael never forgives, for it is the breaking of the god's own nature.
+- **Striking down the truly helpless** in Kael's name — murder is not war, and claiming the god's sanction for it is blasphemy.
+
+*(Note the signature tension: a Kaelite who shows **mercy to a marked enemy** has betrayed their god — the exact inverse of a mercy-deity's devotee, who would be stripped for the opposite act. Same potential feat, opposite souls.)*
+
+**The Vow (shared by all Kael feats):** *marked by Kael; exclusive worship; keep the three cardinal virtues.*
+
+### Kael's Granted Feats
+
+> **Smite** — *Devotion (Kael) · Vow: marked by Kael, exclusive worship; requires a weapon you are trained with* · **25** XP \n> **Trigger:** a melee attack against a foe you have **named your vengeance** (a GM-acknowledged declaration, free, at the start of your turn or when you first engage — one such foe at a time). \n> **Effect:** add a **Specialization Die** to the attack, and the strike is **radiant/wrathful** (Kael's fire, however you render it). On a **Decisive or Supreme** smite, your Follow-Up may impose a god-themed rider from the standard menu — **Prone** (struck down), a **−3 "seared"** (Solid hindrance), or on a Supreme the enemy is **briefly unable to flee you** (a Permission denial — Kael's mark holds them to the fight). *(This is the divine sibling of Weapon Master: the die rides the attack, you hit better, you climb the ladder, you earn Precision Dice the honest way. The divinity is in the **trigger** — only against your named vengeance — and the **trapping** — holy wrath and its riders. It sells no flat height; it obeys the ladder exactly. Costed slightly above a cluster feat (25) because the Vow buys it a narrower, stronger-feeling trigger than a mundane weapon feat, and the cost reflects a power the god can revoke.)*
+
+> **Wrath of the Unbroken Blade** — *Devotion (Kael) · Vow: marked by Kael; requires Smite* · **30** XP \n> **Trigger (active — costs 1 Action Die):** a melee attack against your named vengeance. \n> **Effect:** spend **1 Action Die** to call down Kael's wrath on this strike — on a hit, add a **bonus die of holy damage equal to your weapon's damage die** (Kael's fire tearing through the foe), *in addition to* any Precision Die the hit earns. *(The showy "SMITE!" nova, and the one place Smite adds damage directly — balanced because the **pool is the limiter** (Active powers cost an Action Die), not a free rider on every swing. It is breadth-legal: it's a new **option** (spend to detonate), not a bigger standing number. Stacks with a Decisive/Supreme Precision Die because it is paid for; it is not that reward.)*
+
+> **Relentless** — *Devotion (Kael) · Vow: marked by Kael; requires Smite* · **20** XP \n> **Trigger:** your named vengeance attempts to flee, disengage, or break away from you. \n> **Effect (Permission + Modifier):** you may make a **free Follow-Up attack** against a marked foe who tries to leave your reach (Kael does not let the quarry run), and that foe suffers **−3** on any roll to escape you. *(The hunter's grip — a permission (a reaction the rules don't normally grant) plus a Modifier, never a flat bonus. Expresses Kael's "finish the fight" tenet in mechanics.)*
+
+---
+
+## Translation / Design Notes (Devotion — additions to the record)
+
+The first feat layer gated by something *other than* a one-time purchase, and it validated three things:
+- **Religion needs no new subsystem — just a new prerequisite kind.** Devotion feats are ordinary library feats (Spec Die on a trigger, riders on the ladder, active powers cost a die); the *only* new machinery is the **Vow**, a standing/revocable prerequisite. Everything else reuses the engine.
+- **The Vow is the game's first *losable* prerequisite**, and the **Breach Ladder** (lapse → dormant; betrayal → lost) is what gives it weight. The god's own cardinal-crime list sets where any breach lands — so the *consequence* system is per-deity flavour, not a generic rule.
+- **Divinity rides trigger + trapping, never flat height.** Smite is Weapon Master with a holier trigger and a god-themed rider; the nova (Wrath) adds damage *only* through an Action-Die cost. The no-height principle holds inside the divine layer exactly as outside it — which is what keeps "marked by a god" from becoming the one place the math leaks.
+- **Scarcity is the balance valve.** Because the Mark is GM-bestowed and rare, Devotion feats don't need to be individually weaker — they need to be *uncommon*. A marked character is special; the rarity is the cost the XP price can't express.
+
+**Deferred (per the Feat Translation Guide):** divine **healing** and condition-removal (Lay on Hands, Mercy's Shield, Sanctuary, Absolution) wait on the **Recovery / Conditions** system; they are Devotion feats in waiting, not a separate track. Pure GM-narration divine feats (Read the Guilty, Expose the Corrupt, Divine Warrant) port verbatim whenever a god that wants them is written, exactly like Veteran's Eye.
+
+---
+
+*KD20 Feats — working draft. Gateways complete: **Warrior** (combat, + Adrenaline Rush), **Scout** (exploration/permission), **Adept** (magic — spells-as-feats + trappings), **Guardian** (defensive/reaction economy), **Face** (social — generic social-operator, with Merchant/Noble/Con Artist as cultural flavours). **Devotion feats** (v0.40) — the granted powers of the faithful: a cross-cutting feat layer gated by the **Vow** (a standing, revocable prerequisite), the **Mark** (GM-bestowed, rare), and the **Breach Ladder** (lapse → dormant; betrayal → lost); worked god **Kael** with **Smite**. Save vocabulary = stat-name Saves (v0.36). **Hardened Save** (the universal save-raising feat, scaled cost, the sanctioned defensive-height exception) added v0.37. **HP feats** (v0.42) — fold a 4th stat's living bonus into HP, one per stat, buy-once, stat 16+, 30 XP: Dogged/str, Rolls With It/dex, Unflappable/int, NOT IN THE FACE!/cha (con & wis already in base HP). The "feats never sell height" principle softened to **"rarely sell height, and never on offense"** (v0.42) — defensive height (Saves / AC / HP) is the sanctioned, bounded exception; offensive height stays an absolute no. Feat wording aligned to the **Capability Roll-Types** vocabulary v0.38. **AC feats authored v0.39** — Armour Training (+1/+2, armour-gated) and Unarmored Defense (10+dex+themed stat, light/no-armour-gated, gateway names the stat: Monk wis / Rogue-Swashbuckler cha / Barbarian con). Next gateways to build: **Monk, Rogue, Swashbuckler, Barbarian** (the homes of Unarmored Defense). Deferred: the active-feats architecture; the Ritual framework; divine healing (waits on Recovery/Conditions). Companion to Core Rules v0.41.*

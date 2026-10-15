@@ -1,5 +1,5 @@
 {{!-- Feat item sheet — spec section 4b. Must render one top-level element. --}}
-<div class="kd20-sheet kd20-item-sheet">
+<div class="kd20-sheet kd20-item-sheet{{#if system.dormant}} kd20-dormant{{/if}}">
 
   <header class="kd20-header">
     <img class="kd20-portrait small" src="{{document.img}}" alt="{{document.name}}"
@@ -31,6 +31,40 @@
     <p class="kd20-hint">
       A Specialization Die is one d6, added only when this feat applies. At most one
       per roll. Master feat die-stacking is out of scope for v1.
+    </p>
+  </section>
+
+  {{!--
+    Devotion feats (KD20_Feats.md): deity + Vow, and the GM's dormant toggle for
+    the Breach Ladder's "lapse". Display only — nothing is automated. This
+    section stays at full strength while the rest of a dormant feat greys out.
+  --}}
+  <section class="kd20-block kd20-devotion">
+    <h2>Devotion</h2>
+    {{#if system.dormant}}
+    <p class="kd20-dormant-banner">
+      <strong>Dormant</strong> — faith is broken. This feat does not function until atonement.
+    </p>
+    {{/if}}
+    <div class="kd20-derived">
+      <div class="kd20-field">
+        <label for="deity">Deity</label>
+        <input id="deity" type="text" name="system.deity" value="{{system.deity}}"
+               placeholder="blank = not a Devotion feat" {{#unless editable}}disabled{{/unless}}>
+      </div>
+      <div class="kd20-field kd20-check">
+        <label for="dormant">Dormant</label>
+        <input id="dormant" type="checkbox" name="system.dormant"
+               {{checked system.dormant}} {{#unless editable}}disabled{{/unless}}>
+      </div>
+    </div>
+    <div class="kd20-field">
+      <label for="vow">Vow</label>
+      <input id="vow" type="text" name="system.vow" value="{{system.vow}}"
+             placeholder="e.g. marked by Kael, exclusive worship" {{#unless editable}}disabled{{/unless}}>
+    </div>
+    <p class="kd20-hint">
+      The GM ticks Dormant when the devotee breaks faith (a lapse) and clears it on atonement.
     </p>
   </section>
 
